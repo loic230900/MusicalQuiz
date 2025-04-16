@@ -247,13 +247,13 @@ musicalquiz/
 - [ ] Indiquer les erreurs (ex: pas de réseau)
 - [ ] Utiliser `Snackbar`, `ProgressBar`, `Toast`
 
-#### 🎞Animations / Transitions
+#### Animations / Transitions
 - [ ] Transitions entre fragments
 - [ ] Animation lors du chargement de contenu
 
 ---
 
-### 🧪 Step 9 — Testing & Debugging
+### Step 9 — Testing & Debugging
 
 #### Fonctionnalités principales
 - [ ] API Deezer — recherche et parsing
