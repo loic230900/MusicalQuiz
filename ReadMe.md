@@ -2,6 +2,7 @@
 
 
 ## Structure
+'''
 musicalquiz/
 ├── README.md                         # Project documentation and report
 ├── app/
@@ -42,7 +43,7 @@ musicalquiz/
        ├── values/
        └── mipmap/
 
-
+'''
 ## Application Architecture
 
 **Architecture**: MVVM (Model-View-ViewModel)
