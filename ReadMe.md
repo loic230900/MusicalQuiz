@@ -86,63 +86,172 @@ musicalquiz/
 
 ---
 
-## Step-by-Step Implementation Checklist ✅
+# Step-by-Step Implementation Checklist
+
+---
 
 ### Step 1 — Project Initialization
 
-- [ ] Create new Android Project (Empty Views Activity, Kotlin, API level 29)
-- [ ] Add dependencies: Retrofit, Room, Glide, ViewModel, LiveData, RecyclerView, Navigation
+- [ ] **Open Android Studio and Create a New Project**:
+  - [ ] Select **Empty Views Activity**
+  - [ ] Set language to **Kotlin**
+  - [ ] Select **API Level 29 (Android 10)**
+
+- [ ] **Add Dependencies** (in `app/build.gradle.kts`):
+  - [ ] **Retrofit** (HTTP requests)
+  - [ ] **Room** (local database)
+  - [ ] **Glide** (image loading)
+  - [ ] **ViewModel & LiveData** (architecture components)
+  - [ ] **RecyclerView** (scrollable lists)
+  - [ ] **Navigation Components** (fragment management)
+
+- [ ] **Sync Gradle and Verify** project builds without errors
+
+- [ ] **Run the empty project** to verify initial setup
+
+---
 
 ### Step 2 — Model Layer (Data Classes & Retrofit)
 
-- [ ] Implement data classes (`Track`, `Album`, `Artist`, `DeezerSearchResponse`)
-- [ ] Setup Retrofit instance (`RetrofitInstance.kt`)
-- [ ] Define Deezer API interface (`DeezerApiInterface.kt`)
+- [ ] **Create Data Classes**:
+  - [ ] `Track` (track id, title, duration, artist, album)
+  - [ ] `Album` (album id, title, cover image URL)
+  - [ ] `Artist` (artist id, name, picture URL)
+  - [ ] `DeezerSearchResponse` (list of tracks returned from API)
+
+- [ ] **Set up Retrofit Instance** (`RetrofitInstance.kt`):
+  - [ ] Singleton instance setup with Deezer base URL and Gson converter
+
+- [ ] **Define Deezer API Interface** (`DeezerApiInterface.kt`):
+  - [ ] Create Retrofit service interface with endpoint methods
+  - [ ] Annotate endpoints properly (`@GET`, `@Query`)
+
+- [ ] **Test a basic API call** (log results) for verification
+
+---
 
 ### Step 3 — ViewModel Layer
 
-- [ ] Create `TracksViewModel.kt` (for search results)
-- [ ] Create `PlaylistViewModel.kt` (for managing playlists/quizzes)
-- [ ] Use LiveData to handle data persistence across UI changes
+- [ ] **Create `TracksViewModel.kt`**:
+  - [ ] Store search result data (`MutableLiveData`)
+  - [ ] Integrate Retrofit calls via coroutines
+  - [ ] Handle loading state and error states clearly
+
+- [ ] **Create `PlaylistViewModel.kt`**:
+  - [ ] Manage playlists (`MutableLiveData`)
+  - [ ] Integrate Room database interactions via coroutines
+  - [ ] CRUD operations clearly defined (create, read, update, delete)
+
+- [ ] **Verify LiveData** retains state through orientation changes (observe data in logs or UI)
+
+---
 
 ### Step 4 — View Layer & Fragments
 
-- [ ] Create fragments (`SearchFragment`, `DetailsFragment`, `PlaylistFragment`, `QuizFragment`)
-- [ ] Implement Navigation with BottomNavigationView
-- [ ] Setup fragment transitions
+- [ ] **Create Four Fragments**:
+  - [ ] `SearchFragment.kt` (search UI with input and results)
+  - [ ] `DetailsFragment.kt` (show detailed track or album info)
+  - [ ] `PlaylistFragment.kt` (manage playlist UI and interactions)
+  - [ ] `QuizFragment.kt` (create, manage, and play quiz)
+
+- [ ] **Implement Fragment Layouts** (XML layouts clearly structured)
+
+- [ ] **Setup Navigation Component**:
+  - [ ] BottomNavigationView to switch between fragments
+  - [ ] Navigation Graph defined (`nav_graph.xml`)
+  - [ ] Verify correct fragment transitions and back navigation handling
+
+---
 
 ### Step 5 — RecyclerView & Adapter
 
-- [ ] Design layout (`track_item.xml`) for RecyclerView items
-- [ ] Implement `TrackAdapter` to bind data from Deezer API
-- [ ] Integrate Glide to load album images
+- [ ] **Design RecyclerView Item Layout** (`track_item.xml`):
+  - [ ] Include album cover image, track title, artist name clearly displayed
+
+- [ ] **Create `TrackAdapter.kt`**:
+  - [ ] Extend `RecyclerView.Adapter`
+  - [ ] Implement ViewHolder pattern clearly
+  - [ ] Bind data from API correctly to views
+
+- [ ] **Integrate Glide to load images** efficiently into RecyclerView items
+
+- [ ] **Test RecyclerView** displays search results properly
+
+---
 
 ### Step 6 — Database (Room)
 
-- [ ] Define entities (`Playlist.kt`, `Quiz.kt`)
-- [ ] Implement DAO interfaces (`PlaylistDao.kt`, `QuizDao.kt`)
-- [ ] Configure Room database (`AppDatabase.kt`)
+- [ ] **Define Entities** (`Playlist.kt`, `Quiz.kt`):
+  - [ ] Annotate clearly (`@Entity`) and define primary keys (`@PrimaryKey`)
+
+- [ ] **Create DAOs**:
+  - [ ] `PlaylistDao.kt` (insert, update, delete, get playlists)
+  - [ ] `QuizDao.kt` (insert, update, delete, get quizzes)
+
+- [ ] **Setup `AppDatabase.kt`**:
+  - [ ] Annotate database class (`@Database`)
+  - [ ] Implement singleton pattern to instantiate the database
+
+- [ ] **Test Room DB interactions** (CRUD operations)
+
+---
 
 ### Step 7 — Playlist and Quiz Management
 
-- [ ] Implement creation and modification of playlists
-- [ ] Implement quiz logic, associating quizzes with playlists
-- [ ] Integrate audio previews from Deezer API into quizzes
+- [ ] **Playlist Management**:
+  - [ ] UI to create new playlists
+  - [ ] Add/remove tracks from playlists via long-click or context menu
+  - [ ] Display playlists clearly in RecyclerView
+
+- [ ] **Quiz Management**:
+  - [ ] UI for creating quizzes associated with playlists
+  - [ ] Logic for random or predefined track selection for quizzes
+  - [ ] Implement music preview playback via Deezer API
+
+- [ ] **Quiz Gameplay Logic**:
+  - [ ] Implement multiple-choice question handling
+  - [ ] Playback audio preview clearly
+  - [ ] Track user answers and provide feedback
+
+---
 
 ### Step 8 — UI/UX Refinement
 
-- [ ] Apply consistent Material Design principles
-- [ ] Add appropriate error handling and user feedback
+- [ ] **Apply Material Design standards** (color palette, typography, spacing, icons clearly consistent)
+
+- [ ] **Implement Error Handling**:
+  - [ ] Display clear user messages on network/database errors
+  - [ ] Add progress indicators during loading states
+
+- [ ] **Enhance User Interactions** (animations, intuitive navigation clearly implemented)
+
+---
 
 ### Step 9 — Testing & Debugging
 
-- [ ] Test app thoroughly on emulator and real devices
-- [ ] Ensure robustness against screen orientation and configuration changes
-- [ ] Verify all CRUD operations with Room DB
+- [ ] **Functional Tests**:
+  - [ ] Verify Deezer API interactions (successful fetch/display clearly confirmed)
+  - [ ] Verify database CRUD operations clearly working as expected
+
+- [ ] **Robustness Checks**:
+  - [ ] Test screen rotations and configuration changes (no loss of data or crashes)
+  - [ ] Test on emulator and physical devices
+
+- [ ] **Performance Optimization**:
+  - [ ] Check memory and network usage (Glide image caching effectively used)
+
+---
 
 ### Step 10 — Finalization
 
-- [ ] Clean, document, and comment all code thoroughly
-- [ ] Finalize README.md with screenshots and detailed explanations
+- [ ] **Code Documentation and Clean-Up**:
+  - [ ] Clearly comment methods, classes, and complex logic
+  - [ ] Remove unused imports and redundant code
+
+- [ ] **Complete and polish README.md**:
+  - [ ] Include detailed explanations clearly describing functionalities
+  - [ ] Add screenshots illustrating key screens (Search, Details, Playlist, Quiz)
+
+- [ ] **Prepare Demo Presentation** clearly outlining project highlights
 
 ---
