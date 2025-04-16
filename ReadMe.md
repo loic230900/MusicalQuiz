@@ -113,20 +113,20 @@ musicalquiz/
 
 ### Step 2 — Model Layer (Data Classes & Retrofit)
 
-- [ ] **Create Data Classes**:
-  - [ ] `Track` (track id, title, duration, artist, album)
-  - [ ] `Album` (album id, title, cover image URL)
-  - [ ] `Artist` (artist id, name, picture URL)
-  - [ ] `DeezerSearchResponse` (list of tracks returned from API)
+- [x] **Create Data Classes**:
+  - [x] `Track` (track id, title, duration, artist, album)
+  - [x] `Album` (album id, title, cover image URL)
+  - [x] `Artist` (artist id, name, picture URL)
+  - [x] `DeezerSearchResponse` (list of tracks returned from API)
 
-- [ ] **Set up Retrofit Instance** (`RetrofitInstance.kt`):
-  - [ ] Singleton instance setup with Deezer base URL and Gson converter
+- [x] **Set up Retrofit Instance** (`RetrofitInstance.kt`):
+  - [x] Singleton instance setup with Deezer base URL and Gson converter
 
-- [ ] **Define Deezer API Interface** (`DeezerApiInterface.kt`):
-  - [ ] Create Retrofit service interface with endpoint methods
-  - [ ] Annotate endpoints properly (`@GET`, `@Query`)
+- [x] **Define Deezer API Interface** (`DeezerApiInterface.kt`):
+  - [x] Create Retrofit service interface with endpoint methods
+  - [x] Annotate endpoints properly (`@GET`, `@Query`)
 
-- [ ] **Test a basic API call** (log results) for verification
+- [x] **Test a basic API call** (log results) for verification
 
 ---
 
