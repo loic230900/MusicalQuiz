@@ -195,7 +195,7 @@ musicalquiz/
 
 ---
 
-### 🗃️ Step 6 — Database (Room)
+### Step 6 — Database (Room)
 
 #### Entités
 - [ ] `Playlist.kt`
