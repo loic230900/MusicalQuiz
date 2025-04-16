@@ -92,22 +92,22 @@ musicalquiz/
 
 ### Step 1 — Project Initialization
 
-- [ ] **Open Android Studio and Create a New Project**:
-  - [ ] Select **Empty Views Activity**
-  - [ ] Set language to **Kotlin**
-  - [ ] Select **API Level 29 (Android 10)**
+- [x] **Open Android Studio and Create a New Project**:
+  - [x] Select **Empty Views Activity**
+  - [x] Set language to **Kotlin**
+  - [x] Select **API Level 29 (Android 10)**
 
-- [ ] **Add Dependencies** (in `app/build.gradle.kts`):
-  - [ ] **Retrofit** (HTTP requests)
-  - [ ] **Room** (local database)
-  - [ ] **Glide** (image loading)
-  - [ ] **ViewModel & LiveData** (architecture components)
-  - [ ] **RecyclerView** (scrollable lists)
-  - [ ] **Navigation Components** (fragment management)
+- [x] **Add Dependencies** (in `app/build.gradle.kts`):
+  - [x] **Retrofit** (HTTP requests)
+  - [x] **Room** (local database)
+  - [x] **Glide** (image loading)
+  - [x] **ViewModel & LiveData** (architecture components)
+  - [x] **RecyclerView** (scrollable lists)
+  - [x] **Navigation Components** (fragment management)
 
-- [ ] **Sync Gradle and Verify** project builds without errors
+- [x] **Sync Gradle and Verify** project builds without errors
 
-- [ ] **Run the empty project** to verify initial setup
+- [x] **Run the empty project** to verify initial setup
 
 ---
 
