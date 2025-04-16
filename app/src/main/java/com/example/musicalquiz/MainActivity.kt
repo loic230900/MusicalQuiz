@@ -6,11 +6,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.lifecycleScope
-import com.example.musicalquiz.network.RetrofitInstance
-import kotlinx.coroutines.launch
+import androidx.activity.viewModels
+import com.example.musicalquiz.viewmodel.TracksViewModel
+
 
 class MainActivity : AppCompatActivity() {
+    // Utilisation de la propriété viewModels() pour instancier le ViewModel
+    private val viewModel: TracksViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,14 +26,14 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        // Test API Deezer : recherche des pistes pour "Eminem"
-        lifecycleScope.launch {
-            try {
-                val response = RetrofitInstance.api.searchTracks("Eminem")
-                Log.d("API_TEST", "Résultats reçus : ${response.data}")
-            } catch (e: Exception) {
-                Log.e("API_TEST", "Erreur API : ${e.message}")
-            }
+        // Observer les données : seront rappelées après rotation si déjà chargées
+        viewModel.tracksResponse.observe(this) { response ->
+            Log.d("LIVEDATA_TEST", "Nombre de résultats : ${response.data.size}")
+        }
+
+        // Lancer une recherche si aucune donnée n’existe encore
+        if (viewModel.tracksResponse.value == null) {
+            viewModel.searchTracks("Eminem")
         }
     }
 }

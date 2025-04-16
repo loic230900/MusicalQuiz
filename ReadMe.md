@@ -132,17 +132,17 @@ musicalquiz/
 
 ### Step 3 — ViewModel Layer
 
-- [ ] **Create `TracksViewModel.kt`**:
-  - [ ] Store search result data (`MutableLiveData`)
-  - [ ] Integrate Retrofit calls via coroutines
-  - [ ] Handle loading state and error states clearly
+- [x] **Create `TracksViewModel.kt`**:
+  - [x] Store search result data (`MutableLiveData`)
+  - [x] Integrate Retrofit calls via coroutines
+  - [x] Handle loading state and error states clearly
 
-- [ ] **Create `PlaylistViewModel.kt`**:
-  - [ ] Manage playlists (`MutableLiveData`)
+- [x] **Create `PlaylistViewModel.kt`**:
+  - [x] Manage playlists (`MutableLiveData`)
   - [ ] Integrate Room database interactions via coroutines
   - [ ] CRUD operations clearly defined (create, read, update, delete)
 
-- [ ] **Verify LiveData** retains state through orientation changes (observe data in logs or UI)
+- [x] **Verify LiveData** retains state through orientation changes (observe data in logs or UI)
 
 ---
 
