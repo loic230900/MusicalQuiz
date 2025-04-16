@@ -4,44 +4,50 @@
 ## Structure
 ```
 musicalquiz/
-├── README.md                         # Project documentation and report
+├── README.md                             # Documentation du projet
 ├── app/
-   ├── manifests/                    # Android manifest file
-   ├── kotlin+java/
-   │   └── com.example.musicalquiz/
-   │       ├── MainActivity.kt       # Single host activity for fragments
-   │       ├── adapter/              # RecyclerView adapters
-   │       │   └── TrackAdapter.kt
-   │       ├── database/             # Local database (Room)
-   │       │   ├── dao/
-   │       │   │   ├── PlaylistDao.kt
-   │       │   │   └── QuizDao.kt
-   │       │   ├── entities/
-   │       │   │   ├── Playlist.kt
-   │       │   │   └── Quiz.kt
-   │       │   └── AppDatabase.kt
-   │       ├── model/                # Data models
-   │       │   ├── DeezerSearchResponse.kt
-   │       │   ├── Track.kt
-   │       │   ├── Album.kt
-   │       │   └── Artist.kt
-   │       ├── network/              # Retrofit setup
-   │       │   ├── RetrofitInstance.kt
-   │       │   └── DeezerApiInterface.kt
-   │       ├── view/                 # UI components (Fragments)
-   │       │   └── fragments/
-   │       │       ├── SearchFragment.kt
-   │       │       ├── DetailsFragment.kt
-   │       │       ├── PlaylistFragment.kt
-   │       │       └── QuizFragment.kt
-   │       └── viewmodel/            # ViewModels
-   │           ├── TracksViewModel.kt
-   │           └── PlaylistViewModel.kt
-   └── res/                          # Resources (layouts, drawables, strings)
-       ├── drawable/
-       ├── layout/
-       ├── values/
-       └── mipmap/
+│   ├── manifests/
+│   │   └── AndroidManifest.xml           # Déclaration des composants Android
+│   ├── kotlin+java/
+│   │   └── com.example.musicalquiz/
+│   │       ├── MainActivity.kt           # Activité hôte unique
+│   │       ├── adapter/                  # Adaptateurs RecyclerView
+│   │       ├── database/                 # Base de données Room
+│   │       │   ├── dao/
+│   │       │   ├── entities/
+│   │       │   │   └── Playlist.kt       # Entité Playlist (Quiz à ajouter)
+│   │       ├── model/                    # Modèles de données Deezer
+│   │       │   ├── Album.kt
+│   │       │   ├── Artist.kt
+│   │       │   ├── DeezerSearchResponse.kt
+│   │       │   └── Track.kt
+│   │       ├── network/                  # API & Retrofit
+│   │       │   ├── DeezerApiInterface.kt
+│   │       │   └── RetrofitInstance.kt
+│   │       ├── view/
+│   │       │   └── fragments/
+│   │       │       ├── SearchFragment.kt
+│   │       │       ├── DetailsFragment.kt
+│   │       │       ├── PlaylistFragment.kt
+│   │       │       └── QuizFragment.kt
+│   │       └── viewmodel/
+│   │           ├── TracksViewModel.kt
+│   │           └── PlaylistViewModel.kt
+│
+├── res/
+│   ├── layout/
+│   │   ├── activity_main.xml             # Conteneur NavHost + BottomNavigationView
+│   │   ├── fragment_search.xml           # UI de recherche
+│   │   ├── fragment_details.xml          # UI détails d’un morceau etc.
+│   │   ├── fragment_playlist.xml         # UI gestion des playlists
+│   │   ├── fragment_quiz.xml             # UI gestion/jeu des quiz
+│   ├── menu/
+│   │   └── bottom_nav_menu.xml           # Menu de navigation inférieur
+│   ├── navigation/
+│   │   └── nav_graph.xml                 # Navigation Graph
+│   ├── drawable/, mipmap/, values/, xml/
+│
+└── build.gradle.kts, settings.gradle.kts, etc.
 
 ```
 ## Application Architecture
@@ -139,119 +145,129 @@ musicalquiz/
 
 - [x] **Create `PlaylistViewModel.kt`**:
   - [x] Manage playlists (`MutableLiveData`)
-  - [ ] Integrate Room database interactions via coroutines
+  - [ ] Integrate Room database interactions via coroutines ( sera fait dans les étapes suivantes)
   - [ ] CRUD operations clearly defined (create, read, update, delete)
 
 - [x] **Verify LiveData** retains state through orientation changes (observe data in logs or UI)
 
 ---
-
 ### Step 4 — View Layer & Fragments
 
-- [ ] **Create Four Fragments**:
-  - [ ] `SearchFragment.kt` (search UI with input and results)
-  - [ ] `DetailsFragment.kt` (show detailed track or album info)
-  - [ ] `PlaylistFragment.kt` (manage playlist UI and interactions)
-  - [ ] `QuizFragment.kt` (create, manage, and play quiz)
+> Les fragments sont mis en place avec leurs layouts de base.  
+> Le contenu (UI & logique métier) sera développé dans les étapes suivantes.
 
-- [ ] **Implement Fragment Layouts** (XML layouts clearly structured)
+#### Create and Setup Fragments
+- [x] `SearchFragment.kt` — UI de recherche (barre de recherche, résultats à venir dans Step 5)
+- [x] `DetailsFragment.kt` — Affichage d’un album ou d’un morceau sélectionné (logique à compléter Step 7)
+- [x] `PlaylistFragment.kt` — Affichage et gestion des playlists (lié à Room dans Step 6)
+- [x] `QuizFragment.kt` — Interface de base du quiz (logique gameplay dans Step 7)
 
-- [ ] **Setup Navigation Component**:
-  - [ ] BottomNavigationView to switch between fragments
-  - [ ] Navigation Graph defined (`nav_graph.xml`)
-  - [ ] Verify correct fragment transitions and back navigation handling
+#### Layout XML associés
+- [x] `fragment_search.xml` — Placeholder "Recherche"
+- [x] `fragment_details.xml` — Placeholder "Détails"
+- [x] `fragment_playlist.xml` — Placeholder "Playlists"
+- [x] `fragment_quiz.xml` — Placeholder "Quiz"
+
+#### Navigation
+- [x] `BottomNavigationView` intégré dans `activity_main.xml`
+- [x] `nav_graph.xml` créé dans `res/navigation`
+- [x] Navigation fonctionnelle (testée et reliée via `NavController` dans `MainActivity.kt`)
 
 ---
 
 ### Step 5 — RecyclerView & Adapter
 
-- [ ] **Design RecyclerView Item Layout** (`track_item.xml`):
-  - [ ] Include album cover image, track title, artist name clearly displayed
+#### UI RecyclerView
+- [ ] Créer `track_item.xml` avec :
+  - [ ] Image de la pochette d’album (ImageView)
+  - [ ] Titre du morceau (TextView)
+  - [ ] Nom de l’artiste (TextView)
 
-- [ ] **Create `TrackAdapter.kt`**:
-  - [ ] Extend `RecyclerView.Adapter`
-  - [ ] Implement ViewHolder pattern clearly
-  - [ ] Bind data from API correctly to views
+#### Adapter
+- [ ] Implémenter `TrackAdapter.kt`
+  - [ ] Hériter de `RecyclerView.Adapter`
+  - [ ] Créer `TrackViewHolder`
+  - [ ] Lier les données avec Glide
 
-- [ ] **Integrate Glide to load images** efficiently into RecyclerView items
-
-- [ ] **Test RecyclerView** displays search results properly
+#### Tests
+- [ ] Tester l’affichage des résultats dans `SearchFragment`
+- [ ] Vérifier chargement images, clics, scroll fluide
 
 ---
 
-### Step 6 — Database (Room)
+### 🗃️ Step 6 — Database (Room)
 
-- [ ] **Define Entities** (`Playlist.kt`, `Quiz.kt`):
-  - [ ] Annotate clearly (`@Entity`) and define primary keys (`@PrimaryKey`)
+#### Entités
+- [ ] `Playlist.kt`
+- [ ] `Quiz.kt`
+- [ ] Annotations : `@Entity`, `@PrimaryKey`, relations
 
-- [ ] **Create DAOs**:
-  - [ ] `PlaylistDao.kt` (insert, update, delete, get playlists)
-  - [ ] `QuizDao.kt` (insert, update, delete, get quizzes)
+#### DAO
+- [ ] `PlaylistDao.kt`
+- [ ] `QuizDao.kt`
+- [ ] Fonctions : insert, delete, update, getAll
 
-- [ ] **Setup `AppDatabase.kt`**:
-  - [ ] Annotate database class (`@Database`)
-  - [ ] Implement singleton pattern to instantiate the database
+#### Base de données
+- [ ] `AppDatabase.kt`
+  - [ ] Annotations `@Database`
+  - [ ] Singleton via `getInstance()`
 
-- [ ] **Test Room DB interactions** (CRUD operations)
+#### Tests
+- [ ] Insérer et lire des playlists/quiz
+- [ ] Observer les résultats via `LiveData`
 
 ---
 
 ### Step 7 — Playlist and Quiz Management
 
-- [ ] **Playlist Management**:
-  - [ ] UI to create new playlists
-  - [ ] Add/remove tracks from playlists via long-click or context menu
-  - [ ] Display playlists clearly in RecyclerView
+#### Gestion de playlists
+- [ ] UI pour créer et nommer une nouvelle playlist
+- [ ] Ajouter un morceau via clic long
+- [ ] Liste des playlists avec suppression/édition
 
-- [ ] **Quiz Management**:
-  - [ ] UI for creating quizzes associated with playlists
-  - [ ] Logic for random or predefined track selection for quizzes
-  - [ ] Implement music preview playback via Deezer API
+#### Gestion de quiz
+- [ ] Création de quiz depuis une playlist (ou librement)
+- [ ] Prévisualisation audio
+- [ ] Sélection aléatoire ou personnalisée des questions
 
-- [ ] **Quiz Gameplay Logic**:
-  - [ ] Implement multiple-choice question handling
-  - [ ] Playback audio preview clearly
-  - [ ] Track user answers and provide feedback
+#### Gameplay
+- [ ] Mode QCM (réponses multiples)
+- [ ] Lecture preview Deezer
+- [ ] Résultat / score utilisateur
 
 ---
 
 ### Step 8 — UI/UX Refinement
 
-- [ ] **Apply Material Design standards** (color palette, typography, spacing, icons clearly consistent)
+#### Design Material
+- [ ] Harmoniser les couleurs, tailles, espacements
+- [ ] Utiliser `MaterialTheme`, `CardView`, `ShapeableImageView`...
 
-- [ ] **Implement Error Handling**:
-  - [ ] Display clear user messages on network/database errors
-  - [ ] Add progress indicators during loading states
+#### Expérience utilisateur
+- [ ] Indiquer les erreurs (ex: pas de réseau)
+- [ ] Utiliser `Snackbar`, `ProgressBar`, `Toast`
 
-- [ ] **Enhance User Interactions** (animations, intuitive navigation clearly implemented)
-
----
-
-### Step 9 — Testing & Debugging
-
-- [ ] **Functional Tests**:
-  - [ ] Verify Deezer API interactions (successful fetch/display clearly confirmed)
-  - [ ] Verify database CRUD operations clearly working as expected
-
-- [ ] **Robustness Checks**:
-  - [ ] Test screen rotations and configuration changes (no loss of data or crashes)
-  - [ ] Test on emulator and physical devices
-
-- [ ] **Performance Optimization**:
-  - [ ] Check memory and network usage (Glide image caching effectively used)
+#### 🎞Animations / Transitions
+- [ ] Transitions entre fragments
+- [ ] Animation lors du chargement de contenu
 
 ---
 
-### Step 10 — Finalization
+### 🧪 Step 9 — Testing & Debugging
 
-- [ ] **Code Documentation and Clean-Up**:
-  - [ ] Clearly comment methods, classes, and complex logic
-  - [ ] Remove unused imports and redundant code
+#### Fonctionnalités principales
+- [ ] API Deezer — recherche et parsing
+- [ ] Sauvegarde et affichage des playlists
 
-- [ ] **Complete and polish README.md**:
-  - [ ] Include detailed explanations clearly describing functionalities
-  - [ ] Add screenshots illustrating key screens (Search, Details, Playlist, Quiz)
+#### Robustesse
+- [ ] Rotation écran sans perte d’état
+- [ ] Comportement sur plusieurs appareils (emulateur + device)
 
-- [ ] **Prepare Demo Presentation** clearly outlining project highlights
+#### Performances
+- [ ] Glide : cache efficace, memory friendly
+- [ ] Limiter les appels réseau redondants
 
 ---
+
+###  Step 10 — Finalization
+

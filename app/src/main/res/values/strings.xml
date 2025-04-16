@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Musicalquiz</string>
+    <string name="recherche">Recherche</string>
+    <string name="d_tails">Détails</string>
+    <string name="playlists">Playlists</string>
+    <string name="quiz">Quiz</string>
+    <string name="search">Search</string>
+    <string name="playlist">Playlist</string>
 </resources>
