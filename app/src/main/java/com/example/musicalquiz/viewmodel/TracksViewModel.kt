@@ -25,6 +25,16 @@ class TracksViewModel : ViewModel() {
     val error: LiveData<String?> = _error
 
     private var lastQuery: String? = null
+    private var currentFilter: SearchFilter = SearchFilter.TRACKS
+
+    enum class SearchFilter {
+        TRACKS, ALBUMS
+    }
+
+    fun setFilter(filter: SearchFilter) {
+        currentFilter = filter
+        lastQuery?.let { searchAll(it) }
+    }
 
     /**
      * Effectue une recherche de morceaux et d'albums via l'API Deezer.
@@ -37,13 +47,16 @@ class TracksViewModel : ViewModel() {
             _isLoading.value = true
             _error.value = null
             try {
-                val tracks = async { RetrofitInstance.api.searchTracks(query).data }
-                val albums = async { RetrofitInstance.api.searchAlbums(query).data }
-
-                val trackItems = tracks.await().map { SearchResultItem.TrackItem(it) }
-                val albumItems = albums.await().map { SearchResultItem.AlbumItem(it) }
-
-                _itemsLiveData.value = (trackItems + albumItems).shuffled()
+                when (currentFilter) {
+                    SearchFilter.TRACKS -> {
+                        val tracks = RetrofitInstance.api.searchTracks(query).data
+                        _itemsLiveData.value = tracks.map { SearchResultItem.TrackItem(it) }
+                    }
+                    SearchFilter.ALBUMS -> {
+                        val albums = RetrofitInstance.api.searchAlbums(query).data
+                        _itemsLiveData.value = albums.map { SearchResultItem.AlbumItem(it) }
+                    }
+                }
             } catch (e: Exception) {
                 _error.value = e.message
             } finally {
@@ -61,13 +74,16 @@ class TracksViewModel : ViewModel() {
             _isLoading.value = true
             _error.value = null
             try {
-                val topTracks = async { RetrofitInstance.api.getTopTracks().data }
-                val topAlbums = async { RetrofitInstance.api.getTopAlbums().data }
-
-                val tracks = topTracks.await().map { SearchResultItem.TrackItem(it) }
-                val albums = topAlbums.await().map { SearchResultItem.AlbumItem(it) }
-
-                _itemsLiveData.value = (tracks + albums).shuffled()
+                when (currentFilter) {
+                    SearchFilter.TRACKS -> {
+                        val tracks = RetrofitInstance.api.getTopTracks().data
+                        _itemsLiveData.value = tracks.map { SearchResultItem.TrackItem(it) }
+                    }
+                    SearchFilter.ALBUMS -> {
+                        val albums = RetrofitInstance.api.getTopAlbums().data
+                        _itemsLiveData.value = albums.map { SearchResultItem.AlbumItem(it) }
+                    }
+                }
                 lastQuery = null
             } catch (e: Exception) {
                 _error.value = e.message

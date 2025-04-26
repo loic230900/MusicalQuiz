@@ -36,6 +36,8 @@
     <string name="aucun_r_sultat_trouv">Aucun résultat trouvé</string>
     <string name="loading">Chargement en cours…</string>
     <string name="error_occurred">Une erreur est survenue</string>
+    <string name="morceaux">Morceaux</string>
+    <string name="albums">Albums</string>
     <string-array name="search_type_array">
         <item>Morceaux</item>
         <item>Albums</item>

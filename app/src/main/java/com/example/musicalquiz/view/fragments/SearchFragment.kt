@@ -9,6 +9,8 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -31,6 +33,9 @@ class SearchFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyStateTextView: TextView
     private lateinit var adapter: MixedItemAdapter
+    private lateinit var searchFilterGroup: RadioGroup
+    private lateinit var trackFilter: RadioButton
+    private lateinit var albumFilter: RadioButton
 
     private val viewModel: TracksViewModel by activityViewModels()
 
@@ -50,6 +55,9 @@ class SearchFragment : Fragment() {
         searchButton = view.findViewById(R.id.searchButton)
         recyclerView = view.findViewById(R.id.searchRecyclerView)
         emptyStateTextView = view.findViewById(R.id.emptyStateTextView)
+        searchFilterGroup = view.findViewById(R.id.searchFilterGroup)
+        trackFilter = view.findViewById(R.id.trackFilter)
+        albumFilter = view.findViewById(R.id.albumFilter)
 
         // Configurer le RecyclerView avec le nombre de colonnes adapté à l'orientation
         val spanCount = if (resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) 3 else 2
@@ -110,6 +118,21 @@ class SearchFragment : Fragment() {
                 triggerSearch()
                 true
             } else false
+        }
+
+        searchFilterGroup.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.trackFilter -> {
+                    viewModel.setFilter(TracksViewModel.SearchFilter.TRACKS)
+                    // Recharger les top charts avec le nouveau filtre
+                    viewModel.loadTopCharts()
+                }
+                R.id.albumFilter -> {
+                    viewModel.setFilter(TracksViewModel.SearchFilter.ALBUMS)
+                    // Recharger les top charts avec le nouveau filtre
+                    viewModel.loadTopCharts()
+                }
+            }
         }
     }
 

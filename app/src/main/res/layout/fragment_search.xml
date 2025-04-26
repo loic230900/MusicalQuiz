@@ -5,44 +5,93 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#121212"
-    android:fitsSystemWindows="true">
+    android:padding="16dp">
 
-    <!-- Search bar -->
-    <LinearLayout
+    <!-- Barre de recherche avec filtre -->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/searchBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- Barre de recherche -->
         <EditText
             android:id="@+id/searchEditText"
             android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:background="@android:drawable/editbox_background"
-            android:drawableStart="@android:drawable/ic_menu_search"
+            android:layout_height="40dp"
+            android:autofillHints=""
             android:hint="@string/recherche_bar"
-            android:imeOptions="actionSearch"
-            android:importantForAutofill="no"
+            android:drawableStart="@android:drawable/ic_menu_search"
+            android:background="@android:drawable/editbox_background"
+            android:paddingHorizontal="8dp"
+            android:textColor="@color/black"
+            android:textColorHint="#BBBBBB"
             android:inputType="text"
-            android:paddingHorizontal="12dp"
-            android:textColor="@android:color/black"
-            android:textColorHint="#BBBBBB" />
+            android:imeOptions="actionSearch"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/searchFilterGroup"
+            app:layout_constraintBottom_toTopOf="@id/searchButton" />
 
+        <!-- Filtre de recherche -->
+        <RadioGroup
+            android:id="@+id/searchFilterGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/filter_background"
+            android:padding="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <RadioButton
+                android:id="@+id/trackFilter"
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                android:background="@drawable/filter_button_background"
+                android:button="@null"
+                android:checked="true"
+                android:paddingStart="8dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="4dp"
+                android:text="@string/morceaux"
+                android:textColor="@color/filter_text_selector" />
+
+            <RadioButton
+                android:id="@+id/albumFilter"
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/filter_button_background"
+                android:button="@null"
+                android:paddingStart="8dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="4dp"
+                android:text="@string/albums"
+                android:textColor="@color/filter_text_selector" />
+        </RadioGroup>
+
+        <!-- Bouton de recherche -->
         <Button
             android:id="@+id/searchButton"
             android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_marginStart="8dp"
-            android:contentDescription="@string/rechercher"
-            android:text="@string/rechercher" />
-    </LinearLayout>
+            android:layout_height="40dp"
+            android:layout_marginTop="4dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingHorizontal="12dp"
+            android:text="@string/rechercher"
+            app:layout_constraintEnd_toStartOf="@id/searchFilterGroup"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/searchEditText" />
 
-    <!-- No result text -->
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- État vide -->
     <TextView
         android:id="@+id/emptyStateTextView"
         android:layout_width="wrap_content"
@@ -56,14 +105,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/searchBar" />
 
-    <!-- Results -->
+    <!-- Résultats -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/searchRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:contentDescription="@string/aucun_r_sultat_trouv"
+        app:layout_constraintTop_toBottomOf="@id/searchBar"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/searchBar" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
