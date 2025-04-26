@@ -1,26 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/searchFragment">
+    app:startDestination="@id/navigation_home">
 
     <fragment
-        android:id="@+id/searchFragment"
+        android:id="@+id/navigation_home"
+        android:name="com.example.musicalquiz.view.fragments.HomeFragment"
+        android:label="@string/accueil"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/navigation_search"
         android:name="com.example.musicalquiz.view.fragments.SearchFragment"
-        android:label="Recherche" />
+        android:label="@string/search"
+        tools:layout="@layout/fragment_search" />
 
     <fragment
-        android:id="@+id/detailsFragment"
-        android:name="com.example.musicalquiz.view.fragments.DetailsFragment"
-        android:label="Détails" />
-
-    <fragment
-        android:id="@+id/playlistFragment"
+        android:id="@+id/navigation_playlist"
         android:name="com.example.musicalquiz.view.fragments.PlaylistFragment"
-        android:label="Playlists" />
+        android:label="@string/playlist"
+        tools:layout="@layout/fragment_playlist" />
 
     <fragment
-        android:id="@+id/quizFragment"
+        android:id="@+id/navigation_quiz"
         android:name="com.example.musicalquiz.view.fragments.QuizFragment"
-        android:label="Quiz" />
-</navigation>
+        android:label="@string/quiz"
+        tools:layout="@layout/fragment_quiz" />
+
+    <fragment
+        android:id="@+id/navigation_details"
+        android:name="com.example.musicalquiz.view.fragments.DetailsFragment"
+        android:label="@string/d_tails"
+        tools:layout="@layout/fragment_details" />
+</navigation> 

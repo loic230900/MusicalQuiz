@@ -1,10 +1,9 @@
 package com.example.musicalquiz.model
 
 /**
- * Classe représentant la réponse de recherche de l’API Deezer.
- *
- * @property data Liste des pistes retournées par la recherche
+ * Classe générique représentant une réponse de l’API Deezer.
+ * @param T Le type des objets retournés dans la liste (Track, Album, etc.)
  */
-data class DeezerSearchResponse(
-    val data: List<Track>
+data class DeezerSearchResponse<T>(
+    val data: List<T>
 )

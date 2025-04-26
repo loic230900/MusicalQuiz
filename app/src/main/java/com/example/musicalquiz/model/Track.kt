@@ -15,4 +15,7 @@ data class Track(
     val duration: String,
     val artist: Artist,
     val album: Album
-)
+) {
+    val isAlbum: Boolean
+        get() = album.title.equals(title, ignoreCase = true)
+}

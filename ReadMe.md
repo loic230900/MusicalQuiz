@@ -1,273 +1,304 @@
 # MusicalQuiz Application
 
-
-## Structure
+## Structure du Projet
 ```
 musicalquiz/
 ├── README.md                             # Documentation du projet
 ├── app/
-│   ├── manifests/
-│   │   └── AndroidManifest.xml           # Déclaration des composants Android
-│   ├── kotlin+java/
+│   ├── manifests/                        # Configuration Android
+│   │   └── AndroidManifest.xml           # Permissions et composants
+│   ├── kotlin+java/                      # Code source
 │   │   └── com.example.musicalquiz/
-│   │       ├── MainActivity.kt           # Activité hôte unique
+│   │       ├── MainActivity.kt           # Activité principale
 │   │       ├── adapter/                  # Adaptateurs RecyclerView
+│   │       │   ├── MixedItemAdapter.kt   # Adaptateur recherche
+│   │       │   └── MixedItemDiffCallback.kt
 │   │       ├── database/                 # Base de données Room
-│   │       │   ├── dao/
-│   │       │   ├── entities/
-│   │       │   │   └── Playlist.kt       # Entité Playlist (Quiz à ajouter)
-│   │       ├── model/                    # Modèles de données Deezer
+│   │       │   ├── dao/                  # Accès aux données
+│   │       │   │   ├── PlaylistDao.kt
+│   │       │   │   └── QuizDao.kt
+│   │       │   ├── entities/             # Modèles persistants
+│   │       │   │   ├── Playlist.kt
+│   │       │   │   └── Quiz.kt
+│   │       │   └── AppDatabase.kt
+│   │       ├── model/                    # Modèles de données
 │   │       │   ├── Album.kt
 │   │       │   ├── Artist.kt
 │   │       │   ├── DeezerSearchResponse.kt
+│   │       │   ├── SearchResultItem.kt
 │   │       │   └── Track.kt
-│   │       ├── network/                  # API & Retrofit
+│   │       ├── network/                  # API Deezer
 │   │       │   ├── DeezerApiInterface.kt
 │   │       │   └── RetrofitInstance.kt
-│   │       ├── view/
-│   │       │   └── fragments/
+│   │       ├── view/                     # Interface utilisateur
+│   │       │   └── fragments/            # Écrans de l'application
 │   │       │       ├── SearchFragment.kt
 │   │       │       ├── DetailsFragment.kt
 │   │       │       ├── PlaylistFragment.kt
-│   │       │       └── QuizFragment.kt
-│   │       └── viewmodel/
+│   │       │       ├── QuizFragment.kt
+│   │       │       └── HomeFragment.kt
+│   │       └── viewmodel/                # Logique métier
 │   │           ├── TracksViewModel.kt
 │   │           └── PlaylistViewModel.kt
-│
-├── res/
-│   ├── layout/
-│   │   ├── activity_main.xml             # Conteneur NavHost + BottomNavigationView
-│   │   ├── fragment_search.xml           # UI de recherche
-│   │   ├── fragment_details.xml          # UI détails d’un morceau etc.
-│   │   ├── fragment_playlist.xml         # UI gestion des playlists
-│   │   ├── fragment_quiz.xml             # UI gestion/jeu des quiz
-│   ├── menu/
-│   │   └── bottom_nav_menu.xml           # Menu de navigation inférieur
-│   ├── navigation/
-│   │   └── nav_graph.xml                 # Navigation Graph
-│   ├── drawable/, mipmap/, values/, xml/
-│
-└── build.gradle.kts, settings.gradle.kts, etc.
-
+│   └── res/                             # Ressources
+│       ├── layout/                      # Layouts XML
+│       │   ├── activity_main.xml
+│       │   ├── fragment_search.xml
+│       │   ├── fragment_details.xml
+│       │   ├── fragment_playlist.xml
+│       │   ├── fragment_quiz.xml
+│       │   ├── fragment_home.xml
+│       │   ├── track_item.xml
+│       │   └── item_section_header.xml
+│       ├── menu/                        # Menus
+│       │   └── bottom_nav_menu.xml
+│       ├── navigation/                  # Navigation
+│       │   └── nav_graph.xml
+│       └── values/                      # Ressources
+│           ├── colors.xml
+│           ├── strings.xml
+│           └── themes.xml
 ```
-## Application Architecture
 
-**Architecture**: MVVM (Model-View-ViewModel)
+## Architecture MVVM
 
-- **Model**:
-    - Retrofit & Deezer API integration
-    - Room Database for persistence
-- **View**:
-    - Single Activity (`MainActivity`) with multiple fragments.
-    - Navigation using BottomNavigationView.
-- **ViewModel**:
-    - Data persistence across configuration changes.
-    - Interaction logic between View and Model.
+L'application suit l'architecture MVVM :
 
-## Main Components and Technologies
+- **Model** :
+  - Modèles de données : Données de l'application
+  - Base de données Room : Stockage local
+  - API Deezer : Données distantes
 
-### Retrofit (API Integration)
+- **View** :
+  - Fragments : Interface utilisateur
+  - RecyclerView : Affichage des listes
+  - Navigation : Navigation entre écrans
 
-- Deezer API for music search and track previews.
-- Asynchronous requests with coroutines.
+- **ViewModel** :
+  - État UI : Gestion de l'interface
+  - Données : Accès aux données
+  - Configuration : Gestion des changements
 
-### RecyclerView
+# Guide d'Implémentation Fragment par Fragment
 
-- Display search results and playlists.
-- Grid-based layout for aesthetic UI.
+Guide d'implémentation progressif des fonctionnalités de l'application.
 
-### Glide
+## Phase 1 : Configuration Initiale
 
-- Efficiently loading album cover images from URLs.
+### 1.1 Configuration du Projet
+- [x] Créer le projet Android Studio
+  - [x] Empty Views Activity
+  - [x] Kotlin
+  - [x] API Level 29
+- [x] Configurer les dépendances
+  - [x] Retrofit
+  - [x] Room
+  - [x] Glide
+  - [x] ViewModel & LiveData
+  - [x] RecyclerView
+  - [x] Navigation Components
 
-### Room Database
+### 1.2 Configuration de la Navigation
+- [x] Créer `activity_main.xml`
+  - [x] BottomNavigationView
+  - [x] NavHostFragment
+- [x] Configurer `nav_graph.xml`
+  - [x] Définir les destinations
+  - [x] Configurer les actions de navigation
+- [x] Implémenter `MainActivity.kt`
+  - [x] Setup NavController
+  - [x] Gérer la navigation
 
-- Persist user-generated playlists and quizzes locally.
-- Entities: `Playlist`, `Quiz`.
+## Phase 2 : Implémentation du SearchFragment
 
-### MVVM Architecture
+### 2.1 Layout
+- [x] Créer `fragment_search.xml`
+  - [x] Barre de recherche (EditText + Button)
+  - [x] RecyclerView en grille
+  - [x] TextView pour état vide
+- [x] Créer `track_item.xml`
+  - [x] ImageView pour pochette
+  - [x] TextViews pour titre/artiste
+  - [x] Labels pour type (morceau/album)
 
-- Clear separation of concerns between Model, View, and ViewModel.
-- Robustness against configuration changes.
+### 2.2 Modèles de Données
+- [x] Créer les modèles
+  - [x] `Track.kt`
+  - [x] `Album.kt`
+  - [x] `Artist.kt`
+  - [x] `SearchResultItem.kt`
+- [x] Configurer Retrofit
+  - [x] `DeezerApiInterface.kt`
+  - [x] `RetrofitInstance.kt`
 
----
+### 2.3 ViewModel
+- [x] Implémenter `TracksViewModel.kt`
+  - [x] LiveData pour résultats
+  - [x] État de chargement
+  - [x] Gestion des erreurs
+  - [x] Méthodes de recherche
 
-# Step-by-Step Implementation Checklist
+### 2.4 Adapter
+- [x] Créer `MixedItemAdapter.kt`
+  - [x] ViewHolder
+  - [x] DiffUtil
+  - [x] Binding des données
+  - [x] Gestion des clics
 
----
+### 2.5 Fragment
+- [x] Implémenter `SearchFragment.kt`
+  - [x] Initialisation des vues
+  - [x] Setup RecyclerView
+  - [x] Gestion des événements
+  - [x] Observation des données
 
-### Step 1 — Project Initialization
+## Phase 3 : Implémentation du DetailsFragment
 
-- [x] **Open Android Studio and Create a New Project**:
-  - [x] Select **Empty Views Activity**
-  - [x] Set language to **Kotlin**
-  - [x] Select **API Level 29 (Android 10)**
+### 3.1 Layout
+- [x] Créer `fragment_details.xml`
+  - [ ] Image de couverture
+  - [ ] Informations détaillées
+  - [ ] Bouton de prévisualisation
+  - [ ] Bouton d'ajout à playlist
 
-- [x] **Add Dependencies** (in `app/build.gradle.kts`):
-  - [x] **Retrofit** (HTTP requests)
-  - [x] **Room** (local database)
-  - [x] **Glide** (image loading)
-  - [x] **ViewModel & LiveData** (architecture components)
-  - [x] **RecyclerView** (scrollable lists)
-  - [x] **Navigation Components** (fragment management)
+### 3.2 ViewModel
+- [ ] Étendre `TracksViewModel.kt`
+  - [ ] Méthode de chargement des détails
+  - [ ] Gestion de la prévisualisation
+  - [ ] Gestion de l'ajout à playlist
 
-- [x] **Sync Gradle and Verify** project builds without errors
+### 3.3 Fragment
+- [ ] Implémenter `DetailsFragment.kt`
+  - [ ] Récupération des arguments
+  - [ ] Affichage des détails
+  - [ ] Gestion de la prévisualisation
+  - [ ] Gestion de l'ajout à playlist
 
-- [x] **Run the empty project** to verify initial setup
+## Phase 4 : Implémentation du PlaylistFragment
 
----
+### 4.1 Base de Données
+- [ ] Créer les entités
+  - [ ] `Playlist.kt`
+  - [ ] `PlaylistTrack.kt`
+- [ ] Implémenter les DAOs
+  - [ ] `PlaylistDao.kt`
+  - [ ] `PlaylistTrackDao.kt`
+- [ ] Configurer `AppDatabase.kt`
 
-### Step 2 — Model Layer (Data Classes & Retrofit)
+### 4.2 Layout
+- [ ] Créer `fragment_playlist.xml`
+  - [ ] RecyclerView pour playlists
+  - [ ] FloatingActionButton
+  - [ ] Dialog de création
+- [ ] Créer `playlist_item.xml`
+  - [ ] Informations playlist
+  - [ ] Boutons d'action
 
-- [x] **Create Data Classes**:
-  - [x] `Track` (track id, title, duration, artist, album)
-  - [x] `Album` (album id, title, cover image URL)
-  - [x] `Artist` (artist id, name, picture URL)
-  - [x] `DeezerSearchResponse` (list of tracks returned from API)
+### 4.3 ViewModel
+- [ ] Implémenter `PlaylistViewModel.kt`
+  - [ ] CRUD operations
+  - [ ] Gestion des tracks
+  - [ ] État de chargement
 
-- [x] **Set up Retrofit Instance** (`RetrofitInstance.kt`):
-  - [x] Singleton instance setup with Deezer base URL and Gson converter
+### 4.4 Adapter
+- [ ] Créer `PlaylistAdapter.kt`
+  - [ ] ViewHolder
+  - [ ] DiffUtil
+  - [ ] Gestion des actions
 
-- [x] **Define Deezer API Interface** (`DeezerApiInterface.kt`):
-  - [x] Create Retrofit service interface with endpoint methods
-  - [x] Annotate endpoints properly (`@GET`, `@Query`)
+### 4.5 Fragment
+- [ ] Implémenter `PlaylistFragment.kt`
+  - [ ] Initialisation
+  - [ ] Gestion des événements
+  - [ ] Dialog de création
+  - [ ] Observation des données
 
-- [x] **Test a basic API call** (log results) for verification
+## Phase 5 : Implémentation du QuizFragment
 
----
+### 5.1 Base de Données
+- [ ] Créer les entités
+  - [ ] `Quiz.kt`
+  - [ ] `QuizQuestion.kt`
+- [ ] Implémenter les DAOs
+  - [ ] `QuizDao.kt`
+  - [ ] `QuizQuestionDao.kt`
 
-### Step 3 — ViewModel Layer
+### 5.2 Layout
+- [ ] Créer `fragment_quiz.xml`
+  - [ ] Liste des quiz
+  - [ ] Interface de création
+  - [ ] Interface de jeu
+- [ ] Créer `quiz_item.xml`
+  - [ ] Informations quiz
+  - [ ] Boutons d'action
 
-- [x] **Create `TracksViewModel.kt`**:
-  - [x] Store search result data (`MutableLiveData`)
-  - [x] Integrate Retrofit calls via coroutines
-  - [x] Handle loading state and error states clearly
+### 5.3 ViewModel
+- [ ] Implémenter `QuizViewModel.kt`
+  - [ ] CRUD operations
+  - [ ] Logique de jeu
+  - [ ] Gestion des scores
 
-- [x] **Create `PlaylistViewModel.kt`**:
-  - [x] Manage playlists (`MutableLiveData`)
-  - [ ] Integrate Room database interactions via coroutines ( sera fait dans les étapes suivantes)
-  - [ ] CRUD operations clearly defined (create, read, update, delete)
+### 5.4 Adapter
+- [ ] Créer `QuizAdapter.kt`
+  - [ ] ViewHolder
+  - [ ] DiffUtil
+  - [ ] Gestion des actions
 
-- [x] **Verify LiveData** retains state through orientation changes (observe data in logs or UI)
+### 5.5 Fragment
+- [ ] Implémenter `QuizFragment.kt`
+  - [ ] Initialisation
+  - [ ] Gestion des événements
+  - [ ] Logique de jeu
+  - [ ] Observation des données
 
----
-### Step 4 — View Layer & Fragments
+## Phase 6 : Implémentation du HomeFragment
 
-> Les fragments sont mis en place avec leurs layouts de base.  
-> Le contenu (UI & logique métier) sera développé dans les étapes suivantes.
+### 6.1 Layout
+- [ ] Créer `fragment_home.xml`
+  - [ ] Contenus pertinents
 
-#### Create and Setup Fragments
-- [x] `SearchFragment.kt` — UI de recherche (barre de recherche, résultats à venir dans Step 5)
-- [x] `DetailsFragment.kt` — Affichage d’un album ou d’un morceau sélectionné (logique à compléter Step 7)
-- [x] `PlaylistFragment.kt` — Affichage et gestion des playlists (lié à Room dans Step 6)
-- [x] `QuizFragment.kt` — Interface de base du quiz (logique gameplay dans Step 7)
+## Phase 7 — UI/UX Refinement
 
-#### Layout XML associés
-- [x] `fragment_search.xml` — Placeholder "Recherche"
-- [x] `fragment_details.xml` — Placeholder "Détails"
-- [x] `fragment_playlist.xml` — Placeholder "Playlists"
-- [x] `fragment_quiz.xml` — Placeholder "Quiz"
-
-#### Navigation
-- [x] `BottomNavigationView` intégré dans `activity_main.xml`
-- [x] `nav_graph.xml` créé dans `res/navigation`
-- [x] Navigation fonctionnelle (testée et reliée via `NavController` dans `MainActivity.kt`)
-
----
-
-### Step 5 — RecyclerView & Adapter
-
-#### UI RecyclerView
-- [ ] Créer `track_item.xml` avec :
-  - [ ] Image de la pochette d’album (ImageView)
-  - [ ] Titre du morceau (TextView)
-  - [ ] Nom de l’artiste (TextView)
-
-#### Adapter
-- [ ] Implémenter `TrackAdapter.kt`
-  - [ ] Hériter de `RecyclerView.Adapter`
-  - [ ] Créer `TrackViewHolder`
-  - [ ] Lier les données avec Glide
-
-#### Tests
-- [ ] Tester l’affichage des résultats dans `SearchFragment`
-- [ ] Vérifier chargement images, clics, scroll fluide
-
----
-
-### Step 6 — Database (Room)
-
-#### Entités
-- [ ] `Playlist.kt`
-- [ ] `Quiz.kt`
-- [ ] Annotations : `@Entity`, `@PrimaryKey`, relations
-
-#### DAO
-- [ ] `PlaylistDao.kt`
-- [ ] `QuizDao.kt`
-- [ ] Fonctions : insert, delete, update, getAll
-
-#### Base de données
-- [ ] `AppDatabase.kt`
-  - [ ] Annotations `@Database`
-  - [ ] Singleton via `getInstance()`
-
-#### Tests
-- [ ] Insérer et lire des playlists/quiz
-- [ ] Observer les résultats via `LiveData`
-
----
-
-### Step 7 — Playlist and Quiz Management
-
-#### Gestion de playlists
-- [ ] UI pour créer et nommer une nouvelle playlist
-- [ ] Ajouter un morceau via clic long
-- [ ] Liste des playlists avec suppression/édition
-
-#### Gestion de quiz
-- [ ] Création de quiz depuis une playlist (ou librement)
-- [ ] Prévisualisation audio
-- [ ] Sélection aléatoire ou personnalisée des questions
-
-#### Gameplay
-- [ ] Mode QCM (réponses multiples)
-- [ ] Lecture preview Deezer
-- [ ] Résultat / score utilisateur
-
----
-
-### Step 8 — UI/UX Refinement
-
-#### Design Material
+### Design Material
 - [ ] Harmoniser les couleurs, tailles, espacements
-- [ ] Utiliser `MaterialTheme`, `CardView`, `ShapeableImageView`...
 
-#### Expérience utilisateur
+### Expérience utilisateur
 - [ ] Indiquer les erreurs (ex: pas de réseau)
-- [ ] Utiliser `Snackbar`, `ProgressBar`, `Toast`
+- [ ] Utiliser `Snackbar`, `ProgressBar`, `Toast`,...
 
-#### Animations / Transitions
-- [ ] Transitions entre fragments
-- [ ] Animation lors du chargement de contenu
+## Phase 8 — Finalisation
 
----
+### 8.1 Tests
+- [ ] Tests unitaires
+  - [ ] ViewModels
+  - [ ] DAOs
+  - [ ] Modèles
+- [ ] Tests d'intégration
+  - [ ] Navigation
+  - [ ] Base de données
+  - [ ] API
+- [ ] Tests UI
+  - [ ] Fragments
+  - [ ] Adaptateurs
+  - [ ] Layouts
 
-### Step 9 — Testing & Debugging
+### 8.2 Optimisations
+- [ ] Performance
+  - [ ] Cache Glide
+  - [ ] Optimisation des requêtes
+  - [ ] Gestion de la mémoire
+- [ ] UX
+  - [ ] Animations
+  - [ ] Transitions
+  - [ ] Feedback utilisateur
 
-#### Fonctionnalités principales
-- [ ] API Deezer — recherche et parsing
-- [ ] Sauvegarde et affichage des playlists
-
-#### Robustesse
-- [ ] Rotation écran sans perte d’état
-- [ ] Comportement sur plusieurs appareils (emulateur + device)
-
-#### Performances
-- [ ] Glide : cache efficace, memory friendly
-- [ ] Limiter les appels réseau redondants
-
----
-
-###  Step 10 — Finalization
+### 8.3 Documentation
+- [ ] Code
+  - [ ] Docstrings
+  - [ ] Commentaires
+  - [ ] README
+- [ ] Utilisateur
+  - [ ] Guide d'utilisation
+  - [ ] Captures d'écran
+  - [ ] Vidéo de démonstration
 

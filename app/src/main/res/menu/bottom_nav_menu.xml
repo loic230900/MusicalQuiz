@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigation_home"
+        android:icon="@android:drawable/ic_menu_view"
+        android:title="@string/accueil" />
 
     <item
-        android:id="@+id/searchFragment"
+        android:id="@+id/navigation_search"
         android:icon="@android:drawable/ic_menu_search"
         android:title="@string/search" />
 
     <item
-        android:id="@+id/playlistFragment"
+        android:id="@+id/navigation_playlist"
         android:icon="@android:drawable/ic_menu_agenda"
         android:title="@string/playlist" />
 
     <item
-        android:id="@+id/quizFragment"
+        android:id="@+id/navigation_quiz"
         android:icon="@android:drawable/ic_media_play"
         android:title="@string/quiz" />
-</menu>
+</menu> 

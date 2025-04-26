@@ -1,9 +1,45 @@
 <resources>
-    <string name="app_name">Musicalquiz</string>
+    <string name="app_name">MusicalQuiz</string>
     <string name="recherche">Recherche</string>
     <string name="d_tails">Détails</string>
     <string name="playlists">Playlists</string>
     <string name="quiz">Quiz</string>
-    <string name="search">Search</string>
-    <string name="playlist">Playlist</string>
+    <string name="search">Rechercher</string>
+    <string name="playlist">Playlists</string>
+    <string name="album_title" />
+    <string name="artist" />
+    <string name="song_title" />
+    <string name="album_cover" />
+    <string name="rechercher_une_chanson_ou_un_album">Rechercher une chanson ou un album</string>
+    <string name="rechercher">Rechercher</string>
+    <string name="recherche_bar">Rechercher…</string>
+    <string name="titre_de_l_album">Titre de l\'album</string>
+    <string name="bienvenue_sur_musicalquiz">Bienvenue sur MusicalQuiz !</string>
+    <string name="lancez_une_recherche_ou_explorez_les_hits_actuels">Lancez une recherche ou explorez les hits actuels !</string>
+    <string name="blinding_lights_the_weeknd_n_shivers_ed_sheeran_n_uptown_funk_bruno_mars_n_levitating_dua_lipa">• Blinding Lights - The Weeknd\n• Shivers - Ed Sheeran\n• Uptown Funk - Bruno Mars\n• Levitating - Dua Lipa</string>
+    <string name="accueil">Accueil</string>
+    <string name="shivers_ed_sheeran_n_levitating_dua_lipa_n_save_your_tears_the_weeknd_n_flowers_miley_cyrus">• Shivers - Ed Sheeran\n• Levitating - Dua Lipa\n• Save Your Tears - The Weeknd\n• Flowers - Miley Cyrus</string>
+    <string name="suggestions_populaires">Suggestions populaires</string>
+    <string name="top_suggestions">Top suggestions :</string>
+    <string name="suggestions_titres" />
+    <string name="d_couvrez_les_meilleurs_titres_musicaux_et_testez_vos_connaissances">Découvrez les meilleurs titres musicaux et testez vos connaissances !</string>
+    <string name="fonctionnalit_s">Fonctionnalités</string>
+    <string name="recherchez_des_titres_ou_albums_via_deezer">Recherchez des titres ou albums via Deezer</string>
+    <string name="coutez_un_extrait_et_consultez_les_d_tails">Écoutez un extrait et consultez les détails</string>
+    <string name="cr_ez_et_g_rez_vos_playlists_favorites">Créez et gérez vos playlists favorites</string>
+    <string name="lancez_un_quiz_musical_bas_sur_vos_playlists">Lancez un quiz musical basé sur vos playlists</string>
+    <string name="conseil_commencez_par_l_onglet_search_pour_d_couvrir_des_morceaux">Conseil : commencez par l\'onglet \'Search\' pour découvrir des morceaux !</string>
+    <string name="consultez_les_d_tails_d_un_morceau_ou_d_un_album">Consultez les détails d\'un morceau ou d\'un album</string>
+    <string name="track">Track</string>
+    <string name="album">Album</string>
+    <string name="section">Section</string>
+    <string name="aucun_r_sultat_trouv">Aucun résultat trouvé</string>
+    <string name="loading">Chargement en cours…</string>
+    <string name="error_occurred">Une erreur est survenue</string>
+    <string-array name="search_type_array">
+        <item>Morceaux</item>
+        <item>Albums</item>
+        <item>Artistes</item>
+    </string-array>
+
 </resources>

@@ -9,12 +9,11 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import com.example.musicalquiz.model.SearchResultItem
 import com.example.musicalquiz.viewmodel.TracksViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
-
 class MainActivity : AppCompatActivity() {
-    // Utilisation de la propriété viewModels() pour instancier le ViewModel
     private val viewModel: TracksViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,28 +21,23 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-
-        // Get the NavHostFragment
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        // Get the NavController from the NavHostFragment
         val navController = navHostFragment.navController
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNav.setupWithNavController(navController)
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNavigationView.setupWithNavController(navController)
 
 
-    // ➤ Observer les résultats de recherche
-        viewModel.tracksResponse.observe(this) { response ->
-            Log.d("LIVEDATA_TEST", "Nombre de résultats : ${response.data.size}")
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { view, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(0, insets.top, 0, 0) // Only apply top insets!
+            windowInsets
         }
 
-        // ➤ Effectuer une recherche initiale si aucune donnée n'est présente
-        if (viewModel.tracksResponse.value == null) {
-            viewModel.searchTracks("Eminem")
+        // Observer les résultats de recherche
+        viewModel.itemsLiveData.observe(this) { items ->
+            val nbTracks = items.count { it is SearchResultItem.TrackItem }
+            val nbAlbums = items.count { it is SearchResultItem.AlbumItem }
+            Log.d("LIVEDATA_TEST", "Résultats : ${items.size} (Tracks: $nbTracks, Albums: $nbAlbums)")
         }
     }
 }
