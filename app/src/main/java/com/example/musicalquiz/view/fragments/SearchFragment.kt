@@ -1,6 +1,8 @@
 package com.example.musicalquiz.view.fragments
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -18,7 +20,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.musicalquiz.R
-import com.example.musicalquiz.adapter.MixedItemAdapter
+import com.example.musicalquiz.adapter.AlbumAdapter
+import com.example.musicalquiz.adapter.TrackAdapter
 import com.example.musicalquiz.viewmodel.TracksViewModel
 
 /**
@@ -32,7 +35,8 @@ class SearchFragment : Fragment() {
     private lateinit var searchButton: Button
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyStateTextView: TextView
-    private lateinit var adapter: MixedItemAdapter
+    private lateinit var trackAdapter: TrackAdapter
+    private lateinit var albumAdapter: AlbumAdapter
     private lateinit var searchFilterGroup: RadioGroup
     private lateinit var trackFilter: RadioButton
     private lateinit var albumFilter: RadioButton
@@ -61,9 +65,10 @@ class SearchFragment : Fragment() {
 
         // Configurer le RecyclerView avec le nombre de colonnes adapté à l'orientation
         val spanCount = if (resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) 3 else 2
-        adapter = MixedItemAdapter(emptyList())
+        trackAdapter = TrackAdapter(emptyList())
+        albumAdapter = AlbumAdapter(emptyList())
         recyclerView.layoutManager = GridLayoutManager(requireContext(), spanCount)
-        recyclerView.adapter = adapter
+        recyclerView.adapter = trackAdapter // Default to track adapter
 
         return view
     }
@@ -120,17 +125,38 @@ class SearchFragment : Fragment() {
             } else false
         }
 
+        // Add text change listener to handle empty search
+        searchEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                if (s.isNullOrEmpty()) {
+                    viewModel.loadTopCharts()
+                }
+            }
+        })
+
         searchFilterGroup.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 R.id.trackFilter -> {
+                    recyclerView.adapter = trackAdapter
                     viewModel.setFilter(TracksViewModel.SearchFilter.TRACKS)
-                    // Recharger les top charts avec le nouveau filtre
-                    viewModel.loadTopCharts()
+                    // Always reload data when changing filter
+                    if (searchEditText.text.isNullOrEmpty()) {
+                        viewModel.loadTopCharts()
+                    } else {
+                        viewModel.searchAll(searchEditText.text.toString())
+                    }
                 }
                 R.id.albumFilter -> {
+                    recyclerView.adapter = albumAdapter
                     viewModel.setFilter(TracksViewModel.SearchFilter.ALBUMS)
-                    // Recharger les top charts avec le nouveau filtre
-                    viewModel.loadTopCharts()
+                    // Always reload data when changing filter
+                    if (searchEditText.text.isNullOrEmpty()) {
+                        viewModel.loadTopCharts()
+                    } else {
+                        viewModel.searchAll(searchEditText.text.toString())
+                    }
                 }
             }
         }
@@ -141,9 +167,14 @@ class SearchFragment : Fragment() {
      * Gère l'affichage des résultats, l'état de chargement et les erreurs.
      */
     private fun setupObservers() {
-        viewModel.itemsLiveData.observe(viewLifecycleOwner) { items ->
-            adapter.updateData(items)
-            emptyStateTextView.visibility = if (items.isEmpty()) View.VISIBLE else View.GONE
+        viewModel.tracksLiveData.observe(viewLifecycleOwner) { tracks ->
+            trackAdapter.updateData(tracks)
+            updateEmptyState()
+        }
+
+        viewModel.albumsLiveData.observe(viewLifecycleOwner) { albums ->
+            albumAdapter.updateData(albums)
+            updateEmptyState()
         }
 
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
@@ -162,6 +193,12 @@ class SearchFragment : Fragment() {
         }
     }
 
+    private fun updateEmptyState() {
+        val isTracksEmpty = trackAdapter.itemCount == 0
+        val isAlbumsEmpty = albumAdapter.itemCount == 0
+        emptyStateTextView.visibility = if (isTracksEmpty && isAlbumsEmpty) View.VISIBLE else View.GONE
+    }
+
     /**
      * Déclenche une recherche avec le texte saisi dans la barre de recherche.
      * Cache le clavier virtuel après la recherche.
@@ -171,6 +208,8 @@ class SearchFragment : Fragment() {
         if (query.isNotEmpty()) {
             hideKeyboard()
             viewModel.searchAll(query)
+        } else {
+            viewModel.loadTopCharts()
         }
     }
 

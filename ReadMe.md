@@ -11,8 +11,8 @@ musicalquiz/
 │   │   └── com.example.musicalquiz/
 │   │       ├── MainActivity.kt           # Activité principale
 │   │       ├── adapter/                  # Adaptateurs RecyclerView
-│   │       │   ├── MixedItemAdapter.kt   # Adaptateur recherche
-│   │       │   └── MixedItemDiffCallback.kt
+│   │       │   ├── TrackAdapter.kt       # Adaptateur pour les morceaux
+│   │       │   └── AlbumAdapter.kt       # Adaptateur pour les albums
 │   │       ├── database/                 # Base de données Room
 │   │       │   ├── dao/                  # Accès aux données
 │   │       │   │   ├── PlaylistDao.kt
@@ -25,7 +25,6 @@ musicalquiz/
 │   │       │   ├── Album.kt
 │   │       │   ├── Artist.kt
 │   │       │   ├── DeezerSearchResponse.kt
-│   │       │   ├── SearchResultItem.kt
 │   │       │   └── Track.kt
 │   │       ├── network/                  # API Deezer
 │   │       │   ├── DeezerApiInterface.kt
@@ -48,8 +47,7 @@ musicalquiz/
 │       │   ├── fragment_playlist.xml
 │       │   ├── fragment_quiz.xml
 │       │   ├── fragment_home.xml
-│       │   ├── track_item.xml
-│       │   └── item_section_header.xml
+│       │   └── track_item.xml
 │       ├── menu/                        # Menus
 │       │   └── bottom_nav_menu.xml
 │       ├── navigation/                  # Navigation
@@ -126,7 +124,6 @@ Guide d'implémentation progressif des fonctionnalités de l'application.
   - [x] `Track.kt`
   - [x] `Album.kt`
   - [x] `Artist.kt`
-  - [x] `SearchResultItem.kt`
 - [x] Configurer Retrofit
   - [x] `DeezerApiInterface.kt`
   - [x] `RetrofitInstance.kt`
@@ -138,8 +135,13 @@ Guide d'implémentation progressif des fonctionnalités de l'application.
   - [x] Gestion des erreurs
   - [x] Méthodes de recherche
 
-### 2.4 Adapter
-- [x] Créer `MixedItemAdapter.kt`
+### 2.4 Adapters
+- [x] Créer `TrackAdapter.kt`
+  - [x] ViewHolder
+  - [x] DiffUtil
+  - [x] Binding des données
+  - [x] Gestion des clics
+- [x] Créer `AlbumAdapter.kt`
   - [x] ViewHolder
   - [x] DiffUtil
   - [x] Binding des données

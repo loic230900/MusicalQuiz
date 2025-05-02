@@ -4,9 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.musicalquiz.model.SearchResultItem
+import com.example.musicalquiz.model.Album
+import com.example.musicalquiz.model.Track
 import com.example.musicalquiz.network.RetrofitInstance
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 /**
@@ -15,8 +15,11 @@ import kotlinx.coroutines.launch
  * Utilise LiveData pour notifier la vue des changements d'état.
  */
 class TracksViewModel : ViewModel() {
-    private val _itemsLiveData = MutableLiveData<List<SearchResultItem>>()
-    val itemsLiveData: LiveData<List<SearchResultItem>> = _itemsLiveData
+    private val _tracksLiveData = MutableLiveData<List<Track>>()
+    val tracksLiveData: LiveData<List<Track>> = _tracksLiveData
+
+    private val _albumsLiveData = MutableLiveData<List<Album>>()
+    val albumsLiveData: LiveData<List<Album>> = _albumsLiveData
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
@@ -50,11 +53,11 @@ class TracksViewModel : ViewModel() {
                 when (currentFilter) {
                     SearchFilter.TRACKS -> {
                         val tracks = RetrofitInstance.api.searchTracks(query).data
-                        _itemsLiveData.value = tracks.map { SearchResultItem.TrackItem(it) }
+                        _tracksLiveData.value = tracks
                     }
                     SearchFilter.ALBUMS -> {
                         val albums = RetrofitInstance.api.searchAlbums(query).data
-                        _itemsLiveData.value = albums.map { SearchResultItem.AlbumItem(it) }
+                        _albumsLiveData.value = albums
                     }
                 }
             } catch (e: Exception) {
@@ -77,11 +80,11 @@ class TracksViewModel : ViewModel() {
                 when (currentFilter) {
                     SearchFilter.TRACKS -> {
                         val tracks = RetrofitInstance.api.getTopTracks().data
-                        _itemsLiveData.value = tracks.map { SearchResultItem.TrackItem(it) }
+                        _tracksLiveData.value = tracks
                     }
                     SearchFilter.ALBUMS -> {
                         val albums = RetrofitInstance.api.getTopAlbums().data
-                        _itemsLiveData.value = albums.map { SearchResultItem.AlbumItem(it) }
+                        _albumsLiveData.value = albums
                     }
                 }
                 lastQuery = null
