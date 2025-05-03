@@ -8,6 +8,8 @@ import com.example.musicalquiz.model.Album
 import com.example.musicalquiz.model.Track
 import com.example.musicalquiz.network.RetrofitInstance
 import kotlinx.coroutines.launch
+import retrofit2.Response
+import com.example.musicalquiz.model.DeezerSearchResponse
 
 /**
  * ViewModel responsable de la gestion des données de recherche musicale.
@@ -39,6 +41,17 @@ class TracksViewModel : ViewModel() {
         lastQuery?.let { searchAll(it) }
     }
 
+    private fun <T> handleResponse(
+        response: Response<DeezerSearchResponse<T>>,
+        onSuccess: (List<T>) -> Unit
+    ) {
+        if (response.isSuccessful) {
+            onSuccess(response.body()?.data ?: emptyList())
+        } else {
+            _error.value = "Erreur API: ${response.code()}"
+        }
+    }
+
     /**
      * Effectue une recherche de morceaux et d'albums via l'API Deezer.
      * Les résultats sont mélangés et affichés dans une liste unique.
@@ -52,12 +65,16 @@ class TracksViewModel : ViewModel() {
             try {
                 when (currentFilter) {
                     SearchFilter.TRACKS -> {
-                        val tracks = RetrofitInstance.api.searchTracks(query).data
+                        val response = RetrofitInstance.api.searchTracks(query)
+                        handleResponse(response) { tracks ->
                         _tracksLiveData.value = tracks
+                        }
                     }
                     SearchFilter.ALBUMS -> {
-                        val albums = RetrofitInstance.api.searchAlbums(query).data
+                        val response = RetrofitInstance.api.searchAlbums(query)
+                        handleResponse(response) { albums ->
                         _albumsLiveData.value = albums
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -79,12 +96,16 @@ class TracksViewModel : ViewModel() {
             try {
                 when (currentFilter) {
                     SearchFilter.TRACKS -> {
-                        val tracks = RetrofitInstance.api.getTopTracks().data
+                        val response = RetrofitInstance.api.getTopTracks()
+                        handleResponse(response) { tracks ->
                         _tracksLiveData.value = tracks
+                        }
                     }
                     SearchFilter.ALBUMS -> {
-                        val albums = RetrofitInstance.api.getTopAlbums().data
+                        val response = RetrofitInstance.api.getTopAlbums()
+                        handleResponse(response) { albums ->
                         _albumsLiveData.value = albums
+                        }
                     }
                 }
                 lastQuery = null

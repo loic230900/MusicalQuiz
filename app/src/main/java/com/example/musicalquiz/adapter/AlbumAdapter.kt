@@ -6,20 +6,50 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.musicalquiz.R
 import com.example.musicalquiz.model.Album
 
-class AlbumAdapter(private var items: List<Album>) :
-    RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder>() {
+/**
+ * Adapter for displaying albums in a RecyclerView.
+ * Handles the display of album information including cover image, title, and artist.
+ */
+class AlbumAdapter : ListAdapter<Album, AlbumAdapter.AlbumViewHolder>(AlbumDiffCallback()) {
 
+    private var onItemClickListener: ((Album) -> Unit)? = null
+
+    /**
+     * Sets a click listener for album items.
+     * @param listener Callback function to be invoked when an album is clicked
+     */
+    fun setOnItemClickListener(listener: (Album) -> Unit) {
+        onItemClickListener = listener
+    }
+
+    /**
+     * ViewHolder class for album items.
+     * Holds references to the views that display album information.
+     */
     class AlbumViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val typeLabel: TextView = itemView.findViewById(R.id.typeLabel)
-        val image: ImageView = itemView.findViewById(R.id.coverImageView)
-        val title: TextView = itemView.findViewById(R.id.title)
-        val subtitle: TextView = itemView.findViewById(R.id.subtitle)
-        val artist: TextView = itemView.findViewById(R.id.artist)
+        private val typeLabel: TextView = itemView.findViewById(R.id.typeLabel)
+        private val image: ImageView = itemView.findViewById(R.id.coverImageView)
+        private val title: TextView = itemView.findViewById(R.id.title)
+        private val subtitle: TextView = itemView.findViewById(R.id.subtitle)
+        private val artist: TextView = itemView.findViewById(R.id.artist)
+
+        fun bind(album: Album) {
+            typeLabel.text = "Album"
+            typeLabel.setBackgroundResource(R.drawable.bg_album_label)
+            title.text = album.title
+            artist.text = album.artist.name
+            subtitle.text = album.releaseDate?.substring(0, 4) ?: ""
+            
+            Glide.with(itemView.context)
+                .load(album.cover)
+                .into(image)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumViewHolder {
@@ -28,36 +58,23 @@ class AlbumAdapter(private var items: List<Album>) :
         return AlbumViewHolder(view)
     }
 
-    override fun getItemCount(): Int = items.size
-
     override fun onBindViewHolder(holder: AlbumViewHolder, position: Int) {
-        val album = items[position]
-        holder.typeLabel.setText(R.string.album)
-        holder.typeLabel.setBackgroundResource(R.drawable.bg_album_label)
-        holder.title.text = album.title
-        holder.subtitle.text = "" // No subtitle for albums
-        holder.artist.text = album.artist.name
-        Glide.with(holder.itemView).load(album.cover).into(holder.image)
-    }
-
-    fun updateData(newItems: List<Album>) {
-        val diffCallback = AlbumDiffCallback(items, newItems)
-        val diffResult = DiffUtil.calculateDiff(diffCallback)
-        items = newItems
-        diffResult.dispatchUpdatesTo(this)
+        val album = getItem(position)
+        holder.bind(album)
+        holder.itemView.setOnClickListener { onItemClickListener?.invoke(album) }
     }
 }
 
-class AlbumDiffCallback(
-    private val oldList: List<Album>,
-    private val newList: List<Album>
-) : DiffUtil.Callback() {
-    override fun getOldListSize(): Int = oldList.size
-    override fun getNewListSize(): Int = newList.size
-    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldList[oldItemPosition].id == newList[newItemPosition].id
+/**
+ * Callback class for calculating differences between old and new album lists.
+ * Used by DiffUtil to efficiently update the RecyclerView.
+ */
+class AlbumDiffCallback : DiffUtil.ItemCallback<Album>() {
+    override fun areItemsTheSame(oldItem: Album, newItem: Album): Boolean {
+        return oldItem.id == newItem.id
     }
-    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldList[oldItemPosition] == newList[newItemPosition]
+
+    override fun areContentsTheSame(oldItem: Album, newItem: Album): Boolean {
+        return oldItem == newItem
     }
 } 

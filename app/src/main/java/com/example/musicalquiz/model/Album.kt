@@ -9,8 +9,9 @@ package com.example.musicalquiz.model
  */
 
 data class Album(
-    val id: String,
+    val id: Long,
     val title: String,
     val cover: String,
-    val artist: Artist
+    val artist: Artist,
+    val releaseDate: String? // ISO 8601, nullable
 )

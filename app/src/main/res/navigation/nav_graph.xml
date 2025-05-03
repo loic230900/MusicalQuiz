@@ -14,8 +14,15 @@
     <fragment
         android:id="@+id/navigation_search"
         android:name="com.example.musicalquiz.view.fragments.SearchFragment"
-        android:label="@string/search"
-        tools:layout="@layout/fragment_search" />
+        android:label="@string/recherche">
+        <action
+            android:id="@+id/navigation_details"
+            app:destination="@id/navigation_details"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_playlist"
@@ -33,5 +40,13 @@
         android:id="@+id/navigation_details"
         android:name="com.example.musicalquiz.view.fragments.DetailsFragment"
         android:label="@string/d_tails"
-        tools:layout="@layout/fragment_details" />
+        tools:layout="@layout/fragment_details">
+        <argument
+            android:name="itemId"
+            app:argType="long" />
+        <argument
+            android:name="isTrack"
+            app:argType="boolean" />
+    </fragment>
+
 </navigation> 

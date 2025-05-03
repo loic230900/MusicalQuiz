@@ -1,7 +1,9 @@
 package com.example.musicalquiz.database.entities
 
 /**
- * Modèle temporaire d'une Playlist, à compléter avec Room plus tard
+ * Temporary Playlist model, to be completed with Room later.
+ * @property id Unique playlist identifier
+ * @property name Playlist name
  */
 data class Playlist(
     val id: Int,

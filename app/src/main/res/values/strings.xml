@@ -6,23 +6,10 @@
     <string name="quiz">Quiz</string>
     <string name="search">Rechercher</string>
     <string name="playlist">Playlists</string>
-    <string name="album_title" />
-    <string name="artist" />
-    <string name="song_title" />
-    <string name="album_cover" />
-    <string name="rechercher_une_chanson_ou_un_album">Rechercher une chanson ou un album</string>
-    <string name="rechercher">Rechercher</string>
     <string name="recherche_bar">Rechercher…</string>
-    <string name="titre_de_l_album">Titre de l\'album</string>
     <string name="bienvenue_sur_musicalquiz">Bienvenue sur MusicalQuiz !</string>
     <string name="lancez_une_recherche_ou_explorez_les_hits_actuels">Lancez une recherche ou explorez les hits actuels !</string>
-    <string name="blinding_lights_the_weeknd_n_shivers_ed_sheeran_n_uptown_funk_bruno_mars_n_levitating_dua_lipa">• Blinding Lights - The Weeknd\n• Shivers - Ed Sheeran\n• Uptown Funk - Bruno Mars\n• Levitating - Dua Lipa</string>
     <string name="accueil">Accueil</string>
-    <string name="shivers_ed_sheeran_n_levitating_dua_lipa_n_save_your_tears_the_weeknd_n_flowers_miley_cyrus">• Shivers - Ed Sheeran\n• Levitating - Dua Lipa\n• Save Your Tears - The Weeknd\n• Flowers - Miley Cyrus</string>
-    <string name="suggestions_populaires">Suggestions populaires</string>
-    <string name="top_suggestions">Top suggestions :</string>
-    <string name="suggestions_titres" />
-    <string name="d_couvrez_les_meilleurs_titres_musicaux_et_testez_vos_connaissances">Découvrez les meilleurs titres musicaux et testez vos connaissances !</string>
     <string name="fonctionnalit_s">Fonctionnalités</string>
     <string name="recherchez_des_titres_ou_albums_via_deezer">Recherchez des titres ou albums via Deezer</string>
     <string name="coutez_un_extrait_et_consultez_les_d_tails">Écoutez un extrait et consultez les détails</string>
@@ -35,13 +22,21 @@
     <string name="section">Section</string>
     <string name="aucun_r_sultat_trouv">Aucun résultat trouvé</string>
     <string name="loading">Chargement en cours…</string>
-    <string name="error_occurred">Une erreur est survenue</string>
+    <string name="error_occurred">Une erreur est survenue : %1$s</string>
     <string name="morceaux">Morceaux</string>
     <string name="albums">Albums</string>
-    <string-array name="search_type_array">
-        <item>Morceaux</item>
-        <item>Albums</item>
-        <item>Artistes</item>
-    </string-array>
-
+    <string name="rechercher">Rechercher</string>
+    <string name="add_to_playlist">Ajouter à une playlist</string>
+    <string name="preview">Prévisualiser</string>
+    <string name="duration">Durée</string>
+    <string name="release_year">Année de sortie</string>
+    <string name="track_number">Piste %d</string>
+    <string name="minutes_seconds">%d:%02d</string>
+    <string name="play">Lecture</string>
+    <string name="pause">Pause</string>
+    <string name="tracklist">Liste des pistes</string>
+    <string name="release_year_format">Release Year: %s</string>
+    <string name="ajouter_une_playlist">Ajouter à une playlist</string>
+    <string name="searching">Recherche en cours…</string>
+    <string name="retry">Réessayer</string>
 </resources>

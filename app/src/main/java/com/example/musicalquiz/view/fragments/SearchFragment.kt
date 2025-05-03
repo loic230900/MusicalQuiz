@@ -17,12 +17,16 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.musicalquiz.R
 import com.example.musicalquiz.adapter.AlbumAdapter
 import com.example.musicalquiz.adapter.TrackAdapter
+import com.example.musicalquiz.model.Track
+import com.example.musicalquiz.model.Album
 import com.example.musicalquiz.viewmodel.TracksViewModel
+import com.google.android.material.snackbar.Snackbar
 
 /**
  * Fragment responsable de l'interface de recherche de musique.
@@ -65,10 +69,18 @@ class SearchFragment : Fragment() {
 
         // Configurer le RecyclerView avec le nombre de colonnes adapté à l'orientation
         val spanCount = if (resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) 3 else 2
-        trackAdapter = TrackAdapter(emptyList())
-        albumAdapter = AlbumAdapter(emptyList())
+        trackAdapter = TrackAdapter().apply {
+            setOnItemClickListener { track ->
+                onTrackClick(track)
+            }
+        }
+        albumAdapter = AlbumAdapter().apply {
+            setOnItemClickListener { album ->
+                onAlbumClick(album)
+            }
+        }
         recyclerView.layoutManager = GridLayoutManager(requireContext(), spanCount)
-        recyclerView.adapter = trackAdapter // Default to track adapter
+        recyclerView.adapter = trackAdapter
 
         return view
     }
@@ -143,7 +155,7 @@ class SearchFragment : Fragment() {
                     viewModel.setFilter(TracksViewModel.SearchFilter.TRACKS)
                     // Always reload data when changing filter
                     if (searchEditText.text.isNullOrEmpty()) {
-                        viewModel.loadTopCharts()
+                    viewModel.loadTopCharts()
                     } else {
                         viewModel.searchAll(searchEditText.text.toString())
                     }
@@ -153,7 +165,7 @@ class SearchFragment : Fragment() {
                     viewModel.setFilter(TracksViewModel.SearchFilter.ALBUMS)
                     // Always reload data when changing filter
                     if (searchEditText.text.isNullOrEmpty()) {
-                        viewModel.loadTopCharts()
+                    viewModel.loadTopCharts()
                     } else {
                         viewModel.searchAll(searchEditText.text.toString())
                     }
@@ -168,12 +180,12 @@ class SearchFragment : Fragment() {
      */
     private fun setupObservers() {
         viewModel.tracksLiveData.observe(viewLifecycleOwner) { tracks ->
-            trackAdapter.updateData(tracks)
+            trackAdapter.submitList(tracks)
             updateEmptyState()
         }
 
         viewModel.albumsLiveData.observe(viewLifecycleOwner) { albums ->
-            albumAdapter.updateData(albums)
+            albumAdapter.submitList(albums)
             updateEmptyState()
         }
 
@@ -182,13 +194,24 @@ class SearchFragment : Fragment() {
             if (isLoading) {
                 emptyStateTextView.text = getString(R.string.loading)
                 emptyStateTextView.visibility = View.VISIBLE
+                searchButton.text = getString(R.string.searching)
+            } else {
+                searchButton.text = getString(R.string.search)
             }
         }
 
         viewModel.error.observe(viewLifecycleOwner) { error ->
             error?.let {
-                emptyStateTextView.text = getString(R.string.error_occurred)
+                emptyStateTextView.text = getString(R.string.error_occurred, error)
                 emptyStateTextView.visibility = View.VISIBLE
+                // Show error in a Snackbar for better visibility
+                Snackbar.make(
+                    requireView(),
+                    getString(R.string.error_occurred, error),
+                    Snackbar.LENGTH_LONG
+                ).setAction(R.string.retry) {
+                    triggerSearch()
+                }.show()
             }
         }
     }
@@ -219,5 +242,21 @@ class SearchFragment : Fragment() {
     private fun hideKeyboard() {
         val imm = ContextCompat.getSystemService(requireContext(), InputMethodManager::class.java)
         imm?.hideSoftInputFromWindow(searchEditText.windowToken, 0)
+    }
+
+    private fun onTrackClick(track: Track) {
+        val bundle = Bundle().apply {
+            putLong("itemId", track.id)
+            putBoolean("isTrack", true)
+        }
+        findNavController().navigate(R.id.navigation_details, bundle)
+    }
+
+    private fun onAlbumClick(album: Album) {
+        val bundle = Bundle().apply {
+            putLong("itemId", album.id)
+            putBoolean("isTrack", false)
+        }
+        findNavController().navigate(R.id.navigation_details, bundle)
     }
 }

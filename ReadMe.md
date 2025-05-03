@@ -158,23 +158,23 @@ Guide d'implémentation progressif des fonctionnalités de l'application.
 
 ### 3.1 Layout
 - [x] Créer `fragment_details.xml`
-  - [ ] Image de couverture
-  - [ ] Informations détaillées
-  - [ ] Bouton de prévisualisation
-  - [ ] Bouton d'ajout à playlist
+  - [x] Image de couverture
+  - [x] Informations détaillées
+  - [x] Bouton de prévisualisation
+  - [x] Bouton d'ajout à playlist
 
 ### 3.2 ViewModel
-- [ ] Étendre `TracksViewModel.kt`
-  - [ ] Méthode de chargement des détails
-  - [ ] Gestion de la prévisualisation
-  - [ ] Gestion de l'ajout à playlist
+- [x] Étendre `TracksViewModel.kt`
+  - [x] Méthode de chargement des détails
+  - [x] Gestion de la prévisualisation
+  - [x] Gestion de l'ajout à playlist
 
 ### 3.3 Fragment
-- [ ] Implémenter `DetailsFragment.kt`
-  - [ ] Récupération des arguments
-  - [ ] Affichage des détails
-  - [ ] Gestion de la prévisualisation
-  - [ ] Gestion de l'ajout à playlist
+- [x] Implémenter `DetailsFragment.kt`
+  - [x] Récupération des arguments
+  - [x] Affichage des détails
+  - [x] Gestion de la prévisualisation
+  - [x] Gestion de l'ajout à playlist
 
 ## Phase 4 : Implémentation du PlaylistFragment
 
@@ -263,10 +263,14 @@ Guide d'implémentation progressif des fonctionnalités de l'application.
 
 ### Design Material
 - [ ] Harmoniser les couleurs, tailles, espacements
+- [ ] Ajouter des animations de transition
+- [ ] Améliorer le feedback utilisateur
 
 ### Expérience utilisateur
 - [ ] Indiquer les erreurs (ex: pas de réseau)
 - [ ] Utiliser `Snackbar`, `ProgressBar`, `Toast`,...
+- [ ] Ajouter des animations de chargement
+- [ ] Optimiser les performances
 
 ## Phase 8 — Finalisation
 

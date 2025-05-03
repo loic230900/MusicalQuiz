@@ -1,11 +1,11 @@
 package com.example.musicalquiz.model
 
 /**
- * Classe représentant un artiste musical.
+ * Class representing a music artist.
  *
- * @property id Identifiant de l’artiste
- * @property name Nom de l’artiste
- * @property picture URL de la photo de profil de l’artiste
+ * @property id Artist identifier
+ * @property name Artist name
+ * @property picture URL of the artist's profile picture
  */
 data class Artist(
     val id: String,

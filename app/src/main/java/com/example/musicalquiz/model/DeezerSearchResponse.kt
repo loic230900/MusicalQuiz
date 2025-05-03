@@ -1,8 +1,8 @@
 package com.example.musicalquiz.model
 
 /**
- * Classe générique représentant une réponse de l’API Deezer.
- * @param T Le type des objets retournés dans la liste (Track, Album, etc.)
+ * Generic class representing a response from the Deezer API.
+ * @param T The type of objects returned in the list (Track, Album, etc.)
  */
 data class DeezerSearchResponse<T>(
     val data: List<T>

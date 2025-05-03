@@ -12,6 +12,11 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.musicalquiz.viewmodel.TracksViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
+/**
+ * Main activity of the MusicalQuiz application.
+ * Handles the bottom navigation and hosts the main navigation graph.
+ * Manages the application's main UI components and navigation flow.
+ */
 class MainActivity : AppCompatActivity() {
     private val viewModel: TracksViewModel by viewModels()
 
