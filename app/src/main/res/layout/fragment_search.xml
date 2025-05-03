@@ -4,7 +4,7 @@
     android:id="@+id/searchLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#121212"
+    android:background="?attr/colorSurface"
     android:padding="16dp">
 
     <!-- Barre de recherche avec filtre -->
@@ -24,10 +24,10 @@
             android:autofillHints=""
             android:hint="@string/recherche_bar"
             android:drawableStart="@android:drawable/ic_menu_search"
-            android:background="@android:drawable/editbox_background"
+            android:background="@drawable/editbox_background"
             android:paddingHorizontal="8dp"
-            android:textColor="@color/black"
-            android:textColorHint="#BBBBBB"
+            android:textColor="?attr/colorOnSurface"
+            android:textColorHint="?attr/colorOnSurfaceVariant"
             android:inputType="text"
             android:imeOptions="actionSearch"
             app:layout_constraintTop_toTopOf="parent"
@@ -87,7 +87,8 @@
             android:text="@string/rechercher"
             app:layout_constraintEnd_toStartOf="@id/searchFilterGroup"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/searchEditText" />
+            app:layout_constraintTop_toBottomOf="@id/searchEditText"
+            android:textColor="?attr/colorOnSurface" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

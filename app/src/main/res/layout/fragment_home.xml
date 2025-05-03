@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:background="#FFFFFF"
+    android:background="?attr/colorSurface"
     android:fitsSystemWindows="true">
 
     <LinearLayout
@@ -21,7 +21,7 @@
             android:text="@string/bienvenue_sur_musicalquiz"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="#333333"
+            android:textColor="?attr/colorOnSurface"
             android:layout_marginBottom="12dp" />
 
         <TextView
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:text="@string/lancez_un_quiz_musical_bas_sur_vos_playlists"
             android:textSize="16sp"
-            android:textColor="#666666"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:layout_marginBottom="24dp" />
 
         <TextView
@@ -40,7 +40,7 @@
             android:text="@string/fonctionnalit_s"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="#000000"
+            android:textColor="?attr/colorOnSurface"
             android:layout_marginBottom="12dp" />
 
         <TextView
@@ -49,7 +49,7 @@
             android:text="@string/recherchez_des_titres_ou_albums_via_deezer"
             android:layout_marginBottom="4dp"
             android:textSize="16sp"
-            android:textColor="#444444" />
+            android:textColor="?attr/colorOnSurfaceVariant" />
 
         <TextView
             android:layout_width="match_parent"
@@ -57,7 +57,7 @@
             android:text="@string/consultez_les_d_tails_d_un_morceau_ou_d_un_album"
             android:layout_marginBottom="4dp"
             android:textSize="16sp"
-            android:textColor="#444444" />
+            android:textColor="?attr/colorOnSurfaceVariant" />
 
         <TextView
             android:layout_width="match_parent"
@@ -65,7 +65,7 @@
             android:text="@string/cr_ez_et_g_rez_vos_playlists_favorites"
             android:layout_marginBottom="4dp"
             android:textSize="16sp"
-            android:textColor="#444444" />
+            android:textColor="?attr/colorOnSurfaceVariant" />
 
         <TextView
             android:layout_width="match_parent"
@@ -73,7 +73,7 @@
             android:text="@string/lancez_un_quiz_musical_bas_sur_vos_playlists"
             android:layout_marginBottom="16dp"
             android:textSize="16sp"
-            android:textColor="#444444" />
+            android:textColor="?attr/colorOnSurfaceVariant" />
 
         <TextView
             android:id="@+id/homeTip"
@@ -81,7 +81,7 @@
             android:layout_height="wrap_content"
             android:text="@string/conseil_commencez_par_l_onglet_search_pour_d_couvrir_des_morceaux"
             android:textStyle="italic"
-            android:textColor="#666666"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:textSize="14sp"
             android:layout_marginTop="12dp" />
     </LinearLayout>

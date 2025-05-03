@@ -39,4 +39,8 @@
     <string name="ajouter_une_playlist">Ajouter à une playlist</string>
     <string name="searching">Recherche en cours…</string>
     <string name="retry">Réessayer</string>
+    <string name="track_title_label">Title: %1$s</string>
+    <string name="track_artist_label">Artist: %1$s</string>
+    <string name="album_title_label">Title: %1$s</string>
+    <string name="album_artist_label">Artist: %1$s</string>
 </resources>

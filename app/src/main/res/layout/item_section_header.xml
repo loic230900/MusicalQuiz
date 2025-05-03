@@ -7,5 +7,5 @@
     android:textStyle="bold"
     android:textSize="18sp"
     android:padding="12dp"
-    android:textColor="#333"
-    android:background="#EEEEEE"/>
+    android:textColor="?attr/colorOnSurface"
+    android:background="?attr/colorSurfaceVariant"/>

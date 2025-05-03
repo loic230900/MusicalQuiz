@@ -18,6 +18,7 @@ import com.example.musicalquiz.adapter.TrackListAdapter
 import com.example.musicalquiz.model.Track
 import com.example.musicalquiz.viewmodel.DetailsViewModel
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.chip.Chip
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 
@@ -32,8 +33,6 @@ class DetailsFragment : Fragment() {
     private lateinit var coverImage: ImageView
     private lateinit var titleText: TextView
     private lateinit var artistText: TextView
-    private lateinit var releaseYearText: TextView
-    private lateinit var durationLabel: TextView
     private lateinit var durationText: TextView
     private lateinit var tracklistRecyclerView: RecyclerView
     private lateinit var playPauseButton: FloatingActionButton
@@ -76,8 +75,6 @@ class DetailsFragment : Fragment() {
         coverImage = view.findViewById(R.id.coverImage)
         titleText = view.findViewById(R.id.titleText)
         artistText = view.findViewById(R.id.artistText)
-        releaseYearText = view.findViewById(R.id.releaseYearText)
-        durationLabel = view.findViewById(R.id.durationLabel)
         durationText = view.findViewById(R.id.durationText)
         tracklistRecyclerView = view.findViewById(R.id.tracklistRecyclerView)
         playPauseButton = view.findViewById(R.id.playPauseButton)
@@ -86,13 +83,11 @@ class DetailsFragment : Fragment() {
         // Show/hide views based on content type
         if (isTrack) {
             playPauseButton.visibility = View.VISIBLE
-            durationLabel.visibility = View.VISIBLE
             durationText.visibility = View.VISIBLE
             tracklistRecyclerView.visibility = View.GONE
-            playPauseButton.setImageResource(android.R.drawable.ic_media_play)
+            playPauseButton.setImageResource(R.drawable.ic_play)
         } else {
             playPauseButton.visibility = View.GONE
-            durationLabel.visibility = View.GONE
             durationText.visibility = View.GONE
             tracklistRecyclerView.visibility = View.VISIBLE
         }
@@ -168,13 +163,11 @@ class DetailsFragment : Fragment() {
     }
 
     private fun updateTrackUI(track: Track) {
-        titleText.text = track.title
-        artistText.text = track.artist.name
-        // Use a proper format string for release year
-        val year = track.releaseDate?.substring(0, 4) ?: ""
-        releaseYearText.text = getString(R.string.release_year_format, year)
+        titleText.text = getString(R.string.track_title_label, track.title)
+        artistText.text = getString(R.string.track_artist_label, track.artist.name)
         durationText.text = formatDuration(track.duration)
-        // Use the correct property for cover image
+        
+        // Load cover image with Glide
         Glide.with(this)
             .load(track.album.cover)
             .into(coverImage)
@@ -184,10 +177,10 @@ class DetailsFragment : Fragment() {
     }
 
     private fun updateAlbumUI(album: com.example.musicalquiz.model.Album) {
-        titleText.text = album.title
-        artistText.text = album.artist.name
-        val year = album.releaseDate?.substring(0, 4) ?: ""
-        releaseYearText.text = getString(R.string.release_year_format, year)
+        titleText.text = getString(R.string.album_title_label, album.title)
+        artistText.text = getString(R.string.album_artist_label, album.artist.name)
+        
+        // Load cover image with Glide
         Glide.with(this)
             .load(album.cover)
             .into(coverImage)
@@ -195,8 +188,8 @@ class DetailsFragment : Fragment() {
 
     private fun updatePlayPauseButton(isPlaying: Boolean) {
         playPauseButton.setImageResource(
-            if (isPlaying) android.R.drawable.ic_media_pause
-            else android.R.drawable.ic_media_play
+            if (isPlaying) R.drawable.ic_pause
+            else R.drawable.ic_play
         )
     }
 
@@ -211,7 +204,7 @@ class DetailsFragment : Fragment() {
     private fun formatDuration(seconds: Int): String {
         val minutes = seconds / 60
         val remainingSeconds = seconds % 60
-        return getString(R.string.minutes_seconds, minutes, remainingSeconds)
+        return "Duration: ${getString(R.string.minutes_seconds, minutes, remainingSeconds)}"
     }
 
     override fun onDestroyView() {

@@ -173,9 +173,9 @@ class DetailsViewModel : ViewModel() {
                 prepareAsync()
                 setOnPreparedListener {
                     try {
-                        start()
-                        _isPlaying.value = true
-                        currentPreviewTrack = track
+                    start()
+                    _isPlaying.value = true
+                    currentPreviewTrack = track
                     } catch (e: Exception) {
                         _error.value = "Error starting preview: ${e.message}"
                         _isPlaying.value = false
