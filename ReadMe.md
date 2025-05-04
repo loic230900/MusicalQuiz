@@ -15,12 +15,12 @@ musicalquiz/
 │   │       │   └── AlbumAdapter.kt       # Adaptateur pour les albums
 │   │       ├── database/                 # Base de données Room
 │   │       │   ├── dao/                  # Accès aux données
-│   │       │   │   ├── PlaylistDao.kt
-│   │       │   │   └── QuizDao.kt
+│   │       │   │   ├── PlaylistDao.kt    # DAO pour les playlists
+│   │       │   │   └── PlaylistTrackDao.kt # DAO pour les tracks dans les playlists
 │   │       │   ├── entities/             # Modèles persistants
-│   │       │   │   ├── Playlist.kt
-│   │       │   │   └── Quiz.kt
-│   │       │   └── AppDatabase.kt
+│   │       │   │   ├── Playlist.kt       # Entité Playlist
+│   │       │   │   └── PlaylistTrack.kt  # Entité de liaison Playlist-Track
+│   │       │   └── AppDatabase.kt        # Configuration de la base de données
 │   │       ├── model/                    # Modèles de données
 │   │       │   ├── Album.kt
 │   │       │   ├── Artist.kt
@@ -179,13 +179,13 @@ Guide d'implémentation progressif des fonctionnalités de l'application.
 ## Phase 4 : Implémentation du PlaylistFragment
 
 ### 4.1 Base de Données
-- [ ] Créer les entités
-  - [ ] `Playlist.kt`
-  - [ ] `PlaylistTrack.kt`
-- [ ] Implémenter les DAOs
-  - [ ] `PlaylistDao.kt`
-  - [ ] `PlaylistTrackDao.kt`
-- [ ] Configurer `AppDatabase.kt`
+- [x] Créer les entités
+  - [x] `Playlist.kt`
+  - [x] `PlaylistTrack.kt`
+- [x] Implémenter les DAOs
+  - [x] `PlaylistDao.kt`
+  - [x] `PlaylistTrackDao.kt`
+- [x] Configurer `AppDatabase.kt`
 
 ### 4.2 Layout
 - [ ] Créer `fragment_playlist.xml`

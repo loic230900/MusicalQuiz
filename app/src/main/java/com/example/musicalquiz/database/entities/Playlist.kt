@@ -1,11 +1,18 @@
 package com.example.musicalquiz.database.entities
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
 /**
- * Temporary Playlist model, to be completed with Room later.
- * @property id Unique playlist identifier
+ * Entity representing a playlist in the local database.
+ * @property id Unique playlist identifier (auto-generated)
  * @property name Playlist name
+ * @property createdAt Timestamp when the playlist was created
  */
+@Entity(tableName = "playlists")
 data class Playlist(
-    val id: Int,
-    val name: String
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
+    val name: String,
+    val createdAt: Long = System.currentTimeMillis()
 )
