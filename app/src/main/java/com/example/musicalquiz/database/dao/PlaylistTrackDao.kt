@@ -32,6 +32,9 @@ interface PlaylistTrackDao {
     @Query("UPDATE playlist_tracks SET position = position + 1 WHERE playlistId = :playlistId AND position >= :position")
     suspend fun shiftTracksPositions(playlistId: Int, position: Int)
 
+    @Query("UPDATE playlist_tracks SET duration = :duration WHERE playlistId = :playlistId AND trackId = :trackId")
+    suspend fun updateTrackDuration(playlistId: Int, trackId: Long, duration: Int)
+
     @Transaction
     suspend fun insertTrackAtPosition(playlistTrack: PlaylistTrack) {
         shiftTracksPositions(playlistTrack.playlistId, playlistTrack.position)

@@ -317,7 +317,7 @@ class SearchFragment : Fragment() {
             // Launch a coroutine to call the suspend function
             viewLifecycleOwner.lifecycleScope.launch {
                 when (item) {
-                    is Track -> addTrackToPlaylist(playlist, item.id)
+                    is Track -> addTrackToPlaylist(playlist, item)
                     is Album -> addAlbumToPlaylist(playlist, item)
                 }
             }
@@ -330,16 +330,15 @@ class SearchFragment : Fragment() {
 
         // Observe playlists
         playlistViewModel.playlists.observe(viewLifecycleOwner) { playlists ->
-                playlistSelectionAdapter.submitList(playlists)
+            playlistSelectionAdapter.submitList(playlists)
         }
 
         // Create new playlist button
         dialogBinding.findViewById<MaterialButton>(R.id.createNewButton).setOnClickListener {
             showCreatePlaylistDialog { newPlaylist ->
-                // Launch a coroutine to call the suspend function
                 viewLifecycleOwner.lifecycleScope.launch {
                     when (item) {
-                        is Track -> addTrackToPlaylist(newPlaylist, item.id)
+                        is Track -> addTrackToPlaylist(newPlaylist, item)
                         is Album -> addAlbumToPlaylist(newPlaylist, item)
                     }
                 }
@@ -374,9 +373,9 @@ class SearchFragment : Fragment() {
             .show()
     }
 
-    private suspend fun addTrackToPlaylist(playlist: Playlist, trackId: Long) {
+    private suspend fun addTrackToPlaylist(playlist: Playlist, track: Track) {
         try {
-            playlistViewModel.addTrackToPlaylist(playlist.id, trackId)
+            playlistViewModel.addTrackToPlaylist(playlist.id, track.id, track.duration)
             Snackbar.make(
                 requireView(),
                 getString(R.string.add_to_playlist_success, playlist.name),
@@ -398,7 +397,7 @@ class SearchFragment : Fragment() {
             var addedCount = 0
             
             tracks.forEach { track ->
-                playlistViewModel.addTrackToPlaylist(playlist.id, track.id)
+                playlistViewModel.addTrackToPlaylist(playlist.id, track.id, track.duration)
                 addedCount++
             }
 

@@ -14,7 +14,7 @@ package com.example.musicalquiz.model
 data class Track(
     val id: Long,
     val title: String,
-    val duration: Int,
+    val duration: Int, // Duration in seconds
     val artist: Artist,
     val album: Album,
     val releaseDate: String?,
@@ -22,4 +22,11 @@ data class Track(
 ) {
     val isAlbum: Boolean
         get() = album.title.equals(title, ignoreCase = true)
+
+    // Helper function to format duration
+    fun getFormattedDuration(): String {
+        val minutes = duration / 60
+        val seconds = duration % 60
+        return String.format("%d:%02d", minutes, seconds)
+    }
 }

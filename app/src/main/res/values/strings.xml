@@ -76,4 +76,8 @@
         <item quantity="one">1 track</item>
         <item quantity="other">%d tracks</item>
     </plurals>
+
+    <!-- Sort Button -->
+    <string name="sort">Sort</string>
+    <string name="sort_playlists">Sort Playlists</string>
 </resources>

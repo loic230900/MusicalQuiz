@@ -7,6 +7,19 @@
     android:background="?attr/colorSurface"
     android:fitsSystemWindows="true">
 
+    <!-- Sort Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/sortButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_margin="16dp"
+        android:text="@string/sort"
+        android:contentDescription="@string/sort_playlists"
+        app:icon="@drawable/ic_sort"
+        android:elevation="4dp"
+        style="@style/Widget.Material3.Button.IconButton" />
+
     <!-- Empty State -->
     <LinearLayout
         android:id="@+id/emptyStateLayout"
@@ -39,7 +52,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:paddingTop="8dp"
+        android:paddingTop="72dp"
         android:paddingBottom="80dp" />
 
     <!-- Add Playlist Button -->
@@ -51,5 +64,16 @@
         android:layout_margin="16dp"
         android:contentDescription="@string/add_playlist"
         android:src="@drawable/ic_add" />
+
+    <!-- Add ProgressBar for loading indicator -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

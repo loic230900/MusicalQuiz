@@ -15,7 +15,7 @@ import com.example.musicalquiz.database.entities.PlaylistTrack
  */
 @Database(
     entities = [Playlist::class, PlaylistTrack::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

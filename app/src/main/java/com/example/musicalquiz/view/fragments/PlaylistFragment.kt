@@ -69,14 +69,17 @@ class PlaylistFragment : Fragment() {
 
     private fun setupObservers() {
         viewModel.playlists.observe(viewLifecycleOwner) { playlists ->
-                adapter.submitList(playlists)
-                updateEmptyState(playlists.isEmpty())
+            adapter.submitList(playlists)
+            updateEmptyState(playlists.isEmpty())
         }
         viewModel.playlistTrackCounts.observe(viewLifecycleOwner) { counts ->
-                adapter.updateTrackCounts(counts)
+            adapter.updateTrackCounts(counts)
+        }
+        viewModel.playlistDurations.observe(viewLifecycleOwner) { durations ->
+            adapter.updateDurations(durations)
         }
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-                // TODO: Show loading indicator if needed
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
     }
 
@@ -84,6 +87,37 @@ class PlaylistFragment : Fragment() {
         binding.addPlaylistFab.setOnClickListener {
             showCreatePlaylistDialog()
         }
+
+        binding.sortButton.setOnClickListener {
+            showSortOptionsDialog()
+        }
+    }
+
+    private fun showSortOptionsDialog() {
+        val options = arrayOf(
+            "Name (A-Z)",
+            "Name (Z-A)",
+            "Track Count (Low to High)",
+            "Track Count (High to Low)",
+            "Duration (Short to Long)",
+            "Duration (Long to Short)"
+        )
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Sort Playlists")
+            .setItems(options) { _, which ->
+                val sortOrder = when (which) {
+                    0 -> PlaylistViewModel.SortOrder.NAME_ASC
+                    1 -> PlaylistViewModel.SortOrder.NAME_DESC
+                    2 -> PlaylistViewModel.SortOrder.TRACK_COUNT_ASC
+                    3 -> PlaylistViewModel.SortOrder.TRACK_COUNT_DESC
+                    4 -> PlaylistViewModel.SortOrder.DURATION_ASC
+                    5 -> PlaylistViewModel.SortOrder.DURATION_DESC
+                    else -> PlaylistViewModel.SortOrder.NAME_ASC
+                }
+                viewModel.setSortOrder(sortOrder)
+            }
+            .show()
     }
 
     private fun showCreatePlaylistDialog() {
@@ -141,6 +175,7 @@ class PlaylistFragment : Fragment() {
     private fun updateEmptyState(isEmpty: Boolean) {
         binding.emptyStateLayout.visibility = if (isEmpty) View.VISIBLE else View.GONE
         binding.playlistRecyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
+        binding.sortButton.visibility = if (isEmpty) View.GONE else View.VISIBLE
     }
 
     override fun onDestroyView() {

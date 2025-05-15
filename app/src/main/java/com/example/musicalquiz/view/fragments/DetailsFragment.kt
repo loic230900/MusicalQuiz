@@ -208,12 +208,15 @@ class DetailsFragment : Fragment() {
 
     private suspend fun addTrackToPlaylist(playlist: com.example.musicalquiz.database.entities.Playlist, trackId: Long) {
         try {
-            playlistViewModel.addTrackToPlaylist(playlist.id, trackId)
-            Snackbar.make(
-                requireView(),
-                getString(R.string.add_to_playlist_success, playlist.name),
-                Snackbar.LENGTH_SHORT
-            ).show()
+            viewModel.track.value?.let { track ->
+                val duration = track.duration
+                playlistViewModel.addTrackToPlaylist(playlist.id, trackId, duration)
+                Snackbar.make(
+                    requireView(),
+                    getString(R.string.add_to_playlist_success, playlist.name),
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
         } catch (e: Exception) {
             Snackbar.make(
                 requireView(),
@@ -230,7 +233,8 @@ class DetailsFragment : Fragment() {
             var addedCount = 0
             
             tracks.forEach { track ->
-                playlistViewModel.addTrackToPlaylist(playlist.id, track.id)
+                val duration = track.duration
+                playlistViewModel.addTrackToPlaylist(playlist.id, track.id, duration)
                 addedCount++
             }
 

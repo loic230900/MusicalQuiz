@@ -12,6 +12,7 @@ import com.example.musicalquiz.model.Album
  * @property playlistId ID of the playlist this track belongs to
  * @property trackId ID of the track from Deezer API
  * @property position Position of the track in the playlist
+ * @property duration Duration of the track in seconds
  * @property addedAt Timestamp when the track was added to the playlist
  */
 @Entity(
@@ -31,6 +32,7 @@ data class PlaylistTrack(
     val playlistId: Int,
     val trackId: Long,
     val position: Int,
+    val duration: Int = 0, // Duration in seconds
     val addedAt: Long = System.currentTimeMillis()
 ) {
     fun toTrack(): Track {
