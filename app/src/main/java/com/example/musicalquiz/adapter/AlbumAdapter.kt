@@ -19,6 +19,7 @@ import com.example.musicalquiz.model.Album
 class AlbumAdapter : ListAdapter<Album, AlbumAdapter.AlbumViewHolder>(AlbumDiffCallback()) {
 
     private var onItemClickListener: ((Album) -> Unit)? = null
+    private var onItemLongClickListener: ((Album) -> Unit)? = null
 
     /**
      * Sets a click listener for album items.
@@ -26,6 +27,14 @@ class AlbumAdapter : ListAdapter<Album, AlbumAdapter.AlbumViewHolder>(AlbumDiffC
      */
     fun setOnItemClickListener(listener: (Album) -> Unit) {
         onItemClickListener = listener
+    }
+
+    /**
+     * Sets a long click listener for album items.
+     * @param listener Callback function to be invoked when an album is long clicked
+     */
+    fun setOnItemLongClickListener(listener: (Album) -> Unit) {
+        onItemLongClickListener = listener
     }
 
     /**
@@ -62,6 +71,10 @@ class AlbumAdapter : ListAdapter<Album, AlbumAdapter.AlbumViewHolder>(AlbumDiffC
         val album = getItem(position)
         holder.bind(album)
         holder.itemView.setOnClickListener { onItemClickListener?.invoke(album) }
+        holder.itemView.setOnLongClickListener {
+            onItemLongClickListener?.invoke(album)
+            true
+        }
     }
 }
 

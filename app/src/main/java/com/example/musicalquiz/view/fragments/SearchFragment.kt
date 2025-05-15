@@ -17,16 +17,26 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.musicalquiz.R
 import com.example.musicalquiz.adapter.AlbumAdapter
 import com.example.musicalquiz.adapter.TrackAdapter
+import com.example.musicalquiz.adapter.PlaylistSelectionAdapter
+import com.example.musicalquiz.database.entities.Playlist
 import com.example.musicalquiz.model.Track
 import com.example.musicalquiz.model.Album
 import com.example.musicalquiz.viewmodel.TracksViewModel
+import com.example.musicalquiz.viewmodel.PlaylistViewModel
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.button.MaterialButton
+import kotlinx.coroutines.launch
 
 /**
  * Fragment responsable de l'interface de recherche de musique.
@@ -46,6 +56,8 @@ class SearchFragment : Fragment() {
     private lateinit var albumFilter: RadioButton
 
     private val viewModel: TracksViewModel by activityViewModels()
+    private val playlistViewModel: PlaylistViewModel by viewModels()
+    private lateinit var playlistSelectionAdapter: PlaylistSelectionAdapter
 
     /**
      * Crée et initialise la vue du fragment.
@@ -73,10 +85,16 @@ class SearchFragment : Fragment() {
             setOnItemClickListener { track ->
                 onTrackClick(track)
             }
+            setOnItemLongClickListener { track ->
+                showPlaylistSelectionDialog(track)
+            }
         }
         albumAdapter = AlbumAdapter().apply {
             setOnItemClickListener { album ->
                 onAlbumClick(album)
+            }
+            setOnItemLongClickListener { album ->
+                showPlaylistSelectionDialog(album)
             }
         }
         recyclerView.layoutManager = GridLayoutManager(requireContext(), spanCount)
@@ -258,5 +276,112 @@ class SearchFragment : Fragment() {
             putBoolean("isTrack", false)
         }
         findNavController().navigate(R.id.navigation_details, bundle)
+    }
+
+    private fun showPlaylistSelectionDialog(item: Any) {
+        val dialogBinding = layoutInflater.inflate(R.layout.dialog_select_playlist, null)
+        val recyclerView = dialogBinding.findViewById<RecyclerView>(R.id.playlistRecyclerView)
+
+        playlistSelectionAdapter = PlaylistSelectionAdapter { playlist ->
+            // Launch a coroutine to call the suspend function
+            viewLifecycleOwner.lifecycleScope.launch {
+                when (item) {
+                    is Track -> addTrackToPlaylist(playlist, item.id)
+                    is Album -> addAlbumToPlaylist(playlist, item)
+                }
+            }
+        }
+
+        recyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = playlistSelectionAdapter
+        }
+
+        // Observe playlists
+        playlistViewModel.playlists.observe(viewLifecycleOwner) { playlists ->
+                playlistSelectionAdapter.submitList(playlists)
+        }
+
+        // Create new playlist button
+        dialogBinding.findViewById<MaterialButton>(R.id.createNewButton).setOnClickListener {
+            showCreatePlaylistDialog { newPlaylist ->
+                // Launch a coroutine to call the suspend function
+                viewLifecycleOwner.lifecycleScope.launch {
+                    when (item) {
+                        is Track -> addTrackToPlaylist(newPlaylist, item.id)
+                        is Album -> addAlbumToPlaylist(newPlaylist, item)
+                    }
+                }
+            }
+        }
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogBinding)
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun showCreatePlaylistDialog(onCreated: (Playlist) -> Unit) {
+        val dialogBinding = layoutInflater.inflate(R.layout.dialog_playlist, null)
+        val nameInput = dialogBinding.findViewById<TextInputEditText>(R.id.playlistNameInput)
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.create_playlist)
+            .setView(dialogBinding)
+            .setPositiveButton(R.string.create) { _, _ ->
+                val name = nameInput.text.toString()
+                if (name.isNotBlank()) {
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        val playlistId = playlistViewModel.createPlaylist(name)
+                        playlistViewModel.playlists.value?.find { it.id == playlistId }?.let { playlist ->
+                            onCreated(playlist)
+                        }
+                    }
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private suspend fun addTrackToPlaylist(playlist: Playlist, trackId: Long) {
+        try {
+            playlistViewModel.addTrackToPlaylist(playlist.id, trackId)
+            Snackbar.make(
+                requireView(),
+                getString(R.string.add_to_playlist_success, playlist.name),
+                Snackbar.LENGTH_SHORT
+            ).show()
+        } catch (e: Exception) {
+            Snackbar.make(
+                requireView(),
+                R.string.add_to_playlist_error,
+                Snackbar.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private suspend fun addAlbumToPlaylist(playlist: Playlist, album: Album) {
+        try {
+            // Get album tracks from Deezer API
+            val tracks = viewModel.getAlbumTracks(album.id)
+            var addedCount = 0
+            
+            tracks.forEach { track ->
+                playlistViewModel.addTrackToPlaylist(playlist.id, track.id)
+                addedCount++
+            }
+
+            Snackbar.make(
+                requireView(),
+                getString(R.string.tracks_added, addedCount),
+                Snackbar.LENGTH_SHORT
+            ).show()
+        } catch (e: Exception) {
+            Snackbar.make(
+                requireView(),
+                R.string.add_to_playlist_error,
+                Snackbar.LENGTH_SHORT
+            ).show()
+        }
     }
 }

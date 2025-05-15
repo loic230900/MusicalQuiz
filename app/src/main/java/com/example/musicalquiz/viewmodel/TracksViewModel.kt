@@ -124,4 +124,24 @@ class TracksViewModel : ViewModel() {
     fun reloadLastSearch() {
         lastQuery?.let { searchAll(it) } ?: loadTopCharts()
     }
+
+    /**
+     * Fetches tracks for a specific album from the Deezer API.
+     * @param albumId The ID of the album to fetch tracks for
+     * @return A list of tracks associated with the album
+     */
+    suspend fun getAlbumTracks(albumId: Long): List<Track> {
+        return try {
+            val response = RetrofitInstance.api.getAlbumTracks(albumId)
+            if (response.isSuccessful) {
+                response.body()?.data ?: emptyList()
+            } else {
+                _error.value = "Error fetching album tracks: ${response.code()}"
+                emptyList()
+            }
+        } catch (e: Exception) {
+            _error.value = e.message
+            emptyList()
+        }
+    }
 }

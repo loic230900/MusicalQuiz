@@ -3,6 +3,9 @@ package com.example.musicalquiz.database.entities
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
+import com.example.musicalquiz.model.Track
+import com.example.musicalquiz.model.Artist
+import com.example.musicalquiz.model.Album
 
 /**
  * Entity representing a track in a playlist (junction table).
@@ -29,4 +32,18 @@ data class PlaylistTrack(
     val trackId: Long,
     val position: Int,
     val addedAt: Long = System.currentTimeMillis()
-) 
+) {
+    fun toTrack(): Track {
+        // TODO: Implement conversion from PlaylistTrack to Track
+        // This will require fetching the track details from the Deezer API
+        return Track(
+            id = trackId,
+            title = "Loading...",
+            duration = 0,
+            artist = Artist("0", "Loading...", ""),
+            album = Album(0, "Loading...", "", Artist("0", "Loading...", ""), "Loading..."),
+            releaseDate = "Loading...",
+            preview = null
+        )
+    }
+} 

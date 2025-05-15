@@ -28,7 +28,32 @@
         android:id="@+id/navigation_playlist"
         android:name="com.example.musicalquiz.view.fragments.PlaylistFragment"
         android:label="@string/playlist"
-        tools:layout="@layout/fragment_playlist" />
+        tools:layout="@layout/fragment_playlist">
+        <action
+            android:id="@+id/action_playlistFragment_to_playlistDetailsFragment"
+            app:destination="@id/navigation_playlist_details"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_playlist_details"
+        android:name="com.example.musicalquiz.view.fragments.PlaylistDetailsFragment"
+        android:label="@string/playlist_details"
+        tools:layout="@layout/fragment_playlist_details">
+        <argument
+            android:name="playlistId"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_playlistDetailsFragment_to_navigation_details"
+            app:destination="@id/navigation_details"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_quiz"

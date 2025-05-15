@@ -19,6 +19,7 @@ import com.example.musicalquiz.model.Track
 class TrackAdapter : ListAdapter<Track, TrackAdapter.TrackViewHolder>(TrackDiffCallback()) {
 
     private var onItemClickListener: ((Track) -> Unit)? = null
+    private var onItemLongClickListener: ((Track) -> Unit)? = null
 
     /**
      * Sets a click listener for track items.
@@ -29,10 +30,18 @@ class TrackAdapter : ListAdapter<Track, TrackAdapter.TrackViewHolder>(TrackDiffC
     }
 
     /**
+     * Sets a long click listener for track items.
+     * @param listener Callback function to be invoked when a track is long clicked
+     */
+    fun setOnItemLongClickListener(listener: (Track) -> Unit) {
+        onItemLongClickListener = listener
+    }
+
+    /**
      * ViewHolder class for track items.
      * Holds references to the views that display track information.
      */
-    class TrackViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class TrackViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val typeLabel: TextView = itemView.findViewById(R.id.typeLabel)
         private val image: ImageView = itemView.findViewById(R.id.coverImageView)
         private val title: TextView = itemView.findViewById(R.id.title)
@@ -62,6 +71,10 @@ class TrackAdapter : ListAdapter<Track, TrackAdapter.TrackViewHolder>(TrackDiffC
         val track = getItem(position)
         holder.bind(track)
         holder.itemView.setOnClickListener { onItemClickListener?.invoke(track) }
+        holder.itemView.setOnLongClickListener { 
+            onItemLongClickListener?.invoke(track)
+            true
+        }
     }
 }
 
