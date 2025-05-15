@@ -31,6 +31,11 @@ class TracksViewModel : ViewModel() {
 
     private var lastQuery: String? = null
     private var currentFilter: SearchFilter = SearchFilter.TRACKS
+    
+    // Pagination properties
+    private var currentPage = 0
+    private var hasMoreResults = true
+    private var isLoadingMore = false
 
     enum class SearchFilter {
         TRACKS, ALBUMS
@@ -38,7 +43,14 @@ class TracksViewModel : ViewModel() {
 
     fun setFilter(filter: SearchFilter) {
         currentFilter = filter
+        resetPagination()
         lastQuery?.let { searchAll(it) }
+    }
+
+    private fun resetPagination() {
+        currentPage = 0
+        hasMoreResults = true
+        isLoadingMore = false
     }
 
     private fun <T> handleResponse(
@@ -46,7 +58,9 @@ class TracksViewModel : ViewModel() {
         onSuccess: (List<T>) -> Unit
     ) {
         if (response.isSuccessful) {
-            onSuccess(response.body()?.data ?: emptyList())
+            val data = response.body()?.data ?: emptyList()
+            hasMoreResults = data.isNotEmpty() && response.body()?.next != null
+            onSuccess(data)
         } else {
             _error.value = "Erreur API: ${response.code()}"
         }
@@ -57,23 +71,43 @@ class TracksViewModel : ViewModel() {
      * Les résultats sont mélangés et affichés dans une liste unique.
      * @param query Le terme de recherche saisi par l'utilisateur
      */
-    fun searchAll(query: String) {
-        lastQuery = query
+    fun searchAll(query: String, loadMore: Boolean = false) {
+        if (loadMore && (!hasMoreResults || isLoadingMore)) return
+        
+        if (!loadMore) {
+            lastQuery = query
+            resetPagination()
+        }
+        
         viewModelScope.launch {
-            _isLoading.value = true
+            if (!loadMore) {
+                _isLoading.value = true
+            }
+            isLoadingMore = true
             _error.value = null
+            
             try {
                 when (currentFilter) {
                     SearchFilter.TRACKS -> {
-                        val response = RetrofitInstance.api.searchTracks(query)
+                        val response = RetrofitInstance.api.searchTracks(query, currentPage * 25)
                         handleResponse(response) { tracks ->
-                        _tracksLiveData.value = tracks
+                            if (loadMore) {
+                                _tracksLiveData.value = (_tracksLiveData.value ?: emptyList()) + tracks
+                            } else {
+                                _tracksLiveData.value = tracks
+                            }
+                            if (hasMoreResults) currentPage++
                         }
                     }
                     SearchFilter.ALBUMS -> {
-                        val response = RetrofitInstance.api.searchAlbums(query)
+                        val response = RetrofitInstance.api.searchAlbums(query, currentPage * 25)
                         handleResponse(response) { albums ->
-                        _albumsLiveData.value = albums
+                            if (loadMore) {
+                                _albumsLiveData.value = (_albumsLiveData.value ?: emptyList()) + albums
+                            } else {
+                                _albumsLiveData.value = albums
+                            }
+                            if (hasMoreResults) currentPage++
                         }
                     }
                 }
@@ -81,8 +115,13 @@ class TracksViewModel : ViewModel() {
                 _error.value = e.message
             } finally {
                 _isLoading.value = false
+                isLoadingMore = false
             }
         }
+    }
+
+    fun loadMoreResults() {
+        lastQuery?.let { searchAll(it, true) }
     }
 
     /**

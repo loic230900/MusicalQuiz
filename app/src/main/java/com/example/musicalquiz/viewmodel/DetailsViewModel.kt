@@ -223,4 +223,17 @@ class DetailsViewModel : ViewModel() {
         super.onCleared()
         stopPlayback()
     }
+
+    suspend fun getAlbumTracks(albumId: Long): List<Track> {
+        return try {
+            val response = api.getAlbumTracks(albumId)
+            if (response.isSuccessful) {
+                response.body()?.data ?: emptyList()
+            } else {
+                emptyList()
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
 } 

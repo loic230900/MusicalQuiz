@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -13,14 +14,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.musicalquiz.R
 import com.example.musicalquiz.adapter.TrackListAdapter
 import com.example.musicalquiz.databinding.FragmentPlaylistDetailsBinding
+import com.example.musicalquiz.viewmodel.DetailsViewModel
 import com.example.musicalquiz.viewmodel.PlaylistViewModel
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 
 class PlaylistDetailsFragment : Fragment() {
     private var _binding: FragmentPlaylistDetailsBinding? = null
     private val binding get() = _binding!!
     
-    private val viewModel: PlaylistViewModel by viewModels()
+    private val playlistViewModel: PlaylistViewModel by viewModels()
+    private val detailsViewModel: DetailsViewModel by activityViewModels()
     private val args: PlaylistDetailsFragmentArgs by navArgs()
     private lateinit var adapter: TrackListAdapter
 
@@ -38,7 +43,7 @@ class PlaylistDetailsFragment : Fragment() {
         setupRecyclerView()
         setupObservers()
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.loadPlaylistTracks(args.playlistId)
+            playlistViewModel.loadPlaylistTracks(args.playlistId)
         }
     }
 
@@ -55,7 +60,10 @@ class PlaylistDetailsFragment : Fragment() {
                 )
             },
             onPreviewClick = { track ->
-                // TODO: Implement preview functionality
+                detailsViewModel.playPreview(track)
+            },
+            onDeleteClick = { track ->
+                showDeleteConfirmationDialog(track)
             }
         )
 
@@ -66,17 +74,47 @@ class PlaylistDetailsFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        viewModel.currentPlaylistTracks.observe(viewLifecycleOwner) { tracks ->
-                adapter.submitList(tracks)
-                updateEmptyState(tracks.isEmpty())
+        playlistViewModel.currentPlaylistTracks.observe(viewLifecycleOwner) { tracks ->
+            adapter.submitList(tracks)
+            updateEmptyState(tracks.isEmpty())
         }
-        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-                // TODO: Show loading indicator if needed
+        playlistViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            // TODO: Show loading indicator if needed
+        }
+        detailsViewModel.isPlaying.observe(viewLifecycleOwner) { isPlaying ->
+            // Update UI if needed
+        }
+        detailsViewModel.error.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                Snackbar.make(requireView(), error, Snackbar.LENGTH_LONG).show()
+            }
         }
     }
 
-    private fun loadPlaylistDetails() {
-        // Now handled in onViewCreated with coroutine
+    private fun showDeleteConfirmationDialog(track: com.example.musicalquiz.model.Track) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.delete_track)
+            .setMessage(getString(R.string.delete_track_confirmation, track.title))
+            .setPositiveButton(R.string.delete) { _, _ ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    try {
+                        playlistViewModel.removeTrackFromPlaylist(args.playlistId, track.id)
+                        Snackbar.make(
+                            requireView(),
+                            getString(R.string.track_deleted),
+                            Snackbar.LENGTH_SHORT
+                        ).show()
+                    } catch (e: Exception) {
+                        Snackbar.make(
+                            requireView(),
+                            R.string.delete_track_error,
+                            Snackbar.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     private fun updateEmptyState(isEmpty: Boolean) {
@@ -86,6 +124,7 @@ class PlaylistDetailsFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        detailsViewModel.stopPlayback()
         _binding = null
     }
 } 

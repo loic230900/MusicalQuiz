@@ -5,11 +5,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.musicalquiz.R
 import com.example.musicalquiz.database.entities.Playlist
 import com.example.musicalquiz.databinding.PlaylistItemBinding
 
 class PlaylistSelectionAdapter(
-    private val onPlaylistSelected: (Playlist) -> Unit
+    private val onPlaylistSelected: (Playlist) -> Unit,
+    private var trackCounts: Map<Int, Int> = emptyMap()
 ) : ListAdapter<Playlist, PlaylistSelectionAdapter.ViewHolder>(PlaylistDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -23,6 +25,13 @@ class PlaylistSelectionAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(getItem(position))
+    }
+
+    fun updateTrackCounts(newCounts: Map<Int, Int>) {
+        if (trackCounts != newCounts) {
+            this.trackCounts = newCounts
+            notifyItemRangeChanged(0, itemCount)
+        }
     }
 
     inner class ViewHolder(
@@ -44,7 +53,12 @@ class PlaylistSelectionAdapter(
         fun bind(playlist: Playlist) {
             binding.apply {
                 playlistName.text = playlist.name
-                trackCount.text = "0 tracks" // TODO: Update with actual count
+                val count = trackCounts[playlist.id] ?: 0
+                trackCount.text = itemView.context.resources.getQuantityString(
+                    R.plurals.track_count,
+                    count,
+                    count
+                )
             }
         }
     }

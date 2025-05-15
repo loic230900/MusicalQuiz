@@ -81,6 +81,38 @@ class SearchFragment : Fragment() {
 
         // Configurer le RecyclerView avec le nombre de colonnes adapté à l'orientation
         val spanCount = if (resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) 3 else 2
+        val layoutManager = GridLayoutManager(requireContext(), spanCount)
+        
+        // Add scroll listener for infinite scrolling
+        layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                return if (position == layoutManager.itemCount - 1 && viewModel.isLoading.value == true) {
+                    spanCount // Loading indicator takes full width
+                } else {
+                    1 // Normal item takes one column
+                }
+            }
+        }
+        
+        recyclerView.layoutManager = layoutManager
+        
+        // Add scroll listener
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                
+                val visibleItemCount = layoutManager.childCount
+                val totalItemCount = layoutManager.itemCount
+                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+                
+                if (!viewModel.isLoading.value!! && 
+                    (visibleItemCount + firstVisibleItemPosition) >= totalItemCount &&
+                    firstVisibleItemPosition >= 0) {
+                    viewModel.loadMoreResults()
+                }
+            }
+        })
+
         trackAdapter = TrackAdapter().apply {
             setOnItemClickListener { track ->
                 onTrackClick(track)
@@ -97,7 +129,6 @@ class SearchFragment : Fragment() {
                 showPlaylistSelectionDialog(album)
             }
         }
-        recyclerView.layoutManager = GridLayoutManager(requireContext(), spanCount)
         recyclerView.adapter = trackAdapter
 
         return view
@@ -282,7 +313,7 @@ class SearchFragment : Fragment() {
         val dialogBinding = layoutInflater.inflate(R.layout.dialog_select_playlist, null)
         val recyclerView = dialogBinding.findViewById<RecyclerView>(R.id.playlistRecyclerView)
 
-        playlistSelectionAdapter = PlaylistSelectionAdapter { playlist ->
+        playlistSelectionAdapter = PlaylistSelectionAdapter({ playlist ->
             // Launch a coroutine to call the suspend function
             viewLifecycleOwner.lifecycleScope.launch {
                 when (item) {
@@ -290,7 +321,7 @@ class SearchFragment : Fragment() {
                     is Album -> addAlbumToPlaylist(playlist, item)
                 }
             }
-        }
+        }, playlistViewModel.playlistTrackCounts.value ?: emptyMap())
 
         recyclerView.apply {
             layoutManager = LinearLayoutManager(context)

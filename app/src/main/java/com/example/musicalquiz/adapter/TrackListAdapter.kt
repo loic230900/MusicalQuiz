@@ -16,10 +16,12 @@ import com.example.musicalquiz.model.Track
  * Provides functionality for track preview playback and navigation to track details.
  * @param onTrackClick Callback function to be invoked when a track is clicked
  * @param onPreviewClick Callback function to be invoked when a track's preview button is clicked
+ * @param onDeleteClick Callback function to be invoked when a track's delete button is clicked
  */
 class TrackListAdapter(
     private val onTrackClick: (Track) -> Unit,
-    private val onPreviewClick: (Track) -> Unit
+    private val onPreviewClick: (Track) -> Unit,
+    private val onDeleteClick: (Track) -> Unit
 ) : ListAdapter<Track, TrackListAdapter.TrackViewHolder>(TrackDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackViewHolder {
@@ -42,6 +44,7 @@ class TrackListAdapter(
         private val trackTitleText: TextView = itemView.findViewById(R.id.trackTitleText)
         private val trackDurationText: TextView = itemView.findViewById(R.id.trackDurationText)
         private val previewButton: ImageButton = itemView.findViewById(R.id.previewButton)
+        private val deleteButton: ImageButton = itemView.findViewById(R.id.deleteButton)
 
         /**
          * Binds track data to the ViewHolder's views.
@@ -55,6 +58,10 @@ class TrackListAdapter(
             // Set click listeners
             itemView.setOnClickListener { onTrackClick(track) }
             previewButton.setOnClickListener { onPreviewClick(track) }
+            deleteButton.setOnClickListener { onDeleteClick(track) }
+
+            // Show/hide preview button based on preview availability
+            previewButton.visibility = if (track.preview != null) View.VISIBLE else View.GONE
         }
 
         /**

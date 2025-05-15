@@ -5,5 +5,6 @@ package com.example.musicalquiz.model
  * @param T The type of objects returned in the list (Track, Album, etc.)
  */
 data class DeezerSearchResponse<T>(
-    val data: List<T>
+    val data: List<T>,
+    val next: String? = null
 )

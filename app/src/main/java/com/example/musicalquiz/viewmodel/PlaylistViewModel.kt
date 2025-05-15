@@ -4,16 +4,15 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import com.example.musicalquiz.database.AppDatabase
 import com.example.musicalquiz.database.entities.Playlist
 import com.example.musicalquiz.database.entities.PlaylistTrack
 import com.example.musicalquiz.model.Track
 import com.example.musicalquiz.network.RetrofitInstance
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /**
@@ -41,19 +40,25 @@ class PlaylistViewModel(application: Application) : AndroidViewModel(application
 
     init {
         viewModelScope.launch {
+            // Collect playlists
             playlistDao.getAllPlaylists().collectLatest { playlists ->
                 _playlists.postValue(playlists)
-                // Update track counts for all playlists
-                updateTrackCounts(playlists)
             }
         }
-    }
 
-    private suspend fun updateTrackCounts(playlists: List<Playlist>) {
-        val counts = playlists.associate { playlist ->
-            playlist.id to playlistTrackDao.getTrackCountForPlaylist(playlist.id)
+        // Observe track counts for all playlists
+        viewModelScope.launch {
+            _playlists.asFlow().collectLatest { playlists ->
+                val counts = mutableMapOf<Int, Int>()
+                playlists.forEach { playlist ->
+                    playlistTrackDao.getTrackCountForPlaylist(playlist.id)
+                        .collectLatest { count ->
+                            counts[playlist.id] = count
+                            _playlistTrackCounts.postValue(counts.toMap())
+                        }
+                }
+            }
         }
-        _playlistTrackCounts.postValue(counts)
     }
 
     // CRUD Operations
@@ -89,15 +94,13 @@ class PlaylistViewModel(application: Application) : AndroidViewModel(application
     suspend fun addTrackToPlaylist(playlistId: Int, trackId: Long) {
         _isLoading.postValue(true)
         try {
-            val trackCount = playlistTrackDao.getTrackCountForPlaylist(playlistId)
+            val trackCount = playlistTrackDao.getTrackCountForPlaylist(playlistId).first()
             val playlistTrack = PlaylistTrack(
                 playlistId = playlistId,
                 trackId = trackId,
                 position = trackCount
             )
             playlistTrackDao.insertTrackAtPosition(playlistTrack)
-            // Update track count
-            updateTrackCounts(_playlists.value ?: emptyList())
         } finally {
             _isLoading.postValue(false)
         }
@@ -108,14 +111,12 @@ class PlaylistViewModel(application: Application) : AndroidViewModel(application
         try {
             val track = PlaylistTrack(playlistId, trackId, 0)
             playlistTrackDao.deleteTrack(track)
-            // Update track count
-            updateTrackCounts(_playlists.value ?: emptyList())
         } finally {
             _isLoading.postValue(false)
         }
     }
 
-    suspend fun loadPlaylistTracks(playlistId: Int) {
+    fun loadPlaylistTracks(playlistId: Int) {
         viewModelScope.launch {
             playlistTrackDao.getTracksForPlaylist(playlistId).collectLatest { playlistTracks ->
                 val tracks = mutableListOf<Track>()
@@ -134,7 +135,7 @@ class PlaylistViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    suspend fun reorderTracks(playlistId: Int, fromPosition: Int, toPosition: Int) {
+    fun reorderTracks(playlistId: Int, fromPosition: Int, toPosition: Int) {
         _isLoading.postValue(true)
         try {
             // Implementation for reordering tracks

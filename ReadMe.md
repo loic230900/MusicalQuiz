@@ -3,59 +3,62 @@
 ## Structure du Projet
 ```
 musicalquiz/
-├── README.md                             # Documentation du projet
+├── README.md                             # Documentation
 ├── app/
-│   ├── manifests/                        # Configuration Android
-│   │   └── AndroidManifest.xml           # Permissions et composants
-│   ├── kotlin+java/                      # Code source
-│   │   └── com.example.musicalquiz/
-│   │       ├── MainActivity.kt           # Activité principale
-│   │       ├── adapter/                  # Adaptateurs RecyclerView
-│   │       │   ├── TrackAdapter.kt       # Adaptateur pour les morceaux
-│   │       │   └── AlbumAdapter.kt       # Adaptateur pour les albums
-│   │       ├── database/                 # Base de données Room
-│   │       │   ├── dao/                  # Accès aux données
-│   │       │   │   ├── PlaylistDao.kt    # DAO pour les playlists
-│   │       │   │   └── PlaylistTrackDao.kt # DAO pour les tracks dans les playlists
-│   │       │   ├── entities/             # Modèles persistants
-│   │       │   │   ├── Playlist.kt       # Entité Playlist
-│   │       │   │   └── PlaylistTrack.kt  # Entité de liaison Playlist-Track
-│   │       │   └── AppDatabase.kt        # Configuration de la base de données
-│   │       ├── model/                    # Modèles de données
-│   │       │   ├── Album.kt
-│   │       │   ├── Artist.kt
-│   │       │   ├── DeezerSearchResponse.kt
-│   │       │   └── Track.kt
-│   │       ├── network/                  # API Deezer
-│   │       │   ├── DeezerApiInterface.kt
-│   │       │   └── RetrofitInstance.kt
-│   │       ├── view/                     # Interface utilisateur
-│   │       │   └── fragments/            # Écrans de l'application
-│   │       │       ├── SearchFragment.kt
-│   │       │       ├── DetailsFragment.kt
-│   │       │       ├── PlaylistFragment.kt
-│   │       │       ├── QuizFragment.kt
-│   │       │       └── HomeFragment.kt
-│   │       └── viewmodel/                # Logique métier
-│   │           ├── TracksViewModel.kt
-│   │           └── PlaylistViewModel.kt
-│   └── res/                             # Ressources
-│       ├── layout/                      # Layouts XML
-│       │   ├── activity_main.xml
-│       │   ├── fragment_search.xml
-│       │   ├── fragment_details.xml
-│       │   ├── fragment_playlist.xml
-│       │   ├── fragment_quiz.xml
-│       │   ├── fragment_home.xml
-│       │   └── track_item.xml
-│       ├── menu/                        # Menus
-│       │   └── bottom_nav_menu.xml
-│       ├── navigation/                  # Navigation
-│       │   └── nav_graph.xml
-│       └── values/                      # Ressources
-│           ├── colors.xml
-│           ├── strings.xml
-│           └── themes.xml
+│   ├── build.gradle.kts                  # Gradle config
+│   ├── proguard-rules.pro               # ProGuard rules
+│   └── src/
+│       └── main/
+│           ├── java/
+│           │   └── com.example.musicalquiz/
+│           │       ├── MainActivity.kt           # Main activity
+│           │       ├── adapter/                  # RecyclerView adapters
+│           │       │   ├── TrackAdapter.kt       
+│           │       │   ├── AlbumAdapter.kt       
+│           │       │   └── PlaylistSelectionAdapter.kt 
+│           │       ├── database/                 # Room database
+│           │       │   ├── dao/                  # Data access
+│           │       │   │   ├── PlaylistDao.kt    
+│           │       │   │   └── PlaylistTrackDao.kt 
+│           │       │   ├── entities/             # Database entities
+│           │       │   │   ├── Playlist.kt       
+│           │       │   │   └── PlaylistTrack.kt  # Track entity
+│           │       │   └── AppDatabase.kt        # Database config
+│           │       ├── model/                    # Data models
+│           │       │   ├── Album.kt              
+│           │       │   ├── Artist.kt             
+│           │       │   ├── DeezerSearchResponse.kt # API response
+│           │       │   └── Track.kt              
+│           │       ├── network/                  # API client
+│           │       │   ├── DeezerApiInterface.kt # API interface
+│           │       │   └── RetrofitInstance.kt   # Retrofit config
+│           │       ├── view/                     # UI components
+│           │       │   └── fragments/            # App screens
+│           │       │       ├── SearchFragment.kt 
+│           │       │       ├── DetailsFragment.kt 
+│           │       │       ├── PlaylistFragment.kt 
+│           │       │       ├── QuizFragment.kt   
+│           │       │       └── HomeFragment.kt   
+│           │       └── viewmodel/                # ViewModels
+│           │           ├── TracksViewModel.kt    
+│           │           └── PlaylistViewModel.kt  
+│           └── res/                             # Resources
+│               ├── layout/                      # Layouts
+│               │   ├── activity_main.xml
+│               │   ├── fragment_search.xml
+│               │   ├── fragment_details.xml
+│               │   ├── fragment_playlist.xml
+│               │   ├── fragment_quiz.xml
+│               │   ├── fragment_home.xml
+│               │   └── track_item.xml
+│               ├── menu/                        # Menus
+│               │   └── bottom_nav_menu.xml
+│               ├── navigation/                  # Navigation
+│               │   └── nav_graph.xml
+│               └── values/                      # Values
+│                   ├── colors.xml
+│                   ├── strings.xml
+│                   └── themes.xml
 ```
 
 ## Architecture MVVM

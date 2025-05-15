@@ -65,6 +65,10 @@
     <string name="track_added">Track added to playlist</string>
     <string name="playlist_details">Playlist Details</string>
     <string name="empty_playlist">This playlist is empty</string>
+    <string name="delete_track">Delete Track</string>
+    <string name="delete_track_confirmation">Are you sure you want to delete \"%1$s\" from this playlist?</string>
+    <string name="track_deleted">Track deleted from playlist</string>
+    <string name="delete_track_error">Error deleting track</string>
 
     <!-- Track Count -->
     <plurals name="track_count">

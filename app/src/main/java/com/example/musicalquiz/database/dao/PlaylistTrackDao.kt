@@ -18,7 +18,7 @@ interface PlaylistTrackDao {
     fun getTracksForPlaylist(playlistId: Int): Flow<List<PlaylistTrack>>
 
     @Query("SELECT COUNT(*) FROM playlist_tracks WHERE playlistId = :playlistId")
-    suspend fun getTrackCountForPlaylist(playlistId: Int): Int
+    fun getTrackCountForPlaylist(playlistId: Int): Flow<Int>
 
     @Insert
     suspend fun insertTrack(playlistTrack: PlaylistTrack)

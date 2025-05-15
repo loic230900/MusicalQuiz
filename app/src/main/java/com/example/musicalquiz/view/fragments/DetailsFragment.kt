@@ -1,6 +1,5 @@
 package com.example.musicalquiz.view.fragments
 
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,18 +8,24 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.musicalquiz.R
+import com.example.musicalquiz.adapter.PlaylistSelectionAdapter
 import com.example.musicalquiz.adapter.TrackListAdapter
 import com.example.musicalquiz.model.Track
 import com.example.musicalquiz.viewmodel.DetailsViewModel
+import com.example.musicalquiz.viewmodel.PlaylistViewModel
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.chip.Chip
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
+import kotlinx.coroutines.launch
 
 /**
  * Fragment affichant les détails d'un morceau ou d'un album.
@@ -28,6 +33,8 @@ import com.google.android.material.snackbar.Snackbar
  */
 class DetailsFragment : Fragment() {
     private val viewModel: DetailsViewModel by activityViewModels()
+    private val playlistViewModel: PlaylistViewModel by viewModels()
+    private lateinit var playlistSelectionAdapter: PlaylistSelectionAdapter
 
     // Views
     private lateinit var coverImage: ImageView
@@ -100,7 +107,8 @@ class DetailsFragment : Fragment() {
             },
             onPreviewClick = { track ->
                 viewModel.playPreview(track)
-            }
+            },
+            onDeleteClick = { /* no-op, not used in details screen */ }
         )
         tracklistRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
@@ -116,9 +124,127 @@ class DetailsFragment : Fragment() {
         }
 
         addToPlaylistButton.setOnClickListener {
-            viewModel.track.value?.let { track ->
-                viewModel.addToPlaylist(track)
+            if (isTrack) {
+                viewModel.track.value?.let { track ->
+                    showPlaylistSelectionDialog(track)
+                }
+            } else {
+                viewModel.album.value?.let { album ->
+                    showPlaylistSelectionDialog(album)
+                }
             }
+        }
+    }
+
+    private fun showPlaylistSelectionDialog(item: Any) {
+        val dialogBinding = layoutInflater.inflate(R.layout.dialog_select_playlist, null)
+        val recyclerView = dialogBinding.findViewById<RecyclerView>(R.id.playlistRecyclerView)
+
+        playlistSelectionAdapter = PlaylistSelectionAdapter(
+            onPlaylistSelected = { playlist ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    when (item) {
+                        is Track -> addTrackToPlaylist(playlist, item.id)
+                        is com.example.musicalquiz.model.Album -> addAlbumToPlaylist(playlist, item)
+                    }
+                }
+            }
+        )
+
+        recyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = playlistSelectionAdapter
+        }
+
+        // Observe playlists and track counts
+        playlistViewModel.playlists.observe(viewLifecycleOwner) { playlists ->
+            playlistSelectionAdapter.submitList(playlists)
+        }
+        
+        // Observe track counts updates
+        playlistViewModel.playlistTrackCounts.observe(viewLifecycleOwner) { counts ->
+            playlistSelectionAdapter.updateTrackCounts(counts)
+        }
+
+        // Create new playlist button
+        dialogBinding.findViewById<MaterialButton>(R.id.createNewButton).setOnClickListener {
+            showCreatePlaylistDialog { newPlaylist ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    when (item) {
+                        is Track -> addTrackToPlaylist(newPlaylist, item.id)
+                        is com.example.musicalquiz.model.Album -> addAlbumToPlaylist(newPlaylist, item)
+                    }
+                }
+            }
+        }
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogBinding)
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun showCreatePlaylistDialog(onCreated: (com.example.musicalquiz.database.entities.Playlist) -> Unit) {
+        val dialogBinding = layoutInflater.inflate(R.layout.dialog_playlist, null)
+        val nameInput = dialogBinding.findViewById<TextInputEditText>(R.id.playlistNameInput)
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.create_playlist)
+            .setView(dialogBinding)
+            .setPositiveButton(R.string.create) { _, _ ->
+                val name = nameInput.text.toString()
+                if (name.isNotBlank()) {
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        val playlistId = playlistViewModel.createPlaylist(name)
+                        playlistViewModel.playlists.value?.find { it.id == playlistId }?.let { playlist ->
+                            onCreated(playlist)
+                        }
+                    }
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private suspend fun addTrackToPlaylist(playlist: com.example.musicalquiz.database.entities.Playlist, trackId: Long) {
+        try {
+            playlistViewModel.addTrackToPlaylist(playlist.id, trackId)
+            Snackbar.make(
+                requireView(),
+                getString(R.string.add_to_playlist_success, playlist.name),
+                Snackbar.LENGTH_SHORT
+            ).show()
+        } catch (e: Exception) {
+            Snackbar.make(
+                requireView(),
+                R.string.add_to_playlist_error,
+                Snackbar.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private suspend fun addAlbumToPlaylist(playlist: com.example.musicalquiz.database.entities.Playlist, album: com.example.musicalquiz.model.Album) {
+        try {
+            // Get album tracks from Deezer API
+            val tracks = viewModel.getAlbumTracks(album.id)
+            var addedCount = 0
+            
+            tracks.forEach { track ->
+                playlistViewModel.addTrackToPlaylist(playlist.id, track.id)
+                addedCount++
+            }
+
+            Snackbar.make(
+                requireView(),
+                getString(R.string.tracks_added, addedCount),
+                Snackbar.LENGTH_SHORT
+            ).show()
+        } catch (e: Exception) {
+            Snackbar.make(
+                requireView(),
+                R.string.add_to_playlist_error,
+                Snackbar.LENGTH_SHORT
+            ).show()
         }
     }
 
