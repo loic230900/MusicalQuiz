@@ -69,6 +69,52 @@
     <string name="delete_track_confirmation">Are you sure you want to delete \"%1$s\" from this playlist?</string>
     <string name="track_deleted">Track deleted from playlist</string>
     <string name="delete_track_error">Error deleting track</string>
+    <string name="title_quiz">Quizzes</string>
+    <string name="quiz_options">Quiz options</string>
+    <string name="start_quiz">Start Quiz</string>
+    <string name="no_quizzes_found_create_one">No Quizzes Yet</string>
+    <string name="tap_plus_to_start">Tap the + button to create your first quiz!</string>
+    <string name="create_new_quiz">Create new quiz</string>
+    <string name="no_quizzes_available">No quizzes available</string>
+    <string name="playlist_name_label">Playlist: %s</string>
+    <string name="game_mode_multiple_choice">Multiple Choice</string>
+    <string name="game_mode_fill_blanks">Fill in the Blanks</string>
+    <string name="hint_quiz_name">Quiz Name</string>
+    <string name="label_select_playlist">Select Playlist</string>
+    <string name="label_game_mode">Game Mode</string>
+    <string name="hint_number_of_questions">Number of Questions </string>
+    <string name="dialog_title_create_quiz">Create New Quiz</string>
+    <string name="action_create">Create</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="delete_quiz_confirmation_title">Delete Quiz</string>
+    <string name="delete_quiz_confirmation_message">Are you sure you want to delete the quiz \"%s\"? This action cannot be undone.</string>
+    <string name="quiz_deleted_message">Quiz \"%s\" deleted.</string>
+    <string name="error_deleting_quiz">Error deleting quiz.</string>
+    <string name="please_select_a_playlist">Please select a playlist.</string>
+    <string name="please_enter_quiz_name">Please enter a quiz name.</string>
+    <string name="action_delete">Delete</string>
+    <string name="invalid_number_of_questions">Please enter a valid number of questions (1 to 20).</string>
+    <string name="guess_the_song_prompt">Guess the song!</string>
+    <string name="play_preview">Play Preview</string>
+    <string name="question_progress_format">Question %1$d / %2$d</string>
+    <string name="quiz_finished">Quiz Finished!</string>
+    <string name="score_format">Your Score: %1$d / %2$d</string>
+    <string name="back_to_quizzes">Back to Quizzes</string>
+    <string name="loading_questions">Loading questions…</string>
+    <string name="playing_preview">Playing preview…</string>
+    <string name="preview_error">Error playing preview</string>
+    <string name="correct_answer_toast">Correct!</string>
+    <string name="incorrect_answer_toast">Incorrect. The answer was: %s</string>
+    <string name="hint_type_your_answer">Type your answer</string>
+    <string name="action_submit">Submit</string>
+    <string name="question_prompt_fill_blanks_title">Complete the Song Title:</string>
+    <string name="question_prompt_fill_blanks_artist">Complete the Artist Name:</string>
+    <string name="question_prompt_fill_blanks_album">Complete the Album Title:</string>
+    <string name="guess_the_artist_prompt">Which artist performs this song?</string>
+    <string name="guess_the_album_prompt">From which album is this song?</string>
+    <string name="game_mode_not_supported">This game mode is not currently supported for playback.</string>
+
+
 
     <!-- Track Count -->
     <plurals name="track_count">

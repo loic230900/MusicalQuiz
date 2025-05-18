@@ -16,12 +16,8 @@
         android:name="com.example.musicalquiz.view.fragments.SearchFragment"
         android:label="@string/recherche">
         <action
-            android:id="@+id/navigation_details"
-            app:destination="@id/navigation_details"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+            android:id="@+id/action_searchFragment_to_detailsFragment"
+            app:destination="@id/navigation_details" />
     </fragment>
 
     <fragment
@@ -31,11 +27,7 @@
         tools:layout="@layout/fragment_playlist">
         <action
             android:id="@+id/action_playlistFragment_to_playlistDetailsFragment"
-            app:destination="@id/navigation_playlist_details"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+            app:destination="@id/navigation_playlist_details"/>
     </fragment>
 
     <fragment
@@ -48,18 +40,22 @@
             app:argType="integer" />
         <action
             android:id="@+id/action_playlistDetailsFragment_to_navigation_details"
-            app:destination="@id/navigation_details"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+            app:destination="@id/navigation_details"/>
     </fragment>
 
     <fragment
         android:id="@+id/navigation_quiz"
         android:name="com.example.musicalquiz.view.fragments.QuizFragment"
         android:label="@string/quiz"
-        tools:layout="@layout/fragment_quiz" />
+        tools:layout="@layout/fragment_quiz" >
+        <action
+            android:id="@+id/action_quizFragment_to_quizPlayFragment"
+            app:destination="@id/quizPlayFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_details"
@@ -74,4 +70,14 @@
             app:argType="boolean" />
     </fragment>
 
-</navigation> 
+    <fragment
+        android:id="@+id/quizPlayFragment"
+        android:name="com.example.musicalquiz.view.fragments.QuizPlayFragment"
+        android:label="Playing Quiz"
+        tools:layout="@layout/fragment_quiz_play">
+        <argument
+            android:name="quizId"
+            app:argType="integer" />
+    </fragment>
+
+</navigation>
