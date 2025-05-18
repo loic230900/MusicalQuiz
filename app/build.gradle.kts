@@ -51,6 +51,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
+
     // Retrofit (HTTP client)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)

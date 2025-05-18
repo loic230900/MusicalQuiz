@@ -11,39 +11,56 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:padding="12dp">
+
+        <ImageView
+            android:id="@+id/playlistArtistCoverImage"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_playlist" android:contentDescription="@string/playlist_name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:srcCompat="@drawable/ic_playlist" />
 
         <TextView
             android:id="@+id/playlistName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
             android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:textColor="?attr/colorOnSurface"
+            app:layout_constraintStart_toEndOf="@id/playlistArtistCoverImage"
             app:layout_constraintEnd_toStartOf="@id/editButton"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="My Playlist" />
+            app:layout_constraintTop_toTopOf="@id/playlistArtistCoverImage"
+            tools:text="My Awesome Playlist" />
 
         <TextView
             android:id="@+id/trackCount"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="2dp"
             android:textAppearance="?attr/textAppearanceBody2"
             android:textColor="?attr/colorOnSurfaceVariant"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="@id/playlistName"
+            app:layout_constraintEnd_toEndOf="@id/playlistName"
             app:layout_constraintTop_toBottomOf="@id/playlistName"
-            tools:text="5 tracks" />
+            tools:text="15 tracks" />
 
         <TextView
             android:id="@+id/playlistDuration"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="2dp"
             android:textAppearance="?attr/textAppearanceBody2"
             android:textColor="?attr/colorOnSurfaceVariant"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="@id/playlistName"
+            app:layout_constraintEnd_toEndOf="@id/playlistName"
             app:layout_constraintTop_toBottomOf="@id/trackCount"
-            tools:text="3:45" />
+            app:layout_constraintBottom_toBottomOf="@id/playlistArtistCoverImage"
+            app:layout_goneMarginBottom="0dp"
+            tools:text="1:20:30" />
 
         <ImageButton
             android:id="@+id/editButton"
@@ -55,6 +72,7 @@
             android:src="@drawable/ic_edit"
             app:layout_constraintEnd_toStartOf="@id/deleteButton"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:tint="?attr/colorControlNormal" />
 
         <ImageButton
@@ -67,8 +85,9 @@
             android:src="@drawable/ic_delete"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:tint="?attr/colorControlNormal" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</com.google.android.material.card.MaterialCardView> 
+</com.google.android.material.card.MaterialCardView>

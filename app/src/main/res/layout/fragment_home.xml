@@ -1,88 +1,160 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/homeScrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:background="?attr/colorSurface"
-    android:fitsSystemWindows="true">
+    android:background="@android:color/transparent" android:clipToPadding="false"
+    android:fillViewport="true"
+    android:fitsSystemWindows="true"
+    tools:context=".view.fragments.HomeFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingStart="6dp"
-        android:paddingEnd="6dp">
+        android:padding="16dp">
 
-        <TextView
-            android:id="@+id/homeTitle"
+        <LinearLayout
+            android:id="@+id/heroSection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/bienvenue_sur_musicalquiz"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="?attr/colorOnSurface"
-            android:layout_marginBottom="12dp" />
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:paddingTop="24dp"
+            android:paddingBottom="32dp">
 
-        <TextView
-            android:id="@+id/homeIntro"
+            <ImageView
+                android:id="@+id/appLogoImageView"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:src="@drawable/app_logo_main" android:contentDescription="@string/app_logo_desc"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView
+                android:id="@+id/homeTagline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/home_tagline_dynamic"
+                android:textAppearance="?attr/textAppearanceHeadline6"
+                android:textColor="@color/white" android:textAlignment="center"
+                android:layout_marginTop="8dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/yourPlaylistsSection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/lancez_un_quiz_musical_bas_sur_vos_playlists"
-            android:textSize="16sp"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:layout_marginBottom="24dp" />
+            android:orientation="vertical"
+            android:visibility="gone" tools:visibility="visible"
+            android:layout_marginBottom="24dp">
 
-        <TextView
-            android:id="@+id/featuresTitle"
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/home_your_playlists_title"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    android:textColor="@color/white"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"/>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/viewAllPlaylistsButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/view_all"
+                    android:textColor="@color/white"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"/>
+            </RelativeLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/yourPlaylistsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/playlist_item_condensed"
+                tools:itemCount="3"
+                android:clipToPadding="false"
+                android:paddingBottom="8dp"/>
+        </LinearLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/createQuizCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/fonctionnalit_s"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="?attr/colorOnSurface"
-            android:layout_marginBottom="12dp" />
+            app:cardElevation="4dp"
+            app:cardCornerRadius="12dp"
+            android:layout_marginBottom="24dp"
+            app:cardBackgroundColor="?attr/colorPrimaryContainer"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
 
-        <TextView
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="24dp">
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_add" app:tint="?attr/colorOnPrimaryContainer"
+                    android:layout_marginEnd="16dp"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/home_create_new_quiz_button"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    android:textColor="?attr/colorOnPrimaryContainer"/>
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_edit" app:tint="?attr/colorOnPrimaryContainer"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/recherchez_des_titres_ou_albums_via_deezer"
-            android:layout_marginBottom="4dp"
-            android:textSize="16sp"
-            android:textColor="?attr/colorOnSurfaceVariant" />
+            app:cardElevation="2dp"
+            app:cardCornerRadius="12dp"
+            app:cardBackgroundColor="?attr/colorSurfaceContainerHighest" >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp">
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_home" android:layout_marginEnd="12dp"
+                    app:tint="?attr/colorOnSurfaceVariant"/>
+                <TextView
+                    android:id="@+id/homeTip"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/conseil_commencez_par_l_onglet_search_pour_d_couvrir_des_morceaux"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textStyle="italic"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/consultez_les_d_tails_d_un_morceau_ou_d_un_album"
-            android:layout_marginBottom="4dp"
-            android:textSize="16sp"
-            android:textColor="?attr/colorOnSurfaceVariant" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/cr_ez_et_g_rez_vos_playlists_favorites"
-            android:layout_marginBottom="4dp"
-            android:textSize="16sp"
-            android:textColor="?attr/colorOnSurfaceVariant" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/lancez_un_quiz_musical_bas_sur_vos_playlists"
-            android:layout_marginBottom="16dp"
-            android:textSize="16sp"
-            android:textColor="?attr/colorOnSurfaceVariant" />
-
-        <TextView
-            android:id="@+id/homeTip"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/conseil_commencez_par_l_onglet_search_pour_d_couvrir_des_morceaux"
-            android:textStyle="italic"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="14sp"
-            android:layout_marginTop="12dp" />
     </LinearLayout>
-</ScrollView>
+</androidx.core.widget.NestedScrollView>

@@ -4,7 +4,6 @@
     android:id="@+id/searchLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
     android:padding="16dp">
 
     <!-- Barre de recherche avec filtre -->

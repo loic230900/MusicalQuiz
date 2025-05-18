@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.musicalquiz.R
 import com.example.musicalquiz.database.entities.Playlist
 import com.example.musicalquiz.databinding.PlaylistItemBinding
@@ -15,7 +16,10 @@ class PlaylistAdapter(
     private val onEditClick: (Playlist) -> Unit,
     private val onDeleteClick: (Playlist) -> Unit,
     private var trackCounts: Map<Int, Int> = emptyMap(),
-    private var durations: Map<Int, Int> = emptyMap()
+    private var durations: Map<Int, Int> = emptyMap(),
+    private var artistCoverImageUrls: Map<Int, String?> = emptyMap() // New map for artist pictures
+
+
 ) : ListAdapter<Playlist, PlaylistAdapter.PlaylistViewHolder>(PlaylistDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistViewHolder {
@@ -41,6 +45,13 @@ class PlaylistAdapter(
     fun updateDurations(newDurations: Map<Int, Int>) {
         if (durations != newDurations) {
             this.durations = newDurations
+            notifyItemRangeChanged(0, itemCount)
+        }
+    }
+
+    fun updateArtistCoverImageUrls(newUrls: Map<Int, String?>) {
+        if (artistCoverImageUrls != newUrls) {
+            this.artistCoverImageUrls = newUrls
             notifyItemRangeChanged(0, itemCount)
         }
     }
@@ -93,6 +104,12 @@ class PlaylistAdapter(
                     count
                 )
                 playlistDuration.text = durationText
+                val imageUrl = artistCoverImageUrls[playlist.id]
+                Glide.with(itemView.context)
+                    .load(imageUrl)
+                    .placeholder(R.drawable.ic_playlist) // Your placeholder
+                    .error(R.drawable.ic_playlist)       // Your error placeholder
+                    .into(playlistArtistCoverImage) // ID from playlist_item.xml
             }
         }
     }
