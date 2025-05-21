@@ -9,13 +9,16 @@
     app:cardCornerRadius="8dp"
     android:clickable="true"
     android:focusable="true"
-    android:foreground="?attr/selectableItemBackground">
+    android:foreground="?attr/selectableItemBackground"
+    app:strokeWidth="0dp">
+
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="12dp"
+        android:background="@color/playlis_item_color">
 
         <ImageView
             android:id="@+id/playlistArtistImageView" android:layout_width="match_parent"
@@ -28,8 +31,7 @@
             android:id="@+id/playlistNameTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?attr/textAppearanceTitleSmall"
-            android:textColor="?attr/colorOnSurface"
+            android:textColor="@color/white"
             android:maxLines="2"
             android:ellipsize="end"
             android:gravity="center_horizontal"
@@ -39,8 +41,7 @@
             android:id="@+id/trackCountTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?attr/textAppearanceCaption"
-            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textColor="#A6A6A6"
             android:gravity="center_horizontal"
             android:layout_marginTop="2dp"
             tools:text="15 tracks" />

@@ -25,7 +25,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/label_select_playlist"
-        android:textAppearance="?attr/textAppearanceSubtitle1"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="8dp"/>
 
@@ -41,7 +40,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/label_game_mode"
-        android:textAppearance="?attr/textAppearanceSubtitle1"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="8dp"/>
 

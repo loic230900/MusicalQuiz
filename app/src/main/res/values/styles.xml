@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="BottomNavigationViewLabelStyle" parent="TextAppearance.AppCompat.Caption">
-        <item name="android:textSize">10sp</item> <!-- smaller label -->
-        <item name="android:layout_marginTop">0dp</item> <!-- no extra margin -->
-    </style>
 
-</resources> 
+</resources>

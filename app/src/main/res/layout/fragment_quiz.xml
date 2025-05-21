@@ -57,7 +57,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/no_quizzes_found_create_one"
-            android:textAppearance="?attr/textAppearanceHeadline6"
             android:textColor="?attr/colorOnSurface"
             android:gravity="center_horizontal"/>
 
@@ -65,7 +64,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/tap_plus_to_start"
-            android:textAppearance="?attr/textAppearanceBody2"
             android:textColor="?attr/colorOnSurfaceVariant"
             android:layout_marginTop="4dp"
             android:gravity="center_horizontal"/>

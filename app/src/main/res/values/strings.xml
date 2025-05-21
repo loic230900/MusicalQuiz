@@ -114,7 +114,8 @@
     <string name="guess_the_album_prompt">From which album is this song?</string>
     <string name="game_mode_not_supported">This game mode is not currently supported for playback.</string>
     <string name="app_logo_desc">MusicalQuiz App Logo</string>
-    <string name="home_tagline_dynamic">Test Your Music Knowledge!</string> <string name="home_your_playlists_title">Your Playlists</string>
+    <string name="home_tagline_dynamic">Test Your Music Knowledge!</string>
+    <string name="home_your_playlists_title">Your Playlists</string>
     <string name="view_all">View All</string>
     <string name="home_create_new_quiz_button">Create a New Quiz</string>
 

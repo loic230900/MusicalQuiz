@@ -37,8 +37,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/home_tagline_dynamic"
-                android:textAppearance="?attr/textAppearanceHeadline6"
                 android:textColor="@color/white" android:textAlignment="center"
+                android:textSize="24sp"
                 android:layout_marginTop="8dp"/>
         </LinearLayout>
 
@@ -58,7 +58,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/home_your_playlists_title"
-                    android:textAppearance="?attr/textAppearanceTitleMedium"
                     android:textColor="@color/white"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"/>
@@ -117,7 +116,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/home_create_new_quiz_button"
-                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    android:textSize="18sp"
                     android:textColor="?attr/colorOnPrimaryContainer"/>
 
                 <ImageView
@@ -128,32 +127,48 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="80dp"
             app:cardElevation="2dp"
+            android:layout_marginBottom="10dp"
             app:cardCornerRadius="12dp"
-            app:cardBackgroundColor="?attr/colorSurfaceContainerHighest" >
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:padding="16dp">
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="?attr/colorSurfaceContainerHighest">
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_home" android:layout_marginEnd="12dp"
-                    app:tint="?attr/colorOnSurfaceVariant"/>
-                <TextView
-                    android:id="@+id/homeTip"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/conseil_commencez_par_l_onglet_search_pour_d_couvrir_des_morceaux"
-                    android:textAppearance="?attr/textAppearanceBody2"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:textStyle="italic"/>
-            </LinearLayout>
+                    android:src="@drawable/bluepurple"
+                    android:scaleType="centerCrop"
+                />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="16dp">
+
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_home"
+                        android:layout_marginEnd="12dp"
+                        app:tint="@android:color/white" />
+
+                    <TextView
+                        android:id="@+id/homeTip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/conseil_commencez_par_l_onglet_search_pour_d_couvrir_des_morceaux"
+                        android:textColor="@color/white" />
+                </LinearLayout>
+            </FrameLayout>
         </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>

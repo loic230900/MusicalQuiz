@@ -1,12 +1,104 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+<resources>
     <style name="Base.Theme.Musicalquiz" parent="Theme.Material3.DayNight.NoActionBar">
-
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-        <item name="android:fontFamily">@font/nunito_bold</item>
         <item name="android:windowBackground">@drawable/background4</item>
+
+        <item name="android:fontFamily">@font/circularmedium</item>
+        <item name="fontFamily">@font/circularmedium</item>
+
+        <item name="textAppearanceDisplayLarge">@style/TextAppearance.App.DisplayLarge</item>
+        <item name="textAppearanceDisplayMedium">@style/TextAppearance.App.DisplayMedium</item>
+        <item name="textAppearanceDisplaySmall">@style/TextAppearance.App.DisplaySmall</item>
+
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.App.HeadlineLarge</item>
+        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.App.HeadlineMedium</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.App.HeadlineSmall</item>
+
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.App.TitleLarge</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.App.TitleMedium</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.App.TitleSmall</item>
+
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.App.BodyLarge</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.App.BodyMedium</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.App.BodySmall</item>
+
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.App.LabelLarge</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.App.LabelMedium</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.App.LabelSmall</item>
     </style>
 
+
+
     <style name="Theme.Musicalquiz" parent="Base.Theme.Musicalquiz" />
+
+    <style name="TextAppearance.App.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge">
+        <item name="fontFamily">@font/circularblack</item>
+        <item name="android:fontFamily">@font/circularblack</item>
+    </style>
+    <style name="TextAppearance.App.DisplayMedium" parent="TextAppearance.Material3.DisplayMedium">
+        <item name="fontFamily">@font/circularmedium</item>
+        <item name="android:fontFamily">@font/circularmedium</item>
+    </style>
+    <style name="TextAppearance.App.DisplaySmall" parent="TextAppearance.Material3.DisplaySmall">
+        <item name="fontFamily">@font/circularmediumitalic</item>
+        <item name="android:fontFamily">@font/circularmediumitalic</item>
+    </style>
+
+    <style name="TextAppearance.App.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="fontFamily">@font/circularblack</item>
+        <item name="android:fontFamily">@font/circularblack</item>
+    </style>
+    <style name="TextAppearance.App.HeadlineMedium" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="fontFamily">@font/circularbookitalic</item>
+        <item name="android:fontFamily">@font/circularbookitalic</item>
+    </style>
+    <style name="TextAppearance.App.HeadlineSmall" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="fontFamily">@font/circularmedium</item>
+        <item name="android:fontFamily">@font/circularmedium</item>
+    </style>
+
+    <style name="TextAppearance.App.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+        <item name="fontFamily">@font/circularblack</item>
+        <item name="android:fontFamily">@font/circularblack</item>
+    </style>
+    <style name="TextAppearance.App.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+        <item name="fontFamily">@font/circularmedium</item>
+        <item name="android:fontFamily">@font/circularmedium</item>
+    </style>
+    <style name="TextAppearance.App.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
+        <item name="fontFamily">@font/circularmedium</item>
+        <item name="android:fontFamily">@font/circularmedium</item>
+    </style>
+
+    <style name="TextAppearance.App.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+        <item name="fontFamily">@font/circularblack</item>
+        <item name="android:fontFamily">@font/circularblack</item>
+    </style>
+    <style name="TextAppearance.App.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+        <item name="fontFamily">@font/circularmedium</item>
+        <item name="android:fontFamily">@font/circularmedium</item>
+    </style>
+    <style name="TextAppearance.App.BodySmall" parent="TextAppearance.Material3.BodySmall">
+        <item name="fontFamily">@font/circularmediumitalic</item>
+        <item name="android:fontFamily">@font/circularmediumitalic</item>
+    </style>
+
+    <style name="TextAppearance.App.LabelLarge" parent="TextAppearance.Material3.LabelLarge">
+        <item name="fontFamily">@font/circularblack</item>
+        <item name="android:fontFamily">@font/circularblack</item>
+    </style>
+    <style name="TextAppearance.App.LabelMedium" parent="TextAppearance.Material3.LabelMedium">
+        <item name="fontFamily">@font/circularmedium</item>
+        <item name="android:fontFamily">@font/circularmedium</item>
+    </style>
+    <style name="TextAppearance.App.LabelSmall" parent="TextAppearance.Material3.LabelSmall">
+        <item name="fontFamily">@font/circularmedium</item>
+        <item name="android:fontFamily">@font/circularmedium</item>
+    </style>
+
+    <style name="BottomNavigationViewLabelStyle" parent="TextAppearance.Material3.LabelMedium">
+        <item name="fontFamily">@font/circularmedium</item>
+        <item name="android:fontFamily">@font/circularmedium</item>
+    </style>
+
+
 </resources>
