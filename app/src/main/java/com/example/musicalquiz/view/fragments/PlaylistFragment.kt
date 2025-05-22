@@ -66,24 +66,31 @@ class PlaylistFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        viewModel.playlists.observe(viewLifecycleOwner, Observer { playlists ->
+        // Observe playlists
+        viewModel.playlists.observe(viewLifecycleOwner) { playlists ->
             adapter.submitList(playlists)
             updateEmptyState(playlists.isEmpty())
-        })
-        viewModel.playlistTrackCounts.observe(viewLifecycleOwner, Observer { counts ->
-            adapter.updateTrackCounts(counts)
-        })
-        viewModel.playlistDurations.observe(viewLifecycleOwner, Observer { durations ->
-            adapter.updateDurations(durations)
-        })
-        viewModel.isLoading.observe(viewLifecycleOwner, Observer { isLoading ->
-            binding.progressBar?.visibility = if (isLoading) View.VISIBLE else View.GONE
-        })
+        }
 
-        // Observe Artist Cover Image URLs
-        viewModel.playlistArtistCoverImageUrls.observe(viewLifecycleOwner, Observer { artistCoverUrls ->
+        // Observe track counts
+        viewModel.playlistTrackCounts.observe(viewLifecycleOwner) { counts ->
+            adapter.updateTrackCounts(counts)
+        }
+
+        // Observe durations
+        viewModel.playlistDurations.observe(viewLifecycleOwner) { durations ->
+            adapter.updateDurations(durations)
+        }
+
+        // Observe artist cover images
+        viewModel.playlistArtistCoverImageUrls.observe(viewLifecycleOwner) { artistCoverUrls ->
             adapter.updateArtistCoverImageUrls(artistCoverUrls)
-        })
+        }
+
+        // Observe loading state
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            binding.progressBar?.visibility = if (isLoading) View.VISIBLE else View.GONE
+        }
     }
 
     private fun setupClickListeners() {

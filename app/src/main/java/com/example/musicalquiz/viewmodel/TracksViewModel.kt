@@ -12,9 +12,16 @@ import retrofit2.Response
 import com.example.musicalquiz.model.DeezerSearchResponse
 
 /**
- * ViewModel responsable de la gestion des données de recherche musicale.
- * Gère les requêtes vers l'API Deezer et maintient l'état des résultats de recherche.
- * Utilise LiveData pour notifier la vue des changements d'état.
+ * ViewModel responsible for managing music search functionality and track data.
+ * This class handles:
+ * - Searching for tracks and albums via the Deezer API
+ * - Managing search results with pagination support
+ * - Filtering between tracks and albums
+ * - Loading top charts
+ * - Error handling and loading states
+ * 
+ * The ViewModel uses LiveData to notify observers of data changes and maintains
+ * the current state of the search, including pagination information.
  */
 class TracksViewModel : ViewModel() {
     private val _tracksLiveData = MutableLiveData<List<Track>>()

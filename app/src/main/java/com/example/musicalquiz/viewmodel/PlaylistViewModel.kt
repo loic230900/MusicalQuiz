@@ -182,6 +182,16 @@ class PlaylistViewModel(application: Application) : AndroidViewModel(application
             val playlistTrack = PlaylistTrack(playlistId = playlistId, trackId = trackId, position = currentTrackCountBeforeAdd, duration = duration)
             playlistTrackDao.insertTrackAtPosition(playlistTrack)
 
+            // Update track counts immediately
+            val currentCounts = _playlistTrackCounts.value?.toMutableMap() ?: mutableMapOf()
+            currentCounts[playlistId] = currentTrackCountBeforeAdd + 1
+            _playlistTrackCounts.postValue(currentCounts)
+
+            // Update durations
+            val currentDurations = _playlistDurations.value?.toMutableMap() ?: mutableMapOf()
+            currentDurations[playlistId] = (currentDurations[playlistId] ?: 0) + duration
+            _playlistDurations.postValue(currentDurations)
+
             // No need to manually refresh playlists; LiveData/Flow will update automatically
             loadPlaylistTracks(playlistId)
 

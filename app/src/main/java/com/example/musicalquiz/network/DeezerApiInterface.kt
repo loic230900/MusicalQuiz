@@ -9,7 +9,15 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 /**
- * Interface describing the Deezer API endpoints used by the application.
+ * Interface defining all Deezer API endpoints used by the MusicalQuiz application.
+ * This interface uses Retrofit annotations to define HTTP endpoints and their parameters.
+ * All endpoints are asynchronous (suspend functions) and return Retrofit Response objects.
+ * 
+ * The interface supports:
+ * - Searching for tracks and albums
+ * - Fetching top charts
+ * - Getting detailed information about specific tracks and albums
+ * - Retrieving all tracks from an album
  */
 interface DeezerApiInterface {
 

@@ -4,15 +4,27 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 /**
- * Singleton permettant d'initialiser Retrofit avec l'URL de base de l’API Deezer.
+ * Singleton class that provides the Retrofit instance for making API calls to Deezer.
+ * This class:
+ * - Initializes Retrofit with the Deezer API base URL
+ * - Configures Gson for JSON parsing
+ * - Provides a lazy-initialized API interface instance
+ * 
+ * The singleton pattern ensures only one instance of the Retrofit client
+ * is created throughout the application lifecycle.
  */
 object RetrofitInstance {
-
-    // URL de base de l’API Deezer
+    /**
+     * Base URL for the Deezer API
+     */
     private const val BASE_URL = "https://api.deezer.com/"
 
     /**
-     * Objet Retrofit configuré avec Gson.
+     * Lazy-initialized Retrofit instance configured with:
+     * - Deezer API base URL
+     * - Gson converter for JSON parsing
+     * 
+     * @return Configured DeezerApiInterface instance
      */
     val api: DeezerApiInterface by lazy {
         Retrofit.Builder()

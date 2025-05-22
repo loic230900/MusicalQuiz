@@ -64,10 +64,19 @@ class QuizPlayFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        quizViewModel.resetQuizState()
-        quizViewModel.loadQuestionsForQuiz(args.quizId)
+        if (savedInstanceState == null) {
+            quizViewModel.resetQuizState()
+            quizViewModel.loadQuestionsForQuiz(args.quizId)
+        } else {
+            quizViewModel.restoreState()
+        }
         setupObservers()
         setupClickListeners()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        quizViewModel.saveState()
     }
 
     private fun setupObservers() {
@@ -376,6 +385,7 @@ class QuizPlayFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         stopPreview()
+        quizViewModel.saveState()
     }
 
     override fun onDestroyView() {

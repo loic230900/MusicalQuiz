@@ -89,13 +89,14 @@ class PlaylistAdapter(
                 val count = trackCounts[playlist.id] ?: 0
                 val duration = durations[playlist.id] ?: 0
                 
-                // Format duration as MM:SS
-                val minutes = duration / 60
+                // Format duration as HH:MM:SS if over an hour, otherwise MM:SS
+                val hours = duration / 3600
+                val minutes = (duration % 3600) / 60
                 val seconds = duration % 60
-                val durationText = if (duration > 0) {
-                    String.format("%d:%02d", minutes, seconds)
+                val durationText = if (hours > 0) {
+                    String.format("%d:%02d:%02d", hours, minutes, seconds)
                 } else {
-                    "0:00"
+                    String.format("%d:%02d", minutes, seconds)
                 }
                 
                 trackCount.text = itemView.context.resources.getQuantityString(
@@ -104,12 +105,14 @@ class PlaylistAdapter(
                     count
                 )
                 playlistDuration.text = durationText
+
+                // Load artist cover image
                 val imageUrl = artistCoverImageUrls[playlist.id]
                 Glide.with(itemView.context)
                     .load(imageUrl)
-                    .placeholder(R.drawable.ic_playlist) // Your placeholder
-                    .error(R.drawable.ic_playlist)       // Your error placeholder
-                    .into(playlistArtistCoverImage) // ID from playlist_item.xml
+                    .placeholder(R.drawable.ic_playlist)
+                    .error(R.drawable.ic_playlist)
+                    .into(playlistArtistCoverImage)
             }
         }
     }

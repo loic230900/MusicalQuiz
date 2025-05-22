@@ -313,15 +313,16 @@ class SearchFragment : Fragment() {
         val dialogBinding = layoutInflater.inflate(R.layout.dialog_select_playlist, null)
         val recyclerView = dialogBinding.findViewById<RecyclerView>(R.id.playlistRecyclerView)
 
-        playlistSelectionAdapter = PlaylistSelectionAdapter({ playlist ->
-            // Launch a coroutine to call the suspend function
-            viewLifecycleOwner.lifecycleScope.launch {
-                when (item) {
-                    is Track -> addTrackToPlaylist(playlist, item)
-                    is Album -> addAlbumToPlaylist(playlist, item)
+        playlistSelectionAdapter = PlaylistSelectionAdapter(
+            onPlaylistSelected = { playlist ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    when (item) {
+                        is Track -> addTrackToPlaylist(playlist, item)
+                        is Album -> addAlbumToPlaylist(playlist, item)
+                    }
                 }
             }
-        }, playlistViewModel.playlistTrackCounts.value ?: emptyMap())
+        )
 
         recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
@@ -331,6 +332,11 @@ class SearchFragment : Fragment() {
         // Observe playlists
         playlistViewModel.playlists.observe(viewLifecycleOwner) { playlists ->
             playlistSelectionAdapter.submitList(playlists)
+        }
+
+        // Observe track counts updates
+        playlistViewModel.playlistTrackCounts.observe(viewLifecycleOwner) { counts ->
+            playlistSelectionAdapter.updateTrackCounts(counts)
         }
 
         // Create new playlist button

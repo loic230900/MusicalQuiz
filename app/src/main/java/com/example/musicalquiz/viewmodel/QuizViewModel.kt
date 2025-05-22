@@ -27,14 +27,27 @@ import kotlin.random.Random
 
 
 /**
- * ViewModel for managing quiz-related data and operations.
- * This class handles creating quizzes, loading quiz questions, managing quiz state (current question, score),
- * and interacting with the database and network services for quiz and track data.
+ * ViewModel for managing quiz-related data and operations in the MusicalQuiz application.
+ * 
+ * This class handles:
+ * - Creating and managing quizzes
+ * - Loading and managing quiz questions
+ * - Tracking quiz state (current question, score)
+ * - Interacting with the database for quiz persistence
+ * - Managing different game modes (Multiple Choice, Fill in the Blanks)
+ * - Handling quiz state restoration
+ * 
+ * The ViewModel uses LiveData to notify observers of state changes and maintains
+ * the current state of active quizzes.
  */
 class QuizViewModel(application: Application) : AndroidViewModel(application) {
 
     companion object {
         private const val TAG = "QuizViewModel_DEBUG"
+        private const val KEY_CURRENT_QUIZ_ID = "current_quiz_id"
+        private const val KEY_CURRENT_QUESTION_INDEX = "current_question_index"
+        private const val KEY_SCORE = "score"
+        private const val KEY_IS_QUIZ_FINISHED = "is_quiz_finished"
     }
 
     private val database = AppDatabase.getDatabase(application)
@@ -71,6 +84,61 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         loadAvailablePlaylists()
     }
 
+    /**
+     * Saves the current state of the quiz.
+     * This includes:
+     * - Current quiz ID
+     * - Current question index
+     * - Current score
+     * - Quiz completion status
+     * 
+     * Used for state restoration when the activity is recreated.
+     */
+    fun saveState() {
+        val currentQuiz = _currentQuizDetails.value
+        if (currentQuiz != null) {
+            _currentQuizId = currentQuiz.id
+            _currentQuestionIndex.value?.let { _savedQuestionIndex = it }
+            _score.value?.let { _savedScore = it }
+            _isQuizFinished.value?.let { _savedIsQuizFinished = it }
+        }
+    }
+
+    /**
+     * Restores the previously saved quiz state.
+     * This method:
+     * 1. Loads the questions for the saved quiz
+     * 2. Restores the question index
+     * 3. Restores the score
+     * 4. Restores the quiz completion status
+     */
+    fun restoreState() {
+        if (_currentQuizId != null) {
+            loadQuestionsForQuiz(_currentQuizId!!)
+            _currentQuestionIndex.value = _savedQuestionIndex
+            _score.value = _savedScore
+            _isQuizFinished.value = _savedIsQuizFinished
+        }
+    }
+
+    private var _currentQuizId: Int? = null
+    private var _savedQuestionIndex: Int = 0
+    private var _savedScore: Int = 0
+    private var _savedIsQuizFinished: Boolean = false
+
+    /**
+     * Creates a new quiz with the specified parameters.
+     * This method:
+     * 1. Fetches tracks from the selected playlist
+     * 2. Generates appropriate questions based on the game mode
+     * 3. Saves the quiz and its questions to the database
+     * 
+     * @param name The name of the quiz
+     * @param playlistId The ID of the playlist to use for questions
+     * @param questionSelectionMode How questions should be selected
+     * @param gameMode The type of quiz (Multiple Choice or Fill in the Blanks)
+     * @param requestedNumberOfQuestions The desired number of questions (default: 10)
+     */
     fun createQuiz(
         name: String,
         playlistId: Int,
@@ -132,10 +200,10 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
 
                     if (gameMode == GameMode.MULTIPLE_CHOICE) {
                         potentialQuizQuestions.add(QuizQuestion(quizId = 0, trackId = track.id, previewUrl = track.preview!!, correctAnswer = cleanTrackTitle, trackTitle = cleanTrackTitle, artistName = cleanArtistName, albumTitle = cleanAlbumTitle, mcQuestionFocus = MultipleChoiceQuestionFocus.TRACK_TITLE.name))
-                        if (cleanArtistName.isNotBlank()) { potentialQuizQuestions.add(QuizQuestion(quizId = 0, trackId = track.id, previewUrl = track.preview!!, correctAnswer = cleanArtistName, trackTitle = cleanTrackTitle, artistName = cleanArtistName, albumTitle = cleanAlbumTitle, mcQuestionFocus = MultipleChoiceQuestionFocus.ARTIST_NAME.name)) }
-                        if (cleanAlbumTitle.isNotBlank()) { potentialQuizQuestions.add(QuizQuestion(quizId = 0, trackId = track.id, previewUrl = track.preview!!, correctAnswer = cleanAlbumTitle, trackTitle = cleanTrackTitle, artistName = cleanArtistName, albumTitle = cleanAlbumTitle, mcQuestionFocus = MultipleChoiceQuestionFocus.ALBUM_TITLE.name)) }
+                        if (cleanArtistName.isNotBlank()) { potentialQuizQuestions.add(QuizQuestion(quizId = 0, trackId = track.id, previewUrl = track.preview, correctAnswer = cleanArtistName, trackTitle = cleanTrackTitle, artistName = cleanArtistName, albumTitle = cleanAlbumTitle, mcQuestionFocus = MultipleChoiceQuestionFocus.ARTIST_NAME.name)) }
+                        if (cleanAlbumTitle.isNotBlank()) { potentialQuizQuestions.add(QuizQuestion(quizId = 0, trackId = track.id, previewUrl = track.preview, correctAnswer = cleanAlbumTitle, trackTitle = cleanTrackTitle, artistName = cleanArtistName, albumTitle = cleanAlbumTitle, mcQuestionFocus = MultipleChoiceQuestionFocus.ALBUM_TITLE.name)) }
                     } else if (gameMode == GameMode.FILL_IN_THE_BLANKS) {
-                        val questionType = FillBlanksQuestionType.values().random()
+                        val questionType = FillBlanksQuestionType.entries.toTypedArray().random()
                         var actualCorrectAnswer = ""
                         var prompt = ""
 
@@ -288,7 +356,7 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
                 _isQuizFinished.postValue(true)
             } else {
                 Log.d(TAG, "Loaded ${questionsFromDb.size} questions for quizId: $quizId")
-                _currentQuizQuestions.postValue(questionsFromDb!!)
+                _currentQuizQuestions.postValue(questionsFromDb)
                 _currentQuestionIndex.postValue(0)
                 _score.postValue(0)
                 _currentQuestion.postValue(questionsFromDb[0])

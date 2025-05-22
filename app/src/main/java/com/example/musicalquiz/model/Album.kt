@@ -1,11 +1,14 @@
 package com.example.musicalquiz.model
 
 /**
- * Classe représentant un album musical.
+ * Represents a music album in the application.
+ * This data class holds essential information about an album retrieved from the Deezer API.
  *
- * @property id Identifiant de l’album
- * @property title Titre de l’album
- * @property cover URL de l’image de couverture de l’album
+ * @property id Unique identifier for the album
+ * @property title Name of the album
+ * @property cover URL to the album's cover art image
+ * @property artist The artist who created the album
+ * @property releaseDate The album's release date in ISO 8601 format (nullable)
  */
 
 data class Album(
