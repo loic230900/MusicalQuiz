@@ -37,11 +37,12 @@ class QuizFragment : Fragment() {
 
     private var _binding: FragmentQuizBinding? = null
     private val binding get() = _binding!!
-
+    private val playlistViewModel: PlaylistViewModel by viewModels()
     private val quizViewModel: QuizViewModel by viewModels()
     private lateinit var quizAdapter: QuizAdapter
     private var availablePlaylists: List<Playlist> = emptyList()
-    private val playlistViewModel: PlaylistViewModel by viewModels()
+    val MAX_ALLOWED_TIME_LIMIT_SECONDS = 180
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -110,7 +111,7 @@ class QuizFragment : Fragment() {
 
     /**
      * Displays a dialog for the user to create a new quiz.
-     * The dialog includes fields for quiz name, playlist selection, game mode and number of questions
+     * The dialog includes fields for quiz name, playlist selection, game mode and number of questions and time limit per question
      */
 
     private fun showCreateQuizDialog() {
@@ -121,6 +122,7 @@ class QuizFragment : Fragment() {
         val playlistSpinner = dialogView.findViewById<Spinner>(R.id.playlistSpinner)
         val gameModeRadioGroup = dialogView.findViewById<RadioGroup>(R.id.gameModeRadioGroup)
         val numberOfQuestionsEditText = dialogView.findViewById<TextInputEditText>(R.id.numberOfQuestionsEditText)
+        val timeLimitEditText = dialogView.findViewById<TextInputEditText>(R.id.timeLimitEditText) //
 
         val playlistNames = availablePlaylists.map { it.name }
         val spinnerAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, playlistNames)
@@ -148,22 +150,73 @@ class QuizFragment : Fragment() {
 
                 val selectedGameModeId = gameModeRadioGroup.checkedRadioButtonId
                 val gameMode = if (selectedGameModeId == R.id.radioMultipleChoice) GameMode.MULTIPLE_CHOICE
-                else GameMode.FILL_IN_THE_BLANKS
+                else GameMode.FILL_IN_THE_BLANKS //
 
                 val numQuestionsString = numberOfQuestionsEditText.text.toString()
                 val localNumberOfQuestions = numQuestionsString.toIntOrNull() ?: 10
 
-                if (localNumberOfQuestions <= 0 || localNumberOfQuestions > 50) {
-                    Toast.makeText(context, R.string.invalid_number_of_questions, Toast.LENGTH_SHORT).show()
+
+                val trackCountForSelectedPlaylist = playlistViewModel.playlistTrackCounts.value?.get(selectedPlaylist.id) ?: 0
+                if (trackCountForSelectedPlaylist == 0) {
+                    Toast.makeText(context, "Selected playlist appears to have no tracks. Please add songs to this playlist or choose a different one.", Toast.LENGTH_LONG).show()
                     return@setPositiveButton
                 }
+
+                var calculatedMaxBasedOnTracks = trackCountForSelectedPlaylist * 3
+                val absoluteOverallMax = 30 // ceiling for max number of questions
+
+                val actualMaxAllowedQuestions: Int
+
+                if (trackCountForSelectedPlaylist == 0) { // If playlist has 0 tracks
+                    actualMaxAllowedQuestions = 0 // then no questions possible
+                } else if (calculatedMaxBasedOnTracks > absoluteOverallMax) {
+                    //if the calculated possible questions is more than the ceiling, then the max number is set to the ceiling
+                    actualMaxAllowedQuestions = absoluteOverallMax
+                } else {
+
+                    //if not, the number of questions possible is number of quesition types (in my case 3)  * (number of songs)
+                    actualMaxAllowedQuestions = calculatedMaxBasedOnTracks
+                }
+
+                if (actualMaxAllowedQuestions == 0 && localNumberOfQuestions > 0) {
+                    Toast.makeText(context, "This playlist has no usable tracks, please add songs to the playlist or choose a different one.", Toast.LENGTH_LONG).show()
+                    return@setPositiveButton
+                }
+                if (localNumberOfQuestions <= 0 || localNumberOfQuestions > actualMaxAllowedQuestions) {
+                    if (actualMaxAllowedQuestions > 0) {
+                        Toast.makeText(context, "The max number of questions for this playlist is $actualMaxAllowedQuestions.", Toast.LENGTH_LONG).show()
+                    } else {
+                        Toast.makeText(context, "Please enter a valid number of questions", Toast.LENGTH_LONG).show()
+                    }
+                    return@setPositiveButton
+                }
+
+                val timeLimitString = timeLimitEditText.text.toString()
+                val timeLimitPerQuestion = if (timeLimitString.isNotBlank()) {
+                    timeLimitString.toIntOrNull()
+                } else {
+                    null
+                }
+
+                if (timeLimitPerQuestion != null) {
+                    if (timeLimitPerQuestion <= 0) {
+                        Toast.makeText(context, "Time limit must be a positive number.", Toast.LENGTH_SHORT).show()
+                        return@setPositiveButton
+                    }
+                    if (timeLimitPerQuestion > MAX_ALLOWED_TIME_LIMIT_SECONDS) {
+                        Toast.makeText(context, "Time limit cannot exceed 3 minutes.", Toast.LENGTH_SHORT).show()
+                        return@setPositiveButton
+                    }
+                }
+
 
                 quizViewModel.createQuiz(
                     name = quizName,
                     playlistId = selectedPlaylist.id,
                     questionSelectionMode = QuestionSelectionMode.RANDOM,
                     gameMode = gameMode,
-                    requestedNumberOfQuestions = localNumberOfQuestions
+                    requestedNumberOfQuestions = localNumberOfQuestions,
+                    timeLimitPerQuestion = timeLimitPerQuestion
                 )
             }
             .show()

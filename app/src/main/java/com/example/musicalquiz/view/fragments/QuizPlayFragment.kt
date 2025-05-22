@@ -14,6 +14,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.Toast
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -26,6 +27,7 @@ import com.example.musicalquiz.database.entities.MultipleChoiceQuestionFocus
 import com.example.musicalquiz.databinding.FragmentQuizPlayBinding
 import com.example.musicalquiz.viewmodel.QuizViewModel
 import com.google.android.material.button.MaterialButton
+import android.os.CountDownTimer
 import java.io.IOException
 
 
@@ -56,6 +58,12 @@ class QuizPlayFragment : Fragment() {
 
     private val handler = Handler(Looper.getMainLooper())
     private var previewRunnable: Runnable? = null
+
+    private var questionTimer: CountDownTimer? = null
+    private var currentQuestionTimeLimit: Int? = null
+    private var timeLeftInMillis: Long = 0L
+    private val TIMER_UPDATE_INTERVAL = 1000L
+
 
     companion object {
         private const val FRAGMENT_TAG = "QuizPlayFragment_DEBUG"
@@ -94,6 +102,7 @@ class QuizPlayFragment : Fragment() {
      * - Current quiz details
      * - Current question
      * - Question index
+     * - Timer
      * - Quiz completion status
      * - Error messages
      */
@@ -105,6 +114,7 @@ class QuizPlayFragment : Fragment() {
 
         quizViewModel.currentQuizDetails.observe(viewLifecycleOwner) { quiz ->
             Log.d(FRAGMENT_TAG, "currentQuizDetails LIVEDATA changed. GameMode: ${quiz?.gameMode}")
+            currentQuestionTimeLimit = quiz?.timeLimitPerQuestion
             if (quizViewModel.currentQuestion.value != null && quizViewModel.isQuizFinished.value == false) {
                 quizViewModel.currentQuestion.value?.let { displayQuestion(it) }
             }
@@ -128,6 +138,7 @@ class QuizPlayFragment : Fragment() {
             Log.d(FRAGMENT_TAG, "isQuizFinished LIVEDATA changed to: $isFinished")
             if (isFinished) {
                 Log.d(FRAGMENT_TAG, "Quiz is finished, calling showResults().")
+                binding.timerTextView.visibility = View.GONE
                 showResults()
             } else {
                 Log.d(FRAGMENT_TAG, "Quiz is NOT finished, ensuring quiz UI is visible.")
@@ -180,6 +191,7 @@ class QuizPlayFragment : Fragment() {
 
         answerButtons.forEach { button ->
             button.setOnClickListener {
+                questionTimer?.cancel()
                 val selectedAnswer = (it as Button).text.toString()
                 quizViewModel.submitAnswer(selectedAnswer)
                 stopPreview()
@@ -188,6 +200,7 @@ class QuizPlayFragment : Fragment() {
         }
 
         binding.submitTextAnswerButton.setOnClickListener {
+            questionTimer?.cancel()
             val typedAnswer = binding.answerEditText.text.toString().trim()
             if (typedAnswer.isNotEmpty()) {
                 quizViewModel.submitAnswer(typedAnswer)
@@ -280,10 +293,61 @@ class QuizPlayFragment : Fragment() {
             Log.e(FRAGMENT_TAG, "Unsupported game mode in displayQuestion: $gameModeString")
         }
 
+
+        /* triggering the timer for the questions if applicable*/
+        currentQuestionTimeLimit?.let { limitInSeconds ->
+            if (limitInSeconds > 0) {
+                binding.timerContainer.visibility = View.VISIBLE // shows the timer UI only if the user choose to play with time limit
+                startQuestionTimer(limitInSeconds)
+            } else {
+                binding.timerContainer.visibility = View.GONE
+                questionTimer?.cancel()
+            }
+        } ?: run {
+            binding.timerContainer.visibility = View.GONE
+            questionTimer?.cancel()
+        }
+
         binding.playPreviewButton.isEnabled = true
         binding.playPreviewButton.setImageResource(R.drawable.ic_play)
         binding.previewStatusTextView.text = ""
     }
+
+    /** Starts countdown timer for each question
+     *  used for quizes with time limit set
+     */
+
+    private fun startQuestionTimer(timeLimitSeconds: Int) {
+        questionTimer?.cancel()
+        timeLeftInMillis = timeLimitSeconds * 1000L
+
+        binding.circularTimerProgress.max = timeLimitSeconds
+        binding.circularTimerProgress.progress = timeLimitSeconds
+
+        questionTimer = object : CountDownTimer(timeLeftInMillis, TIMER_UPDATE_INTERVAL) {
+            override fun onTick(millisUntilFinished: Long) {
+                timeLeftInMillis = millisUntilFinished
+                val secondsLeft = (millisUntilFinished / 1000)
+                binding.timerTextView.text = (secondsLeft + 1).toString() //displaying it as a countdown
+                binding.circularTimerProgress.setProgressCompat(secondsLeft.toInt() + 1, true)
+            }
+
+            override fun onFinish() {
+                timeLeftInMillis = 0
+                binding.timerTextView.text = "Your Time's Up! "
+                binding.circularTimerProgress.setProgressCompat(0, true)
+
+                if (isAdded && view != null) {
+                    Toast.makeText(context, getString(R.string.time_up), Toast.LENGTH_SHORT).show()
+                    stopPreview()
+                    disableAnswerInputs()
+                    quizViewModel.submitAnswer("")
+                }
+            }
+        }.start()
+        binding.timerContainer.visibility = View.VISIBLE
+    }
+
 
     /**
      * Enables user input for answering questions.
@@ -450,6 +514,7 @@ class QuizPlayFragment : Fragment() {
     }
 
     override fun onPause() {
+        questionTimer?.cancel()
         super.onPause()
         stopPreview()
         quizViewModel.saveState()
@@ -457,6 +522,7 @@ class QuizPlayFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        questionTimer?.cancel()
         stopPreview()
         _binding = null
     }

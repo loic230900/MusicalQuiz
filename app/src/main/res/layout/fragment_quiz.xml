@@ -67,7 +67,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/tap_plus_to_start"
-            android:textColor="@color/white"
+            android:textColor="#737373"
             android:layout_marginTop="4dp"
             android:gravity="center_horizontal"/>
 

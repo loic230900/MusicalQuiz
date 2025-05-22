@@ -144,6 +144,7 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         playlistId: Int,
         questionSelectionMode: QuestionSelectionMode,
         gameMode: GameMode,
+        timeLimitPerQuestion: Int?,
         requestedNumberOfQuestions: Int = 10
     ) {
         viewModelScope.launch {
@@ -239,7 +240,11 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 Log.d(TAG, "Selected ${finalQuestionsForQuiz.size} questions for the quiz from a pool of ${potentialQuizQuestions.size}.")
 
-                val newQuiz = Quiz(name = name, playlistId = playlistId, gameMode = gameMode.name)
+                val newQuiz = Quiz(
+                    name = name,
+                    playlistId = playlistId,
+                    gameMode = gameMode.name,
+                    timeLimitPerQuestion = timeLimitPerQuestion, )
                 val insertedQuizId = withContext(Dispatchers.IO) { quizDao.insertQuiz(newQuiz) }.toInt()
                 Log.d(TAG, "Inserted Quiz with ID: $insertedQuizId")
 
@@ -283,6 +288,12 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+
+    /** Generates blanks for fill-in style quiz questions
+     * filters the answers
+     * places randomly the blanked spaces
+     */
+
     private fun generateBlanks(text: String, revealPercentage: Double = 0.4): String {
         if (text.isBlank()) return ""
         val chars = text.toCharArray()
@@ -297,6 +308,11 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         }
         return result.toString().trim()
     }
+
+
+    /** Generates Incorrect answers for the quizz
+     * uses the data coming from the playlist
+     */
 
     private fun generateIncorrectMcAnswers(
         currentQuestion: QuizQuestion,
@@ -317,11 +333,14 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
-        // Remove any duplicates and the correct answer
         potentialDistractors.removeIf { it.equals(correctAnswerText, ignoreCase = true) }
         return potentialDistractors.shuffled(Random.Default).take(3).toList()
     }
 
+
+    /**
+     * Loads the questions from the database for the display
+     */
     fun loadQuestionsForQuiz(quizId: Int) {
         viewModelScope.launch {
             Log.d(TAG, "loadQuestionsForQuiz called for quizId: $quizId")
@@ -356,7 +375,7 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
                 _isQuizFinished.postValue(true)
             } else {
                 Log.d(TAG, "Loaded ${questionsFromDb.size} questions for quizId: $quizId")
-                _currentQuizQuestions.postValue(questionsFromDb)
+                _currentQuizQuestions.postValue(questionsFromDb!!)
                 _currentQuestionIndex.postValue(0)
                 _score.postValue(0)
                 _currentQuestion.postValue(questionsFromDb[0])
@@ -368,6 +387,10 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+
+    /**
+     * retrieves current question
+     */
     private fun updateCurrentQuestion() {
         val questions = _currentQuizQuestions.value
         val index = _currentQuestionIndex.value
@@ -383,6 +406,10 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+
+    /**
+     * logic to submit an answer and checks if it is correct
+     */
     fun submitAnswer(userInput: String) {
         val currentQ = _currentQuestion.value ?: return
         val currentQuiz = _currentQuizDetails.value ?: return
@@ -431,6 +458,11 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+
+
+    /**
+     * loads all quizzes when user enters the quiz section
+     */
     fun loadAllQuizzes() {
         viewModelScope.launch {
             Log.d(TAG, "loadAllQuizzes called")
@@ -450,6 +482,10 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+
+    /**
+     * loads available playlists for the user to choose for the quiz
+     */
     fun loadAvailablePlaylists() {
         viewModelScope.launch {
             try {
@@ -462,6 +498,10 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
+    /**
+     * deletes the quiz upon user request
+     */
 
     fun deleteQuiz(quizInfo: QuizWithPlaylistInfo) {
         viewModelScope.launch {
@@ -479,6 +519,7 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
 
     fun resetQuizState() {
         Log.d(TAG, "resetQuizState called")

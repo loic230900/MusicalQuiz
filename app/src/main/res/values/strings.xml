@@ -69,7 +69,7 @@
     <string name="delete_track_confirmation">Are you sure you want to delete \"%1$s\" from this playlist?</string>
     <string name="track_deleted">Track deleted from playlist</string>
     <string name="delete_track_error">Error deleting track</string>
-    <string name="title_quiz">Quizzes</string>
+    <string name="title_quiz">Quiz</string>
     <string name="quiz_options">Quiz options</string>
     <string name="start_quiz">Start Quiz</string>
     <string name="no_quizzes_found_create_one">No Quizzes Yet</string>
@@ -120,6 +120,9 @@
     <string name="home_create_new_quiz_button">Create a New Quiz</string>
     <string name="preview_paused">Preview paused</string>
     <string name="no_preview_available">No preview available</string>
+    <string name="hint_time_limit_per_question_optional">Time Limit per Question in seconds</string>
+    <string name="time_left_format">%ds</string>
+    <string name="time_up">Time\'s Up!</string>
 
 
     <!-- Track Count -->

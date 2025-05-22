@@ -31,19 +31,20 @@
             android:id="@+id/questionNumberTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="?attr/colorOnSurface"
+            android:textColor="@color/white"
             app:layout_constraintTop_toBottomOf="@id/quizProgressIndicator"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="16dp"
             tools:text="Question 3 / 10" />
 
+
         <TextView
             android:id="@+id/questionPromptTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textColor="@color/white"
             app:layout_constraintTop_toBottomOf="@id/questionNumberTextView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -68,7 +69,7 @@
             android:id="@+id/previewStatusTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textColor="@color/white"
             app:layout_constraintTop_toBottomOf="@id/playPreviewButton"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -93,7 +94,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:paddingVertical="12dp"
-                android:textColor="?attr/colorOnSurface"
+                android:textColor="@color/white"
                 app:strokeColor="?attr/colorOnSurface"
                 tools:text="Answer Option 1" />
             <com.google.android.material.button.MaterialButton
@@ -103,7 +104,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:paddingVertical="12dp"
-                android:textColor="?attr/colorOnSurface"
+                android:textColor="@color/white"
                 app:strokeColor="?attr/colorOnSurface"
                 tools:text="Answer Option 2" />
             <com.google.android.material.button.MaterialButton
@@ -113,7 +114,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:paddingVertical="12dp"
-                android:textColor="?attr/colorOnSurface"
+                android:textColor="@color/white"
                 app:strokeColor="?attr/colorOnSurface"
                 tools:text="Answer Option 3" />
             <com.google.android.material.button.MaterialButton
@@ -122,7 +123,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingVertical="12dp"
-                android:textColor="?attr/colorOnSurface"
+                android:textColor="@color/white"
                 app:strokeColor="?attr/colorOnSurface"
                 tools:text="Answer Option 4" />
         </LinearLayout>
@@ -146,7 +147,7 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_type_your_answer"
                 app:boxStrokeColor="?attr/colorOnSurface"
-                app:hintTextColor="?attr/colorOnSurfaceVariant">
+                app:hintTextColor="#787878">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/answerEditText"
@@ -155,7 +156,7 @@
                     android:inputType="textCapWords"
                     android:imeOptions="actionDone"
                     android:maxLines="1"
-                    android:textColor="?attr/colorOnSurface" />
+                    android:textColor="@color/white" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.button.MaterialButton
@@ -165,7 +166,7 @@
                 android:text="@string/action_submit"
                 android:layout_gravity="end"
                 android:layout_marginTop="8dp"
-                android:textColor="?attr/colorOnSurface"
+                android:textColor="@color/white"
                 app:strokeColor="?attr/colorOnSurface"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
         </LinearLayout>
@@ -200,14 +201,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/quiz_finished"
-                android:textColor="?attr/colorOnSurface"
+                android:textColor="@color/white"
                 android:layout_marginBottom="16dp"/>
 
             <TextView
                 android:id="@+id/scoreTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="?attr/colorOnSurface"
+                android:textColor="@color/white"
                 tools:text="Your Score: 7 / 10"/>
 
             <com.google.android.material.button.MaterialButton
@@ -216,10 +217,39 @@
                 android:layout_height="wrap_content"
                 android:text="@string/back_to_quizzes"
                 android:layout_marginTop="24dp"
-                android:textColor="?attr/colorOnSurface"
+                android:textColor="@color/white"
                 app:strokeColor="?attr/colorOnSurface"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
         </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/timerContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/questionNumberTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:visibility = "gone"
+            tools:visibility = "visible">
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/circularTimerProgress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="false"
+                app:indicatorSize="60dp"
+                app:trackThickness="4dp"
+                app:trackColor="@color/red" app:indicatorColor="@color/white" android:progress="100" />  <TextView
+                android:id="@+id/timerTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:text="15" />
+        </FrameLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
