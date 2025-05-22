@@ -127,6 +127,9 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
                     val cleanArtistName = track.artist.name.trim()
                     val cleanAlbumTitle = track.album.title.trim()
 
+                    Log.d(TAG, "Processing track: $cleanTrackTitle by $cleanArtistName")
+                    val questionsBefore = potentialQuizQuestions.size
+
                     if (gameMode == GameMode.MULTIPLE_CHOICE) {
                         potentialQuizQuestions.add(QuizQuestion(quizId = 0, trackId = track.id, previewUrl = track.preview!!, correctAnswer = cleanTrackTitle, trackTitle = cleanTrackTitle, artistName = cleanArtistName, albumTitle = cleanAlbumTitle, mcQuestionFocus = MultipleChoiceQuestionFocus.TRACK_TITLE.name))
                         if (cleanArtistName.isNotBlank()) { potentialQuizQuestions.add(QuizQuestion(quizId = 0, trackId = track.id, previewUrl = track.preview!!, correctAnswer = cleanArtistName, trackTitle = cleanTrackTitle, artistName = cleanArtistName, albumTitle = cleanAlbumTitle, mcQuestionFocus = MultipleChoiceQuestionFocus.ARTIST_NAME.name)) }
@@ -145,6 +148,7 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
                             potentialQuizQuestions.add(QuizQuestion(quizId = 0, trackId = track.id, previewUrl = track.preview!!, correctAnswer = actualCorrectAnswer, trackTitle = cleanTrackTitle, artistName = cleanArtistName, albumTitle = cleanAlbumTitle, fillBlanksQuestionType = questionType.name, fillBlanksPrompt = prompt))
                         }
                     }
+                    Log.d(TAG, "Added ${potentialQuizQuestions.size - questionsBefore} questions for track $cleanTrackTitle")
                 }
 
                 if (potentialQuizQuestions.isEmpty()) {
@@ -154,8 +158,10 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
                     return@launch
                 }
 
+                Log.d(TAG, "Generated ${potentialQuizQuestions.size} potential questions before shuffling")
                 potentialQuizQuestions.shuffle(Random.Default)
                 val finalQuestionsForQuiz = potentialQuizQuestions.take(requestedNumberOfQuestions.coerceAtMost(potentialQuizQuestions.size))
+                Log.d(TAG, "Selected ${finalQuestionsForQuiz.size} questions from ${potentialQuizQuestions.size} potential questions (requested: $requestedNumberOfQuestions)")
 
                 if (finalQuestionsForQuiz.isEmpty()) {
                     Log.e(TAG, "After selection, no questions remained for the quiz.")
@@ -242,10 +248,8 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
                 potentialDistractors.add(candidate)
             }
         }
-        if (focus != MultipleChoiceQuestionFocus.TRACK_TITLE && !currentQuestion.trackTitle.equals(correctAnswerText, ignoreCase = true) && currentQuestion.trackTitle.isNotBlank()) potentialDistractors.add(currentQuestion.trackTitle)
-        if (focus != MultipleChoiceQuestionFocus.ARTIST_NAME && !currentQuestion.artistName.equals(correctAnswerText, ignoreCase = true) && currentQuestion.artistName.isNotBlank()) potentialDistractors.add(currentQuestion.artistName)
-        if (focus != MultipleChoiceQuestionFocus.ALBUM_TITLE && !currentQuestion.albumTitle.equals(correctAnswerText, ignoreCase = true) && currentQuestion.albumTitle.isNotBlank()) potentialDistractors.add(currentQuestion.albumTitle)
 
+        // Remove any duplicates and the correct answer
         potentialDistractors.removeIf { it.equals(correctAnswerText, ignoreCase = true) }
         return potentialDistractors.shuffled(Random.Default).take(3).toList()
     }

@@ -2,6 +2,23 @@
     <style name="Base.Theme.Musicalquiz" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowBackground">@drawable/background4</item>
 
+        <!-- Primary brand colors -->
+        <item name="colorPrimary">@color/purple_700</item>
+        <item name="colorPrimaryVariant">@color/purple_500</item>
+        <item name="colorOnPrimary">@color/white</item>
+        
+        <!-- Secondary brand colors -->
+        <item name="colorSecondary">@color/purple_500</item>
+        <item name="colorSecondaryVariant">@color/purple_700</item>
+        <item name="colorOnSecondary">@color/white</item>
+        
+        <!-- Surface colors -->
+        <item name="android:colorBackground">@color/background_light</item>
+        <item name="colorSurface">@color/surface_light</item>
+        <item name="colorSurfaceVariant">@color/surface_variant_light</item>
+        <item name="colorOnSurface">@color/on_surface_light</item>
+        <item name="colorOnBackground">@color/on_background_light</item>
+
         <item name="android:fontFamily">@font/circularmedium</item>
         <item name="fontFamily">@font/circularmedium</item>
 

@@ -5,13 +5,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:background="@android:color/transparent"
     tools:context=".view.fragments.QuizFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorSurface"
+        android:background="@android:color/transparent"
         app:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
@@ -19,7 +21,8 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:title="@string/title_quiz"
-            app:titleTextColor="?attr/colorOnSurface" />
+            app:titleTextColor="@color/white"
+            android:background="@android:color/transparent" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -27,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingTop="8dp"
-        android:paddingBottom="8dp"
+        android:paddingBottom="80dp"
         android:clipToPadding="false"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -48,7 +51,7 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:src="@drawable/ic_quiz_placeholder"
-            app:tint="?attr/colorOnSurfaceVariant"
+            app:tint="@color/white"
             android:layout_marginBottom="16dp"
             android:contentDescription="@string/no_quizzes_available" />
 
@@ -57,14 +60,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/no_quizzes_found_create_one"
-            android:textColor="?attr/colorOnSurface"
+            android:textColor="@color/white"
             android:gravity="center_horizontal"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/tap_plus_to_start"
-            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textColor="@color/white"
             android:layout_marginTop="4dp"
             android:gravity="center_horizontal"/>
 

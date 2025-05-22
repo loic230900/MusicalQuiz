@@ -17,6 +17,9 @@
         android:contentDescription="@string/sort_playlists"
         app:icon="@drawable/ic_sort"
         android:elevation="4dp"
+        app:backgroundTint="?attr/colorSurface"
+        app:iconTint="?attr/colorOnSurface"
+        android:textColor="?attr/colorOnSurface"
         style="@style/Widget.Material3.Button.IconButton" />
 
     <!-- Empty State -->
@@ -62,7 +65,9 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:contentDescription="@string/add_playlist"
-        android:src="@drawable/ic_add" />
+        android:src="@drawable/ic_add"
+        app:tint="?attr/colorOnPrimary"
+        android:backgroundTint="?attr/colorPrimary"/>
 
     <!-- Add ProgressBar for loading indicator -->
     <ProgressBar

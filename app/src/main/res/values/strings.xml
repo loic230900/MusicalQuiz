@@ -118,6 +118,8 @@
     <string name="home_your_playlists_title">Your Playlists</string>
     <string name="view_all">View All</string>
     <string name="home_create_new_quiz_button">Create a New Quiz</string>
+    <string name="preview_paused">Preview paused</string>
+    <string name="no_preview_available">No preview available</string>
 
 
     <!-- Track Count -->

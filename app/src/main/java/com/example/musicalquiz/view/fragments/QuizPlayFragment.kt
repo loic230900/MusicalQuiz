@@ -127,13 +127,21 @@ class QuizPlayFragment : Fragment() {
             if (mediaPlayer?.isPlaying == true) {
                 mediaPlayer?.pause()
                 binding.playPreviewButton.setImageResource(R.drawable.ic_play)
-                binding.previewStatusTextView.text = "Paused"
+                binding.previewStatusTextView.text = getString(R.string.preview_paused)
             } else if (mediaPlayer != null && currentQuestion?.previewUrl != null) {
-                mediaPlayer?.start()
-                binding.playPreviewButton.setImageResource(R.drawable.ic_pause)
-                binding.previewStatusTextView.text = getString(R.string.playing_preview)
+                try {
+                    mediaPlayer?.start()
+                    binding.playPreviewButton.setImageResource(R.drawable.ic_pause)
+                    binding.previewStatusTextView.text = getString(R.string.playing_preview)
+                } catch (e: Exception) {
+                    Log.e(FRAGMENT_TAG, "Error resuming preview: ${e.message}", e)
+                    binding.previewStatusTextView.text = getString(R.string.preview_error)
+                    stopPreview()
+                }
             } else if (currentQuestion?.previewUrl != null) {
                 playPreview(currentQuestion.previewUrl)
+            } else {
+                binding.previewStatusTextView.text = getString(R.string.no_preview_available)
             }
         }
 
@@ -271,51 +279,62 @@ class QuizPlayFragment : Fragment() {
         binding.playPreviewButton.isEnabled = false
         binding.previewStatusTextView.text = getString(R.string.playing_preview)
 
-        mediaPlayer = MediaPlayer().apply {
-            setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .build()
-            )
-            try {
+        try {
+            mediaPlayer = MediaPlayer().apply {
+                setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .build()
+                )
                 setDataSource(url)
                 prepareAsync()
-            } catch (e: IOException) {
-                e.printStackTrace()
-                binding.previewStatusTextView.text = getString(R.string.preview_error)
-                binding.playPreviewButton.isEnabled = true
-                binding.playPreviewButton.setImageResource(R.drawable.ic_play)
-                return@apply
-            }
+                setOnPreparedListener {
+                    try {
+                        start()
+                        binding.playPreviewButton.setImageResource(R.drawable.ic_pause)
+                        binding.playPreviewButton.isEnabled = true
 
-            setOnPreparedListener { mp ->
-                mp.start()
-                binding.playPreviewButton.setImageResource(R.drawable.ic_pause)
-                binding.playPreviewButton.isEnabled = true
-
-                previewRunnable = object : Runnable {
-                    override fun run() {
-                        if (mp.isPlaying) {
-                            val currentPosition = mp.currentPosition / 1000
-                            val totalDuration = mp.duration / 1000
-                            binding.previewStatusTextView.text = "Playing... $currentPosition / $totalDuration s"
-                            handler.postDelayed(this, 1000)
+                        previewRunnable = object : Runnable {
+                            override fun run() {
+                                if (isPlaying) {
+                                    val currentPosition = currentPosition / 1000
+                                    val totalDuration = duration / 1000
+                                    binding.previewStatusTextView.text = "Playing... $currentPosition / $totalDuration s"
+                                    handler.postDelayed(this, 1000)
+                                }
+                            }
                         }
+                        handler.post(previewRunnable!!)
+                    } catch (e: Exception) {
+                        Log.e(FRAGMENT_TAG, "Error starting preview: ${e.message}", e)
+                        binding.previewStatusTextView.text = getString(R.string.preview_error)
+                        binding.playPreviewButton.isEnabled = true
+                        binding.playPreviewButton.setImageResource(R.drawable.ic_play)
                     }
                 }
-                handler.post(previewRunnable!!)
+                setOnCompletionListener {
+                    stopPreview()
+                }
+                setOnErrorListener { _, what, extra ->
+                    val errorMessage = when (what) {
+                        MediaPlayer.MEDIA_ERROR_UNKNOWN -> "Unknown error"
+                        MediaPlayer.MEDIA_ERROR_SERVER_DIED -> "Server died"
+                        else -> "Error code: $what, Extra: $extra"
+                    }
+                    Log.e(FRAGMENT_TAG, "MediaPlayer error: $errorMessage")
+                    stopPreview()
+                    binding.previewStatusTextView.text = getString(R.string.preview_error)
+                    true
+                }
             }
-
-            setOnCompletionListener {
-                stopPreview()
-            }
-
-            setOnErrorListener { _, _, _ ->
-                stopPreview()
-                binding.previewStatusTextView.text = getString(R.string.preview_error)
-                true
-            }
+        } catch (e: Exception) {
+            Log.e(FRAGMENT_TAG, "Error initializing preview: ${e.message}", e)
+            binding.previewStatusTextView.text = getString(R.string.preview_error)
+            binding.playPreviewButton.isEnabled = true
+            binding.playPreviewButton.setImageResource(R.drawable.ic_play)
+            mediaPlayer?.release()
+            mediaPlayer = null
         }
     }
 

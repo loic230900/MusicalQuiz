@@ -45,6 +45,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
+                android:textAppearance="?attr/textAppearanceHeadline6"
                 android:layout_marginBottom="4dp"/>
 
             <!-- Artist Section -->
@@ -53,6 +54,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
+                android:textAppearance="?attr/textAppearanceSubtitle1"
                 android:layout_marginBottom="16dp"/>
 
             <!-- Info Section -->
@@ -66,7 +68,8 @@
                     android:id="@+id/durationText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="?attr/colorOnSurface"/>
+                    android:textColor="@color/white"
+                    android:textAppearance="?attr/textAppearanceBody2"/>
 
             </LinearLayout>
 
@@ -80,7 +83,9 @@
                 android:layout_marginBottom="16dp"
                 android:src="@drawable/ic_play"
                 android:visibility="gone"
-                app:fabSize="normal"/>
+                app:fabSize="normal"
+                app:tint="?attr/colorOnPrimary"
+                android:backgroundTint="?attr/colorPrimary"/>
 
             <!-- Album Tracklist Section (for albums) -->
             <androidx.recyclerview.widget.RecyclerView
@@ -100,7 +105,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/add_to_playlist"
                 android:layout_marginTop="16dp"
-                app:background="@color/blur_gradient_nav"/>
+                android:textColor="?attr/colorOnPrimary"
+                android:backgroundTint="?attr/colorPrimary"/>
 
         </LinearLayout>
 

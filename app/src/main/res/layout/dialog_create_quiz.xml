@@ -5,20 +5,25 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="24dp">
+    android:padding="24dp"
+    android:background="?attr/colorSurface">
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/quizNameLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/hint_quiz_name">
+        android:hint="@string/hint_quiz_name"
+        app:boxStrokeColor="?attr/colorPrimary"
+        app:hintTextColor="?attr/colorPrimary">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/quizNameEditText" android:layout_width="match_parent"
+            android:id="@+id/quizNameEditText"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textCapSentences"
-            android:maxLines="1" />
+            android:maxLines="1"
+            android:textColor="?attr/colorOnSurface" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
@@ -26,10 +31,12 @@
         android:layout_height="wrap_content"
         android:text="@string/label_select_playlist"
         android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="8dp"
+        android:textColor="?attr/colorOnSurface"/>
 
     <Spinner
-        android:id="@+id/playlistSpinner" android:layout_width="match_parent"
+        android:id="@+id/playlistSpinner"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="48dp"
         android:background="@drawable/spinner_background_outline"
@@ -41,23 +48,29 @@
         android:layout_height="wrap_content"
         android:text="@string/label_game_mode"
         android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="8dp"
+        android:textColor="?attr/colorOnSurface"/>
 
     <RadioGroup
-        android:id="@+id/gameModeRadioGroup" android:layout_width="match_parent"
+        android:id="@+id/gameModeRadioGroup"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <RadioButton
-            android:id="@+id/radioMultipleChoice" android:layout_width="wrap_content"
+            android:id="@+id/radioMultipleChoice"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/game_mode_multiple_choice"
-            android:checked="true"/>
+            android:checked="true"
+            android:textColor="?attr/colorOnSurface"/>
 
         <RadioButton
-            android:id="@+id/radioFillInTheBlanks" android:layout_width="wrap_content"
+            android:id="@+id/radioFillInTheBlanks"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/game_mode_fill_blanks" />
+            android:text="@string/game_mode_fill_blanks"
+            android:textColor="?attr/colorOnSurface" />
     </RadioGroup>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -66,14 +79,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="@string/hint_number_of_questions">
+        android:hint="@string/hint_number_of_questions"
+        app:boxStrokeColor="?attr/colorPrimary"
+        app:hintTextColor="?attr/colorPrimary">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/numberOfQuestionsEditText" android:layout_width="match_parent"
+            android:id="@+id/numberOfQuestionsEditText"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"
             android:text="10"
-            android:maxLines="1" />
+            android:maxLines="1"
+            android:textColor="?attr/colorOnSurface" />
     </com.google.android.material.textfield.TextInputLayout>
 
 </LinearLayout>

@@ -7,5 +7,17 @@
     <color name="green">#FF4CAF50</color>
     <color name="red">#FFFF0000</color>
 
+    <!-- Light theme colors -->
+    <color name="surface_light">#FFF5F5F5</color>
+    <color name="surface_variant_light">#FFE0E0E0</color>
+    <color name="on_surface_light">#FF1C1B1F</color>
+    <color name="background_light">#FFFFFFFF</color>
+    <color name="on_background_light">#FF1C1B1F</color>
 
+    <!-- Dark theme colors -->
+    <color name="surface_dark">#FF1C1B1F</color>
+    <color name="surface_variant_dark">#FF2D2C31</color>
+    <color name="on_surface_dark">#FFE6E1E5</color>
+    <color name="background_dark">#FF121212</color>
+    <color name="on_background_dark">#FFE6E1E5</color>
 </resources>

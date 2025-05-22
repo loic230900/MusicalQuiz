@@ -15,8 +15,6 @@ import com.example.musicalquiz.network.RetrofitInstance
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class PlaylistViewModel(application: Application) : AndroidViewModel(application) {
     private val database = AppDatabase.getDatabase(application)
@@ -184,23 +182,8 @@ class PlaylistViewModel(application: Application) : AndroidViewModel(application
             val playlistTrack = PlaylistTrack(playlistId = playlistId, trackId = trackId, position = currentTrackCountBeforeAdd, duration = duration)
             playlistTrackDao.insertTrackAtPosition(playlistTrack)
 
-            val updatedTracksInDb = playlistTrackDao.getTracksForPlaylist(playlistId).first()
-            val newTotalDuration = updatedTracksInDb.sumOf { it.duration }
-            val newTrackCountFromDb = updatedTracksInDb.size
-
-            val currentCounts = _playlistTrackCounts.value?.toMutableMap() ?: mutableMapOf()
-            val currentDurations = _playlistDurations.value?.toMutableMap() ?: mutableMapOf()
-            currentCounts[playlistId] = newTrackCountFromDb
-            currentDurations[playlistId] = newTotalDuration
-            _playlistTrackCounts.postValue(currentCounts)
-            _playlistDurations.postValue(currentDurations)
-
-            if (currentTrackCountBeforeAdd == 0) { // If it was the first track
-                val newArtistCoverUrl = fetchArtistPictureForTrack(trackId)
-                val currentArtistCovers = _playlistArtistCoverImageUrls.value?.toMutableMap() ?: mutableMapOf()
-                currentArtistCovers[playlistId] = newArtistCoverUrl
-                _playlistArtistCoverImageUrls.postValue(currentArtistCovers)
-            }
+            // No need to manually refresh playlists; LiveData/Flow will update automatically
+            loadPlaylistTracks(playlistId)
 
             if (currentSortOrder == SortOrder.DURATION_ASC || currentSortOrder == SortOrder.DURATION_DESC ||
                 currentSortOrder == SortOrder.TRACK_COUNT_ASC || currentSortOrder == SortOrder.TRACK_COUNT_DESC) {
@@ -216,31 +199,13 @@ class PlaylistViewModel(application: Application) : AndroidViewModel(application
         try {
             val trackToDelete = playlistTrackDao.getTracksForPlaylist(playlistId).first().find { it.trackId == trackId }
             if (trackToDelete != null) {
-                val wasFirstTrack = trackToDelete.position == 0
                 playlistTrackDao.deleteTrack(trackToDelete)
-
-                val updatedTracksInDb = playlistTrackDao.getTracksForPlaylist(playlistId).first()
-                val newTrackCount = updatedTracksInDb.size
-                val newTotalDuration = updatedTracksInDb.sumOf { it.duration }
-
-                val currentCounts = _playlistTrackCounts.value?.toMutableMap() ?: mutableMapOf()
-                val currentDurations = _playlistDurations.value?.toMutableMap() ?: mutableMapOf()
-                currentCounts[playlistId] = newTrackCount
-                currentDurations[playlistId] = newTotalDuration
-                _playlistTrackCounts.postValue(currentCounts)
-                _playlistDurations.postValue(currentDurations)
-
-                if (wasFirstTrack || newTrackCount == 0) {
-                    val firstPlaylistTrack = updatedTracksInDb.minByOrNull { it.position }
-                    val newArtistCoverUrl = firstPlaylistTrack?.let { fetchArtistPictureForTrack(it.trackId) }
-                    val currentArtistCovers = _playlistArtistCoverImageUrls.value?.toMutableMap() ?: mutableMapOf()
-                    currentArtistCovers[playlistId] = newArtistCoverUrl
-                    _playlistArtistCoverImageUrls.postValue(currentArtistCovers)
+                loadPlaylistTracks(playlistId)
+                // No need to manually refresh playlists; LiveData/Flow will update automatically
+                if (currentSortOrder == SortOrder.DURATION_ASC || currentSortOrder == SortOrder.DURATION_DESC ||
+                    currentSortOrder == SortOrder.TRACK_COUNT_ASC || currentSortOrder == SortOrder.TRACK_COUNT_DESC) {
+                    _playlists.value?.let { playlists -> _playlists.postValue(sortPlaylists(playlists)) }
                 }
-            }
-            if (currentSortOrder == SortOrder.DURATION_ASC || currentSortOrder == SortOrder.DURATION_DESC ||
-                currentSortOrder == SortOrder.TRACK_COUNT_ASC || currentSortOrder == SortOrder.TRACK_COUNT_DESC) {
-                _playlists.value?.let { playlists -> _playlists.postValue(sortPlaylists(playlists)) }
             }
         } finally {
             _isLoading.postValue(false)
@@ -249,27 +214,44 @@ class PlaylistViewModel(application: Application) : AndroidViewModel(application
 
     fun loadPlaylistTracks(playlistId: Int) {
         viewModelScope.launch {
-            playlistTrackDao.getTracksForPlaylist(playlistId).collectLatest { playlistTracks ->
-                val tracks = mutableListOf<Track>()
-                var totalDuration = 0
-                for (playlistTrack in playlistTracks) {
-                    try {
-                        val response = api.getTrack(playlistTrack.trackId)
-                        if (response.isSuccessful) {
-                            response.body()?.let { track ->
-                                tracks.add(track)
-                                totalDuration += track.duration
-                                if (playlistTrack.duration != track.duration) {
-                                    withContext(Dispatchers.IO){ playlistTrackDao.updateTrackDuration(playlistId, track.id, track.duration) }
+            _isLoading.postValue(true)
+            try {
+                playlistTrackDao.getTracksForPlaylist(playlistId).collectLatest { playlistTracks ->
+                    val tracks = mutableListOf<Track>()
+                    for (pt in playlistTracks) {
+                        try {
+                            val response = api.getTrack(pt.trackId)
+                            if (response.isSuccessful) {
+                                response.body()?.let { track ->
+                                    tracks.add(track)
                                 }
                             }
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Error fetching track ${pt.trackId}", e)
                         }
-                    } catch (e: Exception) { /* Skip */ }
+                    }
+                    _currentPlaylistTracks.postValue(tracks)
+                    
+                    // Update track counts and durations
+                    val currentCounts = _playlistTrackCounts.value?.toMutableMap() ?: mutableMapOf()
+                    val currentDurations = _playlistDurations.value?.toMutableMap() ?: mutableMapOf()
+                    currentCounts[playlistId] = tracks.size
+                    currentDurations[playlistId] = tracks.sumOf { it.duration }
+                    _playlistTrackCounts.postValue(currentCounts)
+                    _playlistDurations.postValue(currentDurations)
+                    
+                    // Update artist cover if needed
+                    if (tracks.isNotEmpty()) {
+                        val newArtistCoverUrl = tracks[0].artist.picture
+                        val currentArtistCovers = _playlistArtistCoverImageUrls.value?.toMutableMap() ?: mutableMapOf()
+                        currentArtistCovers[playlistId] = newArtistCoverUrl
+                        _playlistArtistCoverImageUrls.postValue(currentArtistCovers)
+                    }
                 }
-                val currentDurations = _playlistDurations.value?.toMutableMap() ?: mutableMapOf()
-                currentDurations[playlistId] = totalDuration
-                _playlistDurations.postValue(currentDurations)
-                _currentPlaylistTracks.postValue(tracks)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error loading playlist tracks", e)
+            } finally {
+                _isLoading.postValue(false)
             }
         }
     }
