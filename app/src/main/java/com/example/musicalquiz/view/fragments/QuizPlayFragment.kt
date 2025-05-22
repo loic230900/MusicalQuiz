@@ -30,8 +30,16 @@ import java.io.IOException
 
 
 /**
- * Fragment responsible for displaying and managing the quiz playing interface
- * It handles question display, answer submission, audio preview playback and showing results
+ * Fragment responsible for displaying and managing the quiz playing interface.
+ * This fragment handles:
+ * - Displaying quiz questions and answer options
+ * - Managing audio preview playback
+ * - Processing user answers
+ * - Showing quiz progress and results
+ * - Handling different game modes (Multiple Choice and Fill in the Blanks)
+ * 
+ * The fragment uses ViewBinding for UI interactions and observes LiveData from
+ * the QuizViewModel for state management.
  */
 
 
@@ -79,6 +87,16 @@ class QuizPlayFragment : Fragment() {
         quizViewModel.saveState()
     }
 
+    /**
+     * Sets up observers for LiveData from the QuizViewModel.
+     * Observes:
+     * - Loading state
+     * - Current quiz details
+     * - Current question
+     * - Question index
+     * - Quiz completion status
+     * - Error messages
+     */
     private fun setupObservers() {
         quizViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             Log.d(FRAGMENT_TAG, "isLoading LIVEDATA changed to: $isLoading. isQuizFinished: ${quizViewModel.isQuizFinished.value}")
@@ -128,7 +146,13 @@ class QuizPlayFragment : Fragment() {
 
 
     /**
-     * Sets up click listeners for interactive UI elements like the play preview button, answer buttons, and submit button.
+     * Sets up click listeners for interactive UI elements:
+     * - Play/pause preview button
+     * - Answer buttons (for multiple choice)
+     * - Submit button (for fill in the blanks)
+     * - Back to quizzes button
+     * 
+     * Also handles keyboard actions for text input.
      */
     private fun setupClickListeners() {
         binding.playPreviewButton.setOnClickListener {
@@ -188,6 +212,14 @@ class QuizPlayFragment : Fragment() {
         }
     }
 
+    /**
+     * Displays the current question and its answer options.
+     * Handles different game modes:
+     * - Multiple Choice: Shows 4 answer buttons
+     * - Fill in the Blanks: Shows text input field
+     * 
+     * @param question The QuizQuestion to display
+     */
     private fun displayQuestion(question: QuizQuestion) {
         updateProgress()
         binding.answerEditText.text?.clear()
@@ -253,23 +285,41 @@ class QuizPlayFragment : Fragment() {
         binding.previewStatusTextView.text = ""
     }
 
-    private fun disableAnswerInputs() {
-        answerButtons.forEach { it.isEnabled = false }
-        binding.answerEditText.isEnabled = false
-        binding.submitTextAnswerButton.isEnabled = false
-    }
-
+    /**
+     * Enables user input for answering questions.
+     * Shows appropriate UI elements based on game mode.
+     */
     private fun enableAnswerInputs() {
         answerButtons.forEach { it.isEnabled = true }
         binding.answerEditText.isEnabled = true
         binding.submitTextAnswerButton.isEnabled = true
     }
 
+    /**
+     * Disables user input after an answer is submitted.
+     * Hides appropriate UI elements based on game mode.
+     */
+    private fun disableAnswerInputs() {
+        answerButtons.forEach { it.isEnabled = false }
+        binding.answerEditText.isEnabled = false
+        binding.submitTextAnswerButton.isEnabled = false
+    }
+
+    /**
+     * Hides the software keyboard.
+     * Used after submitting a text answer.
+     */
     private fun hideKeyboard() {
         val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         imm?.hideSoftInputFromWindow(view?.windowToken, 0)
     }
 
+    /**
+     * Updates the progress indicator showing:
+     * - Current question number
+     * - Total questions
+     * - Progress percentage
+     */
     private fun updateProgress() {
         val totalQuestions = quizViewModel.currentQuizQuestions.value?.size ?: 0
         val currentIndex = quizViewModel.currentQuestionIndex.value ?: 0
@@ -283,7 +333,13 @@ class QuizPlayFragment : Fragment() {
         }
     }
 
-    private fun playPreview(url: String) {
+    /**
+     * Plays the audio preview for the current question.
+     * Sets up MediaPlayer with proper audio attributes and error handling.
+     * 
+     * @param previewUrl URL of the audio preview to play
+     */
+    private fun playPreview(previewUrl: String) {
         stopPreview()
         binding.playPreviewButton.isEnabled = false
         binding.previewStatusTextView.text = getString(R.string.playing_preview)
@@ -296,7 +352,7 @@ class QuizPlayFragment : Fragment() {
                         .setUsage(AudioAttributes.USAGE_MEDIA)
                         .build()
                 )
-                setDataSource(url)
+                setDataSource(previewUrl)
                 prepareAsync()
                 setOnPreparedListener {
                     try {
@@ -347,6 +403,10 @@ class QuizPlayFragment : Fragment() {
         }
     }
 
+    /**
+     * Stops the current audio preview and resets the UI state.
+     * Cleans up MediaPlayer resources.
+     */
     private fun stopPreview() {
         previewRunnable?.let { handler.removeCallbacks(it) }
         mediaPlayer?.let {
@@ -364,6 +424,13 @@ class QuizPlayFragment : Fragment() {
         }
     }
 
+    /**
+     * Shows the final quiz results including:
+     * - Final score
+     * - Number of correct answers
+     * - Total questions
+     * - Percentage score
+     */
     private fun showResults() {
         stopPreview()
         hideKeyboard()

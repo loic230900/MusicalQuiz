@@ -39,7 +39,7 @@ class PlaylistViewModel(application: Application) : AndroidViewModel(application
     private val _playlistDurations = MutableLiveData<Map<Int, Int>>()
     val playlistDurations: LiveData<Map<Int, Int>> = _playlistDurations
 
-    private val _playlistArtistCoverImageUrls = MutableLiveData<Map<Int, String?>>(emptyMap()) // New LiveData
+    private val _playlistArtistCoverImageUrls = MutableLiveData<Map<Int, String?>>(emptyMap())
     val playlistArtistCoverImageUrls: LiveData<Map<Int, String?>> = _playlistArtistCoverImageUrls
 
     enum class SortOrder {

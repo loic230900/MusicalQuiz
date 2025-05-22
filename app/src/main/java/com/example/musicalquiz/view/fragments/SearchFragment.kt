@@ -39,9 +39,17 @@ import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.launch
 
 /**
- * Fragment responsable de l'interface de recherche de musique.
- * Permet à l'utilisateur de rechercher des morceaux et des albums via l'API Deezer.
- * Affiche les résultats dans une grille adaptative selon l'orientation de l'écran.
+ * Fragment responsible for the music search interface.
+ * This fragment provides:
+ * - Search functionality for tracks and albums via the Deezer API
+ * - Adaptive grid layout for search results
+ * - Filtering between tracks and albums
+ * - Infinite scrolling with pagination
+ * - Playlist selection for tracks and albums
+ * - Empty state handling
+ * 
+ * The fragment uses ViewModels for data management and adapters for displaying
+ * search results in a RecyclerView.
  */
 class SearchFragment : Fragment() {
 
@@ -60,8 +68,17 @@ class SearchFragment : Fragment() {
     private lateinit var playlistSelectionAdapter: PlaylistSelectionAdapter
 
     /**
-     * Crée et initialise la vue du fragment.
-     * Configure la barre de recherche et le RecyclerView avec une grille adaptative.
+     * Creates and initializes the fragment's view.
+     * Sets up:
+     * - Search bar and button
+     * - RecyclerView with adaptive grid layout
+     * - Track and album adapters
+     * - Infinite scrolling
+     * 
+     * @param inflater LayoutInflater for creating the view
+     * @param container Parent view group
+     * @param savedInstanceState Saved instance state
+     * @return The initialized view
      */
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -135,7 +152,11 @@ class SearchFragment : Fragment() {
     }
 
     /**
-     * Configure les listeners et les observateurs après la création de la vue.
+     * Sets up listeners and observers after view creation.
+     * Initializes:
+     * - Search functionality
+     * - Filter controls
+     * - LiveData observers
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -148,7 +169,8 @@ class SearchFragment : Fragment() {
     }
 
     /**
-     * Recharge les top charts et réinitialise la barre de recherche à chaque retour sur le fragment.
+     * Reloads top charts and resets search bar when returning to the fragment.
+     * Called when the fragment becomes visible to the user.
      */
     override fun onResume() {
         super.onResume()
@@ -159,8 +181,12 @@ class SearchFragment : Fragment() {
     }
 
     /**
-     * Adapte le nombre de colonnes de la grille lors d'un changement d'orientation.
-     * @param newConfig La nouvelle configuration de l'appareil
+     * Adapts the grid layout when device orientation changes.
+     * Updates the number of columns based on screen orientation:
+     * - Landscape: 3 columns
+     * - Portrait: 2 columns
+     * 
+     * @param newConfig The new device configuration
      */
     override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
         super.onConfigurationChanged(newConfig)
@@ -170,7 +196,10 @@ class SearchFragment : Fragment() {
     }
 
     /**
-     * Configure les listeners pour la barre de recherche et le bouton de recherche.
+     * Sets up listeners for user interactions:
+     * - Search button and text input
+     * - Filter radio buttons
+     * - Empty search handling
      */
     private fun setupListeners() {
         searchButton.setOnClickListener {
@@ -224,8 +253,11 @@ class SearchFragment : Fragment() {
     }
 
     /**
-     * Configure les observateurs pour les données du ViewModel.
-     * Gère l'affichage des résultats, l'état de chargement et les erreurs.
+     * Sets up observers for LiveData from ViewModels:
+     * - Search results
+     * - Loading state
+     * - Error messages
+     * - Available playlists
      */
     private fun setupObservers() {
         viewModel.tracksLiveData.observe(viewLifecycleOwner) { tracks ->
@@ -272,8 +304,11 @@ class SearchFragment : Fragment() {
     }
 
     /**
-     * Déclenche une recherche avec le texte saisi dans la barre de recherche.
-     * Cache le clavier virtuel après la recherche.
+     * Triggers a new search based on current input and filter.
+     * Handles:
+     * - Input validation
+     * - Keyboard dismissal
+     * - Search execution
      */
     private fun triggerSearch() {
         val query = searchEditText.text.toString().trim()
@@ -293,22 +328,12 @@ class SearchFragment : Fragment() {
         imm?.hideSoftInputFromWindow(searchEditText.windowToken, 0)
     }
 
-    private fun onTrackClick(track: Track) {
-        val bundle = Bundle().apply {
-            putLong("itemId", track.id)
-            putBoolean("isTrack", true)
-        }
-        findNavController().navigate(R.id.navigation_details, bundle)
-    }
-
-    private fun onAlbumClick(album: Album) {
-        val bundle = Bundle().apply {
-            putLong("itemId", album.id)
-            putBoolean("isTrack", false)
-        }
-        findNavController().navigate(R.id.navigation_details, bundle)
-    }
-
+    /**
+     * Shows a dialog for selecting a playlist to add the item to.
+     * Handles both tracks and albums.
+     * 
+     * @param item The track or album to add to a playlist
+     */
     private fun showPlaylistSelectionDialog(item: Any) {
         val dialogBinding = layoutInflater.inflate(R.layout.dialog_select_playlist, null)
         val recyclerView = dialogBinding.findViewById<RecyclerView>(R.id.playlistRecyclerView)
@@ -419,5 +444,33 @@ class SearchFragment : Fragment() {
                 Snackbar.LENGTH_SHORT
             ).show()
         }
+    }
+
+    /**
+     * Handles click on a track item.
+     * Navigates to track details.
+     * 
+     * @param track The clicked track
+     */
+    private fun onTrackClick(track: Track) {
+        val bundle = Bundle().apply {
+            putLong("itemId", track.id)
+            putBoolean("isTrack", true)
+        }
+        findNavController().navigate(R.id.navigation_details, bundle)
+    }
+
+    /**
+     * Handles click on an album item.
+     * Navigates to album details.
+     * 
+     * @param album The clicked album
+     */
+    private fun onAlbumClick(album: Album) {
+        val bundle = Bundle().apply {
+            putLong("itemId", album.id)
+            putBoolean("isTrack", false)
+        }
+        findNavController().navigate(R.id.navigation_details, bundle)
     }
 }
