@@ -15,12 +15,13 @@ import com.example.musicalquiz.database.entities.QuizQuestion
 
 /**
  * Main database class for the MusicalQuiz application.
- * This Room database manages all persistent data including:
+ * This Room database manages all local data storage including:
  * - Playlists and their tracks
  * - Quizzes and quiz questions
+ * - User preferences and settings
  * 
- * The database uses Room's singleton pattern to ensure a single instance
- * throughout the application lifecycle.
+ * The database uses Room's migration system to handle schema changes
+ * and provides access to all DAOs through abstract methods.
  * 
  * @property version Current database version (5)
  * @property exportSchema Whether to export the database schema (disabled)
@@ -37,22 +38,26 @@ import com.example.musicalquiz.database.entities.QuizQuestion
 )
 abstract class AppDatabase : RoomDatabase() {
     /**
-     * Data Access Object for managing playlists
+     * Data Access Object for managing playlists.
+     * Provides methods for CRUD operations on playlists.
      */
     abstract fun playlistDao(): PlaylistDao
 
     /**
-     * Data Access Object for managing playlist-track relationships
+     * Data Access Object for managing playlist-track relationships.
+     * Handles the many-to-many relationship between playlists and tracks.
      */
     abstract fun playlistTrackDao(): PlaylistTrackDao
 
     /**
-     * Data Access Object for managing quizzes
+     * Data Access Object for managing quizzes.
+     * Provides methods for creating, updating, and querying quizzes.
      */
     abstract fun quizDao(): QuizDao
 
     /**
-     * Data Access Object for managing quiz questions
+     * Data Access Object for managing quiz questions.
+     * Handles storage and retrieval of questions for each quiz.
      */
     abstract fun quizQuestionDao(): QuizQuestionDao
 
@@ -63,6 +68,7 @@ abstract class AppDatabase : RoomDatabase() {
         /**
          * Gets the singleton instance of the database.
          * Creates a new instance if one doesn't exist.
+         * Uses double-checked locking for thread safety.
          * 
          * @param context Application context
          * @return The singleton database instance

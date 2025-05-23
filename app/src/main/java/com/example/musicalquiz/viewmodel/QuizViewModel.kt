@@ -288,12 +288,14 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-
-    /** Generates blanks for fill-in style quiz questions
-     * filters the answers
-     * places randomly the blanked spaces
+    /**
+     * Generates a string with random characters replaced by underscores for fill-in-the-blanks questions.
+     * The number of blanks is determined by the revealPercentage parameter.
+     * 
+     * @param text The original text to be partially blanked out
+     * @param revealPercentage The percentage of characters to keep visible (default: 0.4)
+     * @return A string with random characters replaced by underscores
      */
-
     private fun generateBlanks(text: String, revealPercentage: Double = 0.4): String {
         if (text.isBlank()) return ""
         val chars = text.toCharArray()
@@ -309,11 +311,15 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         return result.toString().trim()
     }
 
-
-    /** Generates Incorrect answers for the quizz
-     * uses the data coming from the playlist
+    /**
+     * Generates incorrect answer options for multiple choice questions.
+     * Uses tracks from the playlist to create plausible but incorrect alternatives.
+     * 
+     * @param currentQuestion The current quiz question
+     * @param allTracksPool List of all tracks available for generating distractors
+     * @param focus The aspect of the track to focus on (title, artist, or album)
+     * @return List of three incorrect answer options
      */
-
     private fun generateIncorrectMcAnswers(
         currentQuestion: QuizQuestion,
         allTracksPool: List<Track>,
@@ -337,9 +343,9 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         return potentialDistractors.shuffled(Random.Default).take(3).toList()
     }
 
-
     /**
-     * Loads the questions from the database for the display
+     * Loads quiz questions from the database and updates the UI state.
+     * This method is called when starting a quiz or restoring quiz state.
      */
     fun loadQuestionsForQuiz(quizId: Int) {
         viewModelScope.launch {
@@ -387,7 +393,6 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-
     /**
      * retrieves current question
      */
@@ -405,7 +410,6 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
             _isQuizFinished.postValue(true)
         }
     }
-
 
     /**
      * logic to submit an answer and checks if it is correct
@@ -458,8 +462,6 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-
-
     /**
      * loads all quizzes when user enters the quiz section
      */
@@ -482,7 +484,6 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-
     /**
      * loads available playlists for the user to choose for the quiz
      */
@@ -502,7 +503,6 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * deletes the quiz upon user request
      */
-
     fun deleteQuiz(quizInfo: QuizWithPlaylistInfo) {
         viewModelScope.launch {
             Log.d(TAG, "deleteQuiz called for: ${quizInfo.quiz.name}")
@@ -519,7 +519,6 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
-
 
     fun resetQuizState() {
         Log.d(TAG, "resetQuizState called")
