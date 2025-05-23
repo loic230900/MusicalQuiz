@@ -9,6 +9,7 @@ import androidx.room.Transaction
 import androidx.room.Update
 import com.example.musicalquiz.database.entities.Playlist
 import com.example.musicalquiz.database.entities.Quiz
+import com.example.musicalquiz.database.entities.QuizQuestion
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -35,8 +36,6 @@ interface QuizDao {
     @Query("SELECT * FROM quizzes WHERE id = :quizId")
     suspend fun getQuizById(quizId: Int): Quiz?
 
-
-
     @Transaction
     @Query("""
         SELECT q.*, p.name as playlistName 
@@ -51,6 +50,22 @@ interface QuizDao {
 
     @Query("SELECT * FROM playlists WHERE id = :playlistId")
     suspend fun getPlaylistForQuiz(playlistId: Int): Playlist?
+
+    /**
+     * Inserts a quiz and its questions atomically in a transaction.
+     * Returns the inserted quizId.
+     */
+    @Transaction
+    suspend fun insertQuizWithQuestions(
+        quiz: Quiz,
+        questions: List<QuizQuestion>,
+        quizQuestionDao: com.example.musicalquiz.database.dao.QuizQuestionDao
+    ): Int {
+        val quizId = insertQuiz(quiz).toInt()
+        val updatedQuestions = questions.map { it.copy(quizId = quizId) }
+        quizQuestionDao.insertAllQuestions(updatedQuestions)
+        return quizId
+    }
 }
 
 /**

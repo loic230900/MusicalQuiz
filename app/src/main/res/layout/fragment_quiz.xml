@@ -22,7 +22,9 @@
             android:layout_height="?attr/actionBarSize"
             app:title="@string/title_quiz"
             app:titleTextColor="@color/white"
-            android:background="@android:color/transparent" />
+            android:background="@android:color/transparent">
+
+        </com.google.android.material.appbar.MaterialToolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView

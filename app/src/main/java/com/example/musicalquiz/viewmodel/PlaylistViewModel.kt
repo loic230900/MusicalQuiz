@@ -16,6 +16,18 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel responsible for managing playlists and their tracks.
+ * This class handles:
+ * - Creating and managing playlists
+ * - Adding/removing tracks from playlists
+ * - Loading playlist tracks from the database and Deezer API
+ * - Managing playlist metadata (track counts, durations, artist covers)
+ * - Sorting playlists by various criteria
+ * 
+ * The ViewModel uses LiveData to notify observers of state changes and maintains
+ * the current state of playlists and their tracks.
+ */
 class PlaylistViewModel(application: Application) : AndroidViewModel(application) {
     private val database = AppDatabase.getDatabase(application)
     private val playlistDao = database.playlistDao()
@@ -42,6 +54,9 @@ class PlaylistViewModel(application: Application) : AndroidViewModel(application
     private val _playlistArtistCoverImageUrls = MutableLiveData<Map<Int, String?>>(emptyMap())
     val playlistArtistCoverImageUrls: LiveData<Map<Int, String?>> = _playlistArtistCoverImageUrls
 
+    /**
+     * Enum defining the possible sorting orders for playlists.
+     */
     enum class SortOrder {
         NAME_ASC, NAME_DESC, TRACK_COUNT_ASC, TRACK_COUNT_DESC, DURATION_ASC, DURATION_DESC
     }
@@ -52,51 +67,73 @@ class PlaylistViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             playlistDao.getAllPlaylists().collectLatest { playlists ->
                 _playlists.postValue(sortPlaylists(playlists))
+                // Immediately update related data when playlists change
+                updatePlaylistRelatedData(playlists)
+            }
+        }
+    }
+
+    /**
+     * Refreshes the playlist data from the database.
+     * Updates all related data including track counts, durations, and artist covers.
+     */
+    fun refreshPlaylists() {
+        viewModelScope.launch {
+            _isLoading.postValue(true)
+            try {
+                val playlists = playlistDao.getAllPlaylists().first()
+                _playlists.postValue(sortPlaylists(playlists))
+                updatePlaylistRelatedData(playlists)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error refreshing playlists", e)
+            } finally {
+                _isLoading.postValue(false)
+            }
+        }
+    }
+
+    private suspend fun updatePlaylistRelatedData(playlists: List<Playlist>) {
+        if (playlists.isEmpty()) {
+            _playlistTrackCounts.postValue(emptyMap())
+            _playlistDurations.postValue(emptyMap())
+            _playlistArtistCoverImageUrls.postValue(emptyMap())
+            return
+        }
+
+        val newCounts = mutableMapOf<Int, Int>()
+        val newDurations = mutableMapOf<Int, Int>()
+        val newArtistCoverUrls = mutableMapOf<Int, String?>()
+
+        playlists.forEach { playlist ->
+            try {
+                val tracksInDb = playlistTrackDao.getTracksForPlaylist(playlist.id).first()
+                newCounts[playlist.id] = tracksInDb.size
+                newDurations[playlist.id] = tracksInDb.sumOf { it.duration }
+
+                val firstPlaylistTrack = tracksInDb.minByOrNull { it.position }
+                if (firstPlaylistTrack != null) {
+                    newArtistCoverUrls[playlist.id] = fetchArtistPictureForTrack(firstPlaylistTrack.trackId)
+                } else {
+                    newArtistCoverUrls[playlist.id] = null
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error processing playlist ${playlist.id} details", e)
+                newCounts[playlist.id] = 0
+                newDurations[playlist.id] = 0
+                newArtistCoverUrls[playlist.id] = null
             }
         }
 
-        viewModelScope.launch {
-            _playlists.asFlow().collectLatest { playlists ->
-                if (playlists.isEmpty()) {
-                    _playlistTrackCounts.postValue(emptyMap())
-                    _playlistDurations.postValue(emptyMap())
-                    _playlistArtistCoverImageUrls.postValue(emptyMap()) // Reset artist covers
-                    return@collectLatest
-                }
+        // Post all updates in a single batch to prevent UI flickering
+        _playlistTrackCounts.postValue(newCounts)
+        _playlistDurations.postValue(newDurations)
+        _playlistArtistCoverImageUrls.postValue(newArtistCoverUrls)
 
-                val newCounts = mutableMapOf<Int, Int>()
-                val newDurations = mutableMapOf<Int, Int>()
-                val newArtistCoverUrls = mutableMapOf<Int, String?>() // For artist pictures
-
-                playlists.forEach { playlist ->
-                    try {
-                        val tracksInDb = playlistTrackDao.getTracksForPlaylist(playlist.id).first()
-                        newCounts[playlist.id] = tracksInDb.size
-                        newDurations[playlist.id] = tracksInDb.sumOf { it.duration }
-
-                        val firstPlaylistTrack = tracksInDb.minByOrNull { it.position }
-                        if (firstPlaylistTrack != null) {
-                            newArtistCoverUrls[playlist.id] = fetchArtistPictureForTrack(firstPlaylistTrack.trackId)
-                        } else {
-                            newArtistCoverUrls[playlist.id] = null
-                        }
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error processing playlist ${playlist.id} details in init", e)
-                        newCounts[playlist.id] = 0
-                        newDurations[playlist.id] = 0
-                        newArtistCoverUrls[playlist.id] = null
-                    }
-                }
-                _playlistTrackCounts.postValue(newCounts)
-                _playlistDurations.postValue(newDurations)
-                _playlistArtistCoverImageUrls.postValue(newArtistCoverUrls) // Post artist covers
-
-                if (currentSortOrder == SortOrder.DURATION_ASC || currentSortOrder == SortOrder.DURATION_DESC ||
-                    currentSortOrder == SortOrder.TRACK_COUNT_ASC || currentSortOrder == SortOrder.TRACK_COUNT_DESC) {
-                    _playlists.value?.let { currentSortedPlaylists ->
-                        _playlists.postValue(sortPlaylists(currentSortedPlaylists))
-                    }
-                }
+        // Update sorting if needed
+        if (currentSortOrder == SortOrder.DURATION_ASC || currentSortOrder == SortOrder.DURATION_DESC ||
+            currentSortOrder == SortOrder.TRACK_COUNT_ASC || currentSortOrder == SortOrder.TRACK_COUNT_DESC) {
+            _playlists.value?.let { currentSortedPlaylists ->
+                _playlists.postValue(sortPlaylists(currentSortedPlaylists))
             }
         }
     }
@@ -182,19 +219,28 @@ class PlaylistViewModel(application: Application) : AndroidViewModel(application
             val playlistTrack = PlaylistTrack(playlistId = playlistId, trackId = trackId, position = currentTrackCountBeforeAdd, duration = duration)
             playlistTrackDao.insertTrackAtPosition(playlistTrack)
 
-            // Update track counts immediately
+            // Update all related data in a single batch
             val currentCounts = _playlistTrackCounts.value?.toMutableMap() ?: mutableMapOf()
-            currentCounts[playlistId] = currentTrackCountBeforeAdd + 1
-            _playlistTrackCounts.postValue(currentCounts)
-
-            // Update durations
             val currentDurations = _playlistDurations.value?.toMutableMap() ?: mutableMapOf()
+            currentCounts[playlistId] = currentTrackCountBeforeAdd + 1
             currentDurations[playlistId] = (currentDurations[playlistId] ?: 0) + duration
+
+            // Fetch artist cover for the new track if it's the first track
+            if (currentTrackCountBeforeAdd == 0) {
+                val newArtistCoverUrl = fetchArtistPictureForTrack(trackId)
+                val currentArtistCovers = _playlistArtistCoverImageUrls.value?.toMutableMap() ?: mutableMapOf()
+                currentArtistCovers[playlistId] = newArtistCoverUrl
+                _playlistArtistCoverImageUrls.postValue(currentArtistCovers)
+            }
+
+            // Post all updates in a single batch to prevent UI flickering
+            _playlistTrackCounts.postValue(currentCounts)
             _playlistDurations.postValue(currentDurations)
 
-            // No need to manually refresh playlists; LiveData/Flow will update automatically
+            // Load tracks and update UI immediately
             loadPlaylistTracks(playlistId)
 
+            // Update sorting if needed
             if (currentSortOrder == SortOrder.DURATION_ASC || currentSortOrder == SortOrder.DURATION_DESC ||
                 currentSortOrder == SortOrder.TRACK_COUNT_ASC || currentSortOrder == SortOrder.TRACK_COUNT_DESC) {
                 _playlists.value?.let { playlists -> _playlists.postValue(sortPlaylists(playlists)) }
@@ -207,11 +253,39 @@ class PlaylistViewModel(application: Application) : AndroidViewModel(application
     suspend fun removeTrackFromPlaylist(playlistId: Int, trackId: Long) {
         _isLoading.postValue(true)
         try {
-            val trackToDelete = playlistTrackDao.getTracksForPlaylist(playlistId).first().find { it.trackId == trackId }
+            val tracksInDb = playlistTrackDao.getTracksForPlaylist(playlistId).first()
+            val trackToDelete = tracksInDb.find { it.trackId == trackId }
+            
             if (trackToDelete != null) {
                 playlistTrackDao.deleteTrack(trackToDelete)
+                
+                // Update all related data in a single batch
+                val currentCounts = _playlistTrackCounts.value?.toMutableMap() ?: mutableMapOf()
+                val currentDurations = _playlistDurations.value?.toMutableMap() ?: mutableMapOf()
+                val currentCount = currentCounts[playlistId] ?: 0
+                val currentDuration = currentDurations[playlistId] ?: 0
+                
+                currentCounts[playlistId] = currentCount - 1
+                currentDurations[playlistId] = currentDuration - trackToDelete.duration
+
+                // Update artist cover if needed (if we removed the first track)
+                if (trackToDelete.position == 0) {
+                    val remainingTracks = tracksInDb.filter { it.trackId != trackId }
+                    val newFirstTrack = remainingTracks.minByOrNull { it.position }
+                    val newArtistCoverUrl = newFirstTrack?.let { fetchArtistPictureForTrack(it.trackId) }
+                    val currentArtistCovers = _playlistArtistCoverImageUrls.value?.toMutableMap() ?: mutableMapOf()
+                    currentArtistCovers[playlistId] = newArtistCoverUrl
+                    _playlistArtistCoverImageUrls.postValue(currentArtistCovers)
+                }
+
+                // Post all updates in a single batch to prevent UI flickering
+                _playlistTrackCounts.postValue(currentCounts)
+                _playlistDurations.postValue(currentDurations)
+
+                // Load tracks and update UI
                 loadPlaylistTracks(playlistId)
-                // No need to manually refresh playlists; LiveData/Flow will update automatically
+
+                // Update sorting if needed
                 if (currentSortOrder == SortOrder.DURATION_ASC || currentSortOrder == SortOrder.DURATION_DESC ||
                     currentSortOrder == SortOrder.TRACK_COUNT_ASC || currentSortOrder == SortOrder.TRACK_COUNT_DESC) {
                     _playlists.value?.let { playlists -> _playlists.postValue(sortPlaylists(playlists)) }
@@ -222,13 +296,24 @@ class PlaylistViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    /**
+     * Loads tracks for a specific playlist.
+     * Fetches track details from the Deezer API and updates all related data.
+     * @param playlistId The ID of the playlist to load tracks for
+     */
     fun loadPlaylistTracks(playlistId: Int) {
         viewModelScope.launch {
             _isLoading.postValue(true)
             try {
-                playlistTrackDao.getTracksForPlaylist(playlistId).collectLatest { playlistTracks ->
-                    val tracks = mutableListOf<Track>()
-                    for (pt in playlistTracks) {
+                // First, get the tracks from the database
+                val playlistTracks = playlistTrackDao.getTracksForPlaylist(playlistId).first()
+                
+                // Create a list to hold the tracks
+                val tracks = mutableListOf<Track>()
+                
+                // Fetch track details in parallel for better performance
+                val trackFutures = playlistTracks.map { pt ->
+                    viewModelScope.launch {
                         try {
                             val response = api.getTrack(pt.trackId)
                             if (response.isSuccessful) {
@@ -240,24 +325,35 @@ class PlaylistViewModel(application: Application) : AndroidViewModel(application
                             Log.e(TAG, "Error fetching track ${pt.trackId}", e)
                         }
                     }
-                    _currentPlaylistTracks.postValue(tracks)
-                    
-                    // Update track counts and durations
-                    val currentCounts = _playlistTrackCounts.value?.toMutableMap() ?: mutableMapOf()
-                    val currentDurations = _playlistDurations.value?.toMutableMap() ?: mutableMapOf()
-                    currentCounts[playlistId] = tracks.size
-                    currentDurations[playlistId] = tracks.sumOf { it.duration }
-                    _playlistTrackCounts.postValue(currentCounts)
-                    _playlistDurations.postValue(currentDurations)
-                    
-                    // Update artist cover if needed
-                    if (tracks.isNotEmpty()) {
-                        val newArtistCoverUrl = tracks[0].artist.picture
-                        val currentArtistCovers = _playlistArtistCoverImageUrls.value?.toMutableMap() ?: mutableMapOf()
-                        currentArtistCovers[playlistId] = newArtistCoverUrl
-                        _playlistArtistCoverImageUrls.postValue(currentArtistCovers)
-                    }
                 }
+                
+                // Wait for all track fetches to complete
+                trackFutures.forEach { it.join() }
+                
+                // Sort tracks by position
+                tracks.sortBy { track ->
+                    playlistTracks.find { it.trackId == track.id }?.position ?: Int.MAX_VALUE
+                }
+                
+                // Update all related data in a single batch
+                _currentPlaylistTracks.postValue(tracks)
+                
+                val currentCounts = _playlistTrackCounts.value?.toMutableMap() ?: mutableMapOf()
+                val currentDurations = _playlistDurations.value?.toMutableMap() ?: mutableMapOf()
+                currentCounts[playlistId] = tracks.size
+                currentDurations[playlistId] = tracks.sumOf { it.duration }
+                
+                // Update artist cover if needed
+                if (tracks.isNotEmpty()) {
+                    val newArtistCoverUrl = tracks[0].artist.picture
+                    val currentArtistCovers = _playlistArtistCoverImageUrls.value?.toMutableMap() ?: mutableMapOf()
+                    currentArtistCovers[playlistId] = newArtistCoverUrl
+                    _playlistArtistCoverImageUrls.postValue(currentArtistCovers)
+                }
+
+                // Post all updates in a single batch
+                _playlistTrackCounts.postValue(currentCounts)
+                _playlistDurations.postValue(currentDurations)
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading playlist tracks", e)
             } finally {
@@ -266,6 +362,13 @@ class PlaylistViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    /**
+     * Reorders tracks within a playlist.
+     * Updates the artist cover if the first track changes.
+     * @param playlistId The ID of the playlist
+     * @param fromPosition The original position of the track
+     * @param toPosition The new position of the track
+     */
     fun reorderTracks(playlistId: Int, fromPosition: Int, toPosition: Int) {
         _isLoading.postValue(true)
         try {
@@ -284,11 +387,21 @@ class PlaylistViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    /**
+     * Gets statistics for a specific playlist.
+     * @param playlistId The ID of the playlist
+     * @return PlaylistStats containing track count and total duration
+     */
     fun getPlaylistStats(playlistId: Int): PlaylistStats {
         val trackCount = _playlistTrackCounts.value?.get(playlistId) ?: 0
         val duration = _playlistDurations.value?.get(playlistId) ?: 0
         return PlaylistStats(trackCount, duration)
     }
 
+    /**
+     * Data class representing statistics for a playlist.
+     * @property trackCount The number of tracks in the playlist
+     * @property totalDuration The total duration of all tracks in seconds
+     */
     data class PlaylistStats(val trackCount: Int, val totalDuration: Int)
 }

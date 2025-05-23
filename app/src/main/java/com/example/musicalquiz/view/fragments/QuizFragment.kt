@@ -26,12 +26,26 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.example.musicalquiz.viewmodel.PlaylistViewModel
+import kotlinx.coroutines.launch
 
 /**
- * A Fragment for displaying and managing quizzes.
- * Users can view existing quizzes, create new ones and delete them.
+ * Fragment responsible for displaying and managing quizzes in the MusicalQuiz application.
+ * This fragment provides:
+ * - Display of existing quizzes in a RecyclerView
+ * - Creation of new quizzes with customizable settings
+ * - Quiz deletion and management
+ * - Navigation to quiz gameplay
+ * 
+ * The fragment supports:
+ * - Multiple game modes (Multiple Choice, Fill in the Blanks)
+ * - Customizable number of questions
+ * - Time limits per question
+ * - Playlist selection for quiz content
+ * 
+ * The fragment uses ViewModels for data management and adapters for displaying
+ * quizzes in a RecyclerView. It handles quiz creation validation and ensures
+ * the selected playlist has sufficient tracks for the requested number of questions.
  */
-
 
 class QuizFragment : Fragment() {
 
@@ -43,6 +57,15 @@ class QuizFragment : Fragment() {
     private var availablePlaylists: List<Playlist> = emptyList()
     val MAX_ALLOWED_TIME_LIMIT_SECONDS = 180
 
+    /**
+     * Creates and initializes the fragment's view.
+     * Inflates the fragment_quiz layout and returns the root view.
+     * 
+     * @param inflater LayoutInflater for creating the view
+     * @param container Parent view group
+     * @param savedInstanceState Saved instance state
+     * @return The initialized view
+     */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -51,6 +74,14 @@ class QuizFragment : Fragment() {
         return binding.root
     }
 
+    /**
+     * Initializes the fragment after the view is created.
+     * Sets up:
+     * - RecyclerView with quiz adapter
+     * - ViewModel observers
+     * - Click listeners
+     * - Available playlists loading
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -62,10 +93,13 @@ class QuizFragment : Fragment() {
     }
 
     /**
-     * this initializes the RecyclerView with its adapter and layout manager
-     * and defines actions for when a quiz item is clicked or its menu is accessed
+     * Initializes the RecyclerView with its adapter and layout manager.
+     * Configures:
+     * - QuizAdapter with click handlers for quiz selection and menu access
+     * - LinearLayoutManager for vertical scrolling
+     * - Navigation to quiz gameplay on quiz selection
+     * - Quiz menu display on menu button click
      */
-
     private fun setupRecyclerView() {
         quizAdapter = QuizAdapter(
             onQuizClick = { quizInfo ->
@@ -83,12 +117,31 @@ class QuizFragment : Fragment() {
         }
     }
 
+    /**
+     * Sets up observers for ViewModel LiveData objects.
+     * Observes:
+     * - Quiz list updates
+     * - Error messages
+     * - Available playlists
+     * 
+     * Handles:
+     * - Quiz list updates with smooth scrolling to new items
+     * - Empty state updates
+     * - Error message display
+     */
     private fun setupObservers() {
         quizViewModel.quizzes.observe(viewLifecycleOwner, Observer { quizzes ->
+            val previousSize = quizAdapter.currentList.size
             quizAdapter.submitList(quizzes)
             updateEmptyState(quizzes.isNullOrEmpty())
+            
+            // If a new quiz was added (list size increased), scroll to show it
+            if (quizzes != null && quizzes.size > previousSize) {
+                binding.quizRecyclerView.post {
+                    binding.quizRecyclerView.smoothScrollToPosition(0)
+                }
+            }
         })
-
 
         quizViewModel.message.observe(viewLifecycleOwner, Observer { message ->
             message?.let {
@@ -102,18 +155,33 @@ class QuizFragment : Fragment() {
         })
     }
 
+    /**
+     * Sets up click listeners for interactive elements.
+     * Configures:
+     * - Add quiz FAB for creating new quizzes
+     */
     private fun setupClickListeners() {
         binding.addQuizFab.setOnClickListener {
             showCreateQuizDialog()
         }
     }
 
-
     /**
-     * Displays a dialog for the user to create a new quiz.
-     * The dialog includes fields for quiz name, playlist selection, game mode and number of questions and time limit per question
+     * Displays a dialog for creating a new quiz.
+     * The dialog includes:
+     * - Quiz name input
+     * - Playlist selection spinner
+     * - Game mode selection (Multiple Choice or Fill in the Blanks)
+     * - Number of questions input
+     * - Time limit per question input
+     * 
+     * The dialog validates:
+     * - Quiz name is not empty
+     * - A playlist is selected
+     * - The selected playlist has sufficient tracks
+     * - Number of questions is valid for the playlist
+     * - Time limit is within allowed range
      */
-
     private fun showCreateQuizDialog() {
         if (context == null) return
 
@@ -122,7 +190,7 @@ class QuizFragment : Fragment() {
         val playlistSpinner = dialogView.findViewById<Spinner>(R.id.playlistSpinner)
         val gameModeRadioGroup = dialogView.findViewById<RadioGroup>(R.id.gameModeRadioGroup)
         val numberOfQuestionsEditText = dialogView.findViewById<TextInputEditText>(R.id.numberOfQuestionsEditText)
-        val timeLimitEditText = dialogView.findViewById<TextInputEditText>(R.id.timeLimitEditText) //
+        val timeLimitEditText = dialogView.findViewById<TextInputEditText>(R.id.timeLimitEditText)
 
         val playlistNames = availablePlaylists.map { it.name }
         val spinnerAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, playlistNames)
@@ -150,11 +218,10 @@ class QuizFragment : Fragment() {
 
                 val selectedGameModeId = gameModeRadioGroup.checkedRadioButtonId
                 val gameMode = if (selectedGameModeId == R.id.radioMultipleChoice) GameMode.MULTIPLE_CHOICE
-                else GameMode.FILL_IN_THE_BLANKS //
+                else GameMode.FILL_IN_THE_BLANKS
 
                 val numQuestionsString = numberOfQuestionsEditText.text.toString()
                 val localNumberOfQuestions = numQuestionsString.toIntOrNull() ?: 10
-
 
                 val trackCountForSelectedPlaylist = playlistViewModel.playlistTrackCounts.value?.get(selectedPlaylist.id) ?: 0
                 if (trackCountForSelectedPlaylist == 0) {
@@ -173,7 +240,6 @@ class QuizFragment : Fragment() {
                     //if the calculated possible questions is more than the ceiling, then the max number is set to the ceiling
                     actualMaxAllowedQuestions = absoluteOverallMax
                 } else {
-
                     //if not, the number of questions possible is number of quesition types (in my case 3)  * (number of songs)
                     actualMaxAllowedQuestions = calculatedMaxBasedOnTracks
                 }
@@ -192,63 +258,76 @@ class QuizFragment : Fragment() {
                 }
 
                 val timeLimitString = timeLimitEditText.text.toString()
-                val timeLimitPerQuestion = if (timeLimitString.isNotBlank()) {
-                    timeLimitString.toIntOrNull()
-                } else {
-                    null
+                val timeLimit = timeLimitString.toIntOrNull()
+
+                if (timeLimit != null && (timeLimit <= 0 || timeLimit > MAX_ALLOWED_TIME_LIMIT_SECONDS)) {
+                    Toast.makeText(context, "Please enter a valid time limit between 1 and $MAX_ALLOWED_TIME_LIMIT_SECONDS seconds", Toast.LENGTH_LONG).show()
+                    return@setPositiveButton
                 }
 
-                if (timeLimitPerQuestion != null) {
-                    if (timeLimitPerQuestion <= 0) {
-                        Toast.makeText(context, "Time limit must be a positive number.", Toast.LENGTH_SHORT).show()
-                        return@setPositiveButton
-                    }
-                    if (timeLimitPerQuestion > MAX_ALLOWED_TIME_LIMIT_SECONDS) {
-                        Toast.makeText(context, "Time limit cannot exceed 3 minutes.", Toast.LENGTH_SHORT).show()
-                        return@setPositiveButton
-                    }
+                viewLifecycleOwner.lifecycleScope.launch {
+                    quizViewModel.createQuiz(
+                        name = quizName,
+                        playlistId = selectedPlaylist.id,
+                        questionSelectionMode = QuestionSelectionMode.RANDOM,
+                        gameMode = gameMode,
+                        timeLimitPerQuestion = timeLimit,
+                        requestedNumberOfQuestions = localNumberOfQuestions
+                    )
                 }
-
-
-                quizViewModel.createQuiz(
-                    name = quizName,
-                    playlistId = selectedPlaylist.id,
-                    questionSelectionMode = QuestionSelectionMode.RANDOM,
-                    gameMode = gameMode,
-                    requestedNumberOfQuestions = localNumberOfQuestions,
-                    timeLimitPerQuestion = timeLimitPerQuestion
-                )
             }
             .show()
     }
 
+    /**
+     * Shows a popup menu for quiz management options.
+     * The menu includes:
+     * - Delete quiz option
+     * 
+     * @param quizInfo The quiz to manage
+     * @param anchorView The view to anchor the popup menu to
+     */
     private fun showQuizMenu(quizInfo: QuizWithPlaylistInfo, anchorView: View) {
-        val popup = PopupMenu(requireContext(), anchorView)
-        popup.menuInflater.inflate(R.menu.quiz_item_menu, popup.menu)
-        popup.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                R.id.action_delete_quiz -> {
-                    showDeleteQuizConfirmationDialog(quizInfo)
-                    true
+        PopupMenu(requireContext(), anchorView).apply {
+            menuInflater.inflate(R.menu.quiz_item_menu, menu)
+            setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    R.id.action_delete -> {
+                        showDeleteConfirmationDialog(quizInfo)
+                        true
+                    }
+                    else -> false
                 }
-                else -> false
             }
+            show()
         }
-        popup.show()
     }
 
-    private fun showDeleteQuizConfirmationDialog(quizInfo: QuizWithPlaylistInfo) {
+    /**
+     * Shows a confirmation dialog before deleting a quiz.
+     * The dialog includes:
+     * - Confirmation message
+     * - Cancel and delete buttons
+     * 
+     * @param quizInfo The quiz to delete
+     */
+    private fun showDeleteConfirmationDialog(quizInfo: QuizWithPlaylistInfo) {
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.delete_quiz_confirmation_title)
-            .setMessage(getString(R.string.delete_quiz_confirmation_message, quizInfo.quiz.name))
-            .setNegativeButton(R.string.action_cancel, null)
-            .setPositiveButton(R.string.action_delete) { _, _ ->
-                quizViewModel.deleteQuiz(quizInfo)
+            .setTitle(R.string.delete_quiz)
+            .setMessage(getString(R.string.delete_quiz_confirmation, quizInfo.quiz.name))
+            .setPositiveButton(R.string.delete) { _, _ ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    quizViewModel.deleteQuiz(quizInfo.quiz.id)
+                }
             }
+            .setNegativeButton(R.string.cancel, null)
             .show()
     }
 
-
+    /**
+     * Updates the UI to show either the empty state or the quiz list.
+     * @param isEmpty Whether the quiz list is empty
+     */
     private fun updateEmptyState(isEmpty: Boolean) {
         binding.emptyStateLayout.visibility = if (isEmpty) View.VISIBLE else View.GONE
         binding.quizRecyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE

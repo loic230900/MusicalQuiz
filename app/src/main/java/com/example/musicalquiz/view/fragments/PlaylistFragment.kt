@@ -39,6 +39,12 @@ class PlaylistFragment : Fragment() {
         setupRecyclerView()
         setupObservers()
         setupClickListeners()
+        viewModel.refreshPlaylists() // Initial refresh
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.refreshPlaylists() // Refresh when fragment becomes visible
     }
 
     private fun setupRecyclerView() {

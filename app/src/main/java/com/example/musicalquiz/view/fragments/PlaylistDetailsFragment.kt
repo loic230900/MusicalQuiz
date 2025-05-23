@@ -20,6 +20,18 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 
+/**
+ * Fragment responsible for displaying and managing playlist details.
+ * This fragment provides:
+ * - Display of tracks in a playlist
+ * - Track preview functionality
+ * - Track deletion with confirmation
+ * - Navigation to track details
+ * - Empty state handling
+ * 
+ * The fragment uses ViewModels for data management and adapters for displaying
+ * tracks in a RecyclerView.
+ */
 class PlaylistDetailsFragment : Fragment() {
     private var _binding: FragmentPlaylistDetailsBinding? = null
     private val binding get() = _binding!!
@@ -47,6 +59,13 @@ class PlaylistDetailsFragment : Fragment() {
         }
     }
 
+    /**
+     * Sets up the RecyclerView with the track list adapter and configures click handlers.
+     * The adapter handles:
+     * - Track selection (navigates to details)
+     * - Preview playback
+     * - Track deletion
+     */
     private fun setupRecyclerView() {
         adapter = TrackListAdapter(
             onTrackClick = { track ->
@@ -73,6 +92,14 @@ class PlaylistDetailsFragment : Fragment() {
         }
     }
 
+    /**
+     * Sets up observers for ViewModel LiveData objects to update the UI.
+     * Observes:
+     * - Current playlist tracks
+     * - Loading state
+     * - Playback state
+     * - Error messages
+     */
     private fun setupObservers() {
         playlistViewModel.currentPlaylistTracks.observe(viewLifecycleOwner) { tracks ->
             adapter.submitList(tracks)
@@ -91,6 +118,10 @@ class PlaylistDetailsFragment : Fragment() {
         }
     }
 
+    /**
+     * Shows a confirmation dialog before deleting a track from the playlist.
+     * @param track The track to be deleted
+     */
     private fun showDeleteConfirmationDialog(track: com.example.musicalquiz.model.Track) {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.delete_track)
@@ -117,9 +148,21 @@ class PlaylistDetailsFragment : Fragment() {
             .show()
     }
 
+    /**
+     * Updates the UI to show either the empty state or the track list.
+     * @param isEmpty Whether the playlist is empty
+     */
     private fun updateEmptyState(isEmpty: Boolean) {
         binding.emptyStateLayout.visibility = if (isEmpty) View.VISIBLE else View.GONE
         binding.tracksRecyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh playlist data when fragment becomes visible
+        viewLifecycleOwner.lifecycleScope.launch {
+            playlistViewModel.loadPlaylistTracks(args.playlistId)
+        }
     }
 
     override fun onDestroyView() {

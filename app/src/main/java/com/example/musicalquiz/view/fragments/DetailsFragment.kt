@@ -28,8 +28,18 @@ import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
 
 /**
- * Fragment affichant les détails d'un morceau ou d'un album.
- * Inclura un aperçu audio si l'élément est une piste.
+ * Fragment responsible for displaying detailed information about a track or album.
+ * This fragment provides:
+ * - Track/album cover art display with Glide image loading
+ * - Track/album metadata (title, artist, duration)
+ * - Preview playback functionality with MediaPlayer
+ * - Track list for albums with RecyclerView
+ * - Add to playlist functionality with playlist selection dialog
+ * - Create new playlist option
+ * 
+ * The fragment uses ViewModels for data management and adapters for displaying
+ * track lists in a RecyclerView. It supports both track and album views with
+ * appropriate UI adjustments for each type.
  */
 class DetailsFragment : Fragment() {
     private val viewModel: DetailsViewModel by activityViewModels()
@@ -50,6 +60,15 @@ class DetailsFragment : Fragment() {
     private var itemId: Long = 0L
     private var isTrack: Boolean = true
 
+    /**
+     * Creates and initializes the fragment's view.
+     * Inflates the fragment_details layout and returns the root view.
+     * 
+     * @param inflater LayoutInflater for creating the view
+     * @param container Parent view group
+     * @param savedInstanceState Saved instance state
+     * @return The initialized view
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -58,6 +77,18 @@ class DetailsFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_details, container, false)
     }
 
+    /**
+     * Initializes the fragment after the view is created.
+     * Sets up:
+     * - View references and initialization
+     * - RecyclerView with track list adapter
+     * - Click listeners for playback and playlist actions
+     * - ViewModel observers for data updates
+     * - Content loading based on item type (track or album)
+     * 
+     * @param view The fragment's view
+     * @param savedInstanceState Saved instance state
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // Manual argument extraction
@@ -78,6 +109,17 @@ class DetailsFragment : Fragment() {
         }
     }
 
+    /**
+     * Initializes all view references and configures their visibility based on content type.
+     * For tracks:
+     * - Shows play/pause button and duration
+     * - Hides track list
+     * For albums:
+     * - Hides play/pause button and duration
+     * - Shows track list
+     * 
+     * @param view The fragment's view
+     */
     private fun initializeViews(view: View) {
         coverImage = view.findViewById(R.id.coverImage)
         titleText = view.findViewById(R.id.titleText)
@@ -100,6 +142,13 @@ class DetailsFragment : Fragment() {
         }
     }
 
+    /**
+     * Sets up the RecyclerView for displaying track lists.
+     * Configures:
+     * - TrackListAdapter with click handlers
+     * - LinearLayoutManager for vertical scrolling
+     * - Click handlers for track selection and preview
+     */
     private fun setupRecyclerView() {
         trackListAdapter = TrackListAdapter(
             onTrackClick = { track ->
@@ -116,6 +165,12 @@ class DetailsFragment : Fragment() {
         }
     }
 
+    /**
+     * Sets up click listeners for interactive elements.
+     * Configures:
+     * - Play/pause button for track preview
+     * - Add to playlist button for playlist selection
+     */
     private fun setupClickListeners() {
         playPauseButton.setOnClickListener {
             viewModel.track.value?.let { track ->
@@ -136,6 +191,15 @@ class DetailsFragment : Fragment() {
         }
     }
 
+    /**
+     * Shows a dialog for selecting a playlist to add the current item to.
+     * The dialog includes:
+     * - List of existing playlists with track counts
+     * - Option to create a new playlist
+     * - Confirmation handling for playlist selection
+     * 
+     * @param item The track or album to add to the selected playlist
+     */
     private fun showPlaylistSelectionDialog(item: Any) {
         val dialogBinding = layoutInflater.inflate(R.layout.dialog_select_playlist, null)
         val recyclerView = dialogBinding.findViewById<RecyclerView>(R.id.playlistRecyclerView)
@@ -179,26 +243,34 @@ class DetailsFragment : Fragment() {
         }
 
         MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.select_playlist)
             .setView(dialogBinding)
             .setNegativeButton(R.string.cancel, null)
             .show()
     }
 
-    private fun showCreatePlaylistDialog(onCreated: (com.example.musicalquiz.database.entities.Playlist) -> Unit) {
-        val dialogBinding = layoutInflater.inflate(R.layout.dialog_playlist, null)
+    /**
+     * Shows a dialog for creating a new playlist.
+     * The dialog includes:
+     * - Text input for playlist name
+     * - Validation for empty names
+     * - Confirmation handling for playlist creation
+     * 
+     * @param onPlaylistCreated Callback when a new playlist is created
+     */
+    private fun showCreatePlaylistDialog(onPlaylistCreated: (Int) -> Unit) {
+        val dialogBinding = layoutInflater.inflate(R.layout.dialog_create_playlist, null)
         val nameInput = dialogBinding.findViewById<TextInputEditText>(R.id.playlistNameInput)
 
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.create_playlist)
             .setView(dialogBinding)
             .setPositiveButton(R.string.create) { _, _ ->
-                val name = nameInput.text.toString()
-                if (name.isNotBlank()) {
+                val name = nameInput.text?.toString()
+                if (!name.isNullOrBlank()) {
                     viewLifecycleOwner.lifecycleScope.launch {
                         val playlistId = playlistViewModel.createPlaylist(name)
-                        playlistViewModel.playlists.value?.find { it.id == playlistId }?.let { playlist ->
-                            onCreated(playlist)
-                        }
+                        onPlaylistCreated(playlistId)
                     }
                 }
             }
@@ -206,135 +278,151 @@ class DetailsFragment : Fragment() {
             .show()
     }
 
-    private suspend fun addTrackToPlaylist(playlist: com.example.musicalquiz.database.entities.Playlist, trackId: Long) {
+    /**
+     * Adds a track to the specified playlist.
+     * Shows a success or error message using Snackbar.
+     * 
+     * @param playlistId ID of the playlist to add the track to
+     * @param trackId ID of the track to add
+     */
+    private suspend fun addTrackToPlaylist(playlistId: Int, trackId: Long) {
         try {
-            viewModel.track.value?.let { track ->
-                val duration = track.duration
-                playlistViewModel.addTrackToPlaylist(playlist.id, trackId, duration)
-                Snackbar.make(
-                    requireView(),
-                    getString(R.string.add_to_playlist_success, playlist.name),
-                    Snackbar.LENGTH_SHORT
-                ).show()
-            }
+            playlistViewModel.addTrackToPlaylist(playlistId, trackId)
+            Snackbar.make(
+                requireView(),
+                R.string.track_added_to_playlist,
+                Snackbar.LENGTH_SHORT
+            ).show()
         } catch (e: Exception) {
             Snackbar.make(
                 requireView(),
-                R.string.add_to_playlist_error,
+                R.string.error_adding_track,
                 Snackbar.LENGTH_SHORT
             ).show()
         }
     }
 
-    private suspend fun addAlbumToPlaylist(playlist: com.example.musicalquiz.database.entities.Playlist, album: com.example.musicalquiz.model.Album) {
+    /**
+     * Adds all tracks from an album to the specified playlist.
+     * Shows a success or error message using Snackbar.
+     * 
+     * @param playlistId ID of the playlist to add the tracks to
+     * @param album The album containing the tracks to add
+     */
+    private suspend fun addAlbumToPlaylist(playlistId: Int, album: com.example.musicalquiz.model.Album) {
         try {
-            // Get album tracks from Deezer API
             val tracks = viewModel.getAlbumTracks(album.id)
-            var addedCount = 0
-            
-            tracks.forEach { track ->
-                val duration = track.duration
-                playlistViewModel.addTrackToPlaylist(playlist.id, track.id, duration)
-                addedCount++
+            for (track in tracks) {
+                playlistViewModel.addTrackToPlaylist(playlistId, track.id)
             }
-
             Snackbar.make(
                 requireView(),
-                getString(R.string.tracks_added, addedCount),
+                R.string.album_added_to_playlist,
                 Snackbar.LENGTH_SHORT
             ).show()
         } catch (e: Exception) {
             Snackbar.make(
                 requireView(),
-                R.string.add_to_playlist_error,
+                R.string.error_adding_album,
                 Snackbar.LENGTH_SHORT
             ).show()
         }
     }
 
-    private fun observeViewModel() {
-        viewModel.track.observe(viewLifecycleOwner) { track ->
-            track?.let { updateTrackUI(it) }
-        }
-
-        viewModel.album.observe(viewLifecycleOwner) { album ->
-            album?.let { updateAlbumUI(it) }
-        }
-
-        viewModel.albumTracks.observe(viewLifecycleOwner) { tracks ->
-            trackListAdapter.submitList(tracks)
-        }
-
-        viewModel.isPlaying.observe(viewLifecycleOwner) { isPlaying ->
-            updatePlayPauseButton(isPlaying)
-        }
-
-        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            // TODO: Show loading indicator
-        }
-
-        viewModel.error.observe(viewLifecycleOwner) { error ->
-            error?.let {
-                Snackbar.make(
-                    requireView(),
-                    error,
-                    Snackbar.LENGTH_LONG
-                ).show()
-            }
-        }
-    }
-
-    private fun loadTrackDetails() {
-        viewModel.loadTrackDetails(itemId)
-    }
-
-    private fun loadAlbumDetails() {
-        viewModel.loadAlbumDetails(itemId)
-    }
-
-    private fun updateTrackUI(track: Track) {
-        titleText.text = getString(R.string.track_title_label, track.title)
-        artistText.text = getString(R.string.track_artist_label, track.artist.name)
-        durationText.text = formatDuration(track.duration)
-        
-        // Load cover image with Glide
-        Glide.with(this)
-            .load(track.album.cover)
-            .into(coverImage)
-
-        // Update play button state based on preview availability
-        playPauseButton.visibility = if (track.preview != null) View.VISIBLE else View.GONE
-    }
-
-    private fun updateAlbumUI(album: com.example.musicalquiz.model.Album) {
-        titleText.text = getString(R.string.album_title_label, album.title)
-        artistText.text = getString(R.string.album_artist_label, album.artist.name)
-        
-        // Load cover image with Glide
-        Glide.with(this)
-            .load(album.cover)
-            .into(coverImage)
-    }
-
-    private fun updatePlayPauseButton(isPlaying: Boolean) {
-        playPauseButton.setImageResource(
-            if (isPlaying) R.drawable.ic_pause
-            else R.drawable.ic_play
-        )
-    }
-
+    /**
+     * Navigates to the details screen for a specific track.
+     * 
+     * @param trackId ID of the track to show details for
+     */
     private fun navigateToTrackDetails(trackId: Long) {
         val bundle = Bundle().apply {
             putLong("itemId", trackId)
             putBoolean("isTrack", true)
         }
-        findNavController().navigate(R.id.navigation_details, bundle)
+        findNavController().navigate(
+            R.id.action_detailsFragment_self,
+            bundle
+        )
     }
 
-    private fun formatDuration(seconds: Int): String {
-        val minutes = seconds / 60
-        val remainingSeconds = seconds % 60
-        return "Duration: ${getString(R.string.minutes_seconds, minutes, remainingSeconds)}"
+    /**
+     * Loads track details from the ViewModel and updates the UI.
+     * Displays:
+     * - Track cover art
+     * - Track title and artist
+     * - Track duration
+     */
+    private fun loadTrackDetails() {
+        viewModel.loadTrackDetails(itemId)
+        viewModel.track.observe(viewLifecycleOwner) { track ->
+            track?.let {
+                Glide.with(this)
+                    .load(it.album.cover)
+                    .into(coverImage)
+                titleText.text = it.title
+                artistText.text = it.artist.name
+                durationText.text = formatDuration(it.duration)
+            }
+        }
+    }
+
+    /**
+     * Loads album details from the ViewModel and updates the UI.
+     * Displays:
+     * - Album cover art
+     * - Album title and artist
+     * - List of tracks in the album
+     */
+    private fun loadAlbumDetails() {
+        viewModel.loadAlbumDetails(itemId)
+        viewModel.album.observe(viewLifecycleOwner) { album ->
+            album?.let {
+                Glide.with(this)
+                    .load(it.cover)
+                    .into(coverImage)
+                titleText.text = it.title
+                artistText.text = it.artist.name
+            }
+        }
+        viewModel.albumTracks.observe(viewLifecycleOwner) { tracks ->
+            trackListAdapter.submitList(tracks)
+        }
+    }
+
+    /**
+     * Formats a duration in seconds to a human-readable string.
+     * Format: MM:SS
+     * 
+     * @param duration Duration in seconds
+     * @return Formatted duration string
+     */
+    private fun formatDuration(duration: Int): String {
+        val minutes = duration / 60
+        val seconds = duration % 60
+        return String.format("%d:%02d", minutes, seconds)
+    }
+
+    /**
+     * Sets up observers for ViewModel LiveData objects.
+     * Observes:
+     * - Loading state
+     * - Error messages
+     * - Playback state
+     */
+    private fun observeViewModel() {
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            // TODO: Show loading indicator if needed
+        }
+        viewModel.error.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                Snackbar.make(requireView(), error, Snackbar.LENGTH_LONG).show()
+            }
+        }
+        viewModel.isPlaying.observe(viewLifecycleOwner) { isPlaying ->
+            playPauseButton.setImageResource(
+                if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play
+            )
+        }
     }
 
     override fun onDestroyView() {

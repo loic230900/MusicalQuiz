@@ -13,6 +13,14 @@ import kotlinx.coroutines.launch
 /**
  * ViewModel for the details screen.
  * Manages the display of track or album details and related operations.
+ * This class handles:
+ * - Loading and displaying track/album details
+ * - Managing track preview playback
+ * - Error handling for API and media player operations
+ * - State management for loading and playback
+ * 
+ * The ViewModel uses LiveData to notify observers of state changes and maintains
+ * the current state of the details view, including playback status.
  */
 class DetailsViewModel : ViewModel() {
     private val api = RetrofitInstance.api
@@ -51,6 +59,8 @@ class DetailsViewModel : ViewModel() {
 
     /**
      * Loads track details and updates the UI state.
+     * Makes an API call to fetch track information and handles any errors.
+     * 
      * @param trackId ID of the track to load
      */
     fun loadTrackDetails(trackId: Long) {
@@ -78,6 +88,9 @@ class DetailsViewModel : ViewModel() {
 
     /**
      * Loads album details and updates the UI state.
+     * Makes API calls to fetch both album information and its tracks.
+     * Handles any errors that occur during the process.
+     * 
      * @param albumId ID of the album to load
      */
     fun loadAlbumDetails(albumId: Long) {
@@ -119,6 +132,8 @@ class DetailsViewModel : ViewModel() {
 
     /**
      * Toggles between play and pause states for the current preview.
+     * If the media player is playing, it will be paused.
+     * If the media player is paused, it will resume playback.
      */
     fun togglePlayPause() {
         when {
@@ -134,7 +149,12 @@ class DetailsViewModel : ViewModel() {
     }
 
     /**
-     * Stops the current preview playback.
+     * Stops the current preview playback and releases resources.
+     * This method:
+     * 1. Stops playback if currently playing
+     * 2. Releases the MediaPlayer resources
+     * 3. Resets the playback state
+     * 4. Clears the current track reference
      */
     fun stopPlayback() {
         mediaPlayer?.apply {
@@ -150,6 +170,18 @@ class DetailsViewModel : ViewModel() {
 
     /**
      * Plays the track preview.
+     * This method:
+     * 1. Checks if a preview URL is available
+     * 2. Handles toggling play/pause for the same track
+     * 3. Stops any existing playback
+     * 4. Initializes a new MediaPlayer with error handling
+     * 5. Updates the playback state
+     * 
+     * The MediaPlayer is configured with:
+     * - OnPreparedListener for starting playback
+     * - OnCompletionListener for handling playback end
+     * - OnErrorListener for handling playback errors
+     * 
      * @param track Track to play preview for
      */
     fun playPreview(track: Track) {
@@ -173,9 +205,9 @@ class DetailsViewModel : ViewModel() {
                 prepareAsync()
                 setOnPreparedListener {
                     try {
-                    start()
-                    _isPlaying.value = true
-                    currentPreviewTrack = track
+                        start()
+                        _isPlaying.value = true
+                        currentPreviewTrack = track
                     } catch (e: Exception) {
                         _error.value = "Error starting preview: ${e.message}"
                         _isPlaying.value = false
@@ -200,8 +232,8 @@ class DetailsViewModel : ViewModel() {
             }
         } catch (e: Exception) {
             _error.value = "Error initializing preview: ${e.message}"
-            mediaPlayer?.release()
-            mediaPlayer = null
+            _isPlaying.value = false
+            currentPreviewTrack = null
         }
     }
 

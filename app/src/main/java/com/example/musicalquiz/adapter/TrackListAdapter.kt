@@ -42,6 +42,7 @@ class TrackListAdapter(
     inner class TrackViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val trackNumberText: TextView = itemView.findViewById(R.id.trackNumberText)
         private val trackTitleText: TextView = itemView.findViewById(R.id.trackTitleText)
+        private val trackArtistText: TextView = itemView.findViewById(R.id.trackArtistText)
         private val trackDurationText: TextView = itemView.findViewById(R.id.trackDurationText)
         private val previewButton: ImageButton = itemView.findViewById(R.id.previewButton)
         private val deleteButton: ImageButton = itemView.findViewById(R.id.deleteButton)
@@ -53,6 +54,7 @@ class TrackListAdapter(
         fun bind(track: Track) {
             trackNumberText.text = itemView.context.getString(R.string.track_number, adapterPosition + 1)
             trackTitleText.text = track.title
+            trackArtistText.text = track.artist.name
             trackDurationText.text = formatDuration(track.duration)
 
             // Set click listeners

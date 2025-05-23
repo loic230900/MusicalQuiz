@@ -14,8 +14,16 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 /**
  * Main activity of the MusicalQuiz application.
- * Handles the bottom navigation and hosts the main navigation graph.
- * Manages the application's main UI components and navigation flow.
+ * This activity serves as the entry point of the application and handles:
+ * - Bottom navigation setup and management
+ * - Main navigation graph hosting
+ * - Edge-to-edge display configuration
+ * - System insets handling
+ * - Search results observation
+ * 
+ * The activity uses a single activity architecture pattern where
+ * different screens are implemented as fragments and navigation
+ * is handled through the Navigation component.
  */
 class MainActivity : AppCompatActivity() {
     private val viewModel: TracksViewModel by viewModels()
@@ -36,7 +44,7 @@ class MainActivity : AppCompatActivity() {
             windowInsets
         }
 
-        // Observer les résultats de recherche
+        // Observe search results
         viewModel.tracksLiveData.observe(this) { tracks ->
             Log.d("LIVEDATA_TEST", "Tracks: ${tracks.size}")
         }

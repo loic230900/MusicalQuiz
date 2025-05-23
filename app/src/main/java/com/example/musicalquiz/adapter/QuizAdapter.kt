@@ -37,6 +37,10 @@ class QuizAdapter(
         holder.bind(quizInfo, onQuizClick, onMenuClick)
     }
 
+    override fun submitList(list: List<QuizWithPlaylistInfo>?) {
+        super.submitList(list)
+    }
+
 
     /**
      * viewholder for displaying individual quiz items

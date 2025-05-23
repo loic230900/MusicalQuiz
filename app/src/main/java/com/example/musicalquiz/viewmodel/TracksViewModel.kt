@@ -22,6 +22,12 @@ import com.example.musicalquiz.model.DeezerSearchResponse
  * 
  * The ViewModel uses LiveData to notify observers of data changes and maintains
  * the current state of the search, including pagination information.
+ * 
+ * Pagination is implemented using a page-based approach where:
+ * - Each page contains 25 items by default
+ * - The next page URL is provided by the API
+ * - Results are accumulated when loading more items
+ * - Loading state is tracked to prevent duplicate requests
  */
 class TracksViewModel : ViewModel() {
     private val _tracksLiveData = MutableLiveData<List<Track>>()
@@ -69,14 +75,17 @@ class TracksViewModel : ViewModel() {
             hasMoreResults = data.isNotEmpty() && response.body()?.next != null
             onSuccess(data)
         } else {
-            _error.value = "Erreur API: ${response.code()}"
+            _error.value = "API Error: ${response.code()}"
         }
     }
 
     /**
-     * Effectue une recherche de morceaux et d'albums via l'API Deezer.
-     * Les résultats sont mélangés et affichés dans une liste unique.
-     * @param query Le terme de recherche saisi par l'utilisateur
+     * Performs a search for tracks and albums via the Deezer API.
+     * Results are filtered based on the current filter and displayed in a single list.
+     * Supports pagination for loading more results.
+     * 
+     * @param query The search term entered by the user
+     * @param loadMore Whether to load more results (true) or start a new search (false)
      */
     fun searchAll(query: String, loadMore: Boolean = false) {
         if (loadMore && (!hasMoreResults || isLoadingMore)) return
@@ -127,13 +136,17 @@ class TracksViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Loads the next page of results if available.
+     * This method is called when the user scrolls to the bottom of the list.
+     */
     fun loadMoreResults() {
         lastQuery?.let { searchAll(it, true) }
     }
 
     /**
-     * Charge les morceaux et albums les plus populaires depuis l'API Deezer.
-     * Utilisé pour afficher le contenu initial et après une recherche vide.
+     * Loads the most popular tracks and albums from the Deezer API.
+     * Used to display initial content and after an empty search.
      */
     fun loadTopCharts() {
         viewModelScope.launch {
@@ -144,13 +157,13 @@ class TracksViewModel : ViewModel() {
                     SearchFilter.TRACKS -> {
                         val response = RetrofitInstance.api.getTopTracks()
                         handleResponse(response) { tracks ->
-                        _tracksLiveData.value = tracks
+                            _tracksLiveData.value = tracks
                         }
                     }
                     SearchFilter.ALBUMS -> {
                         val response = RetrofitInstance.api.getTopAlbums()
                         handleResponse(response) { albums ->
-                        _albumsLiveData.value = albums
+                            _albumsLiveData.value = albums
                         }
                     }
                 }
@@ -164,8 +177,8 @@ class TracksViewModel : ViewModel() {
     }
 
     /**
-     * Recharge la dernière recherche effectuée ou les top charts si aucune recherche n'a été faite.
-     * Utile pour restaurer l'état après un changement de configuration.
+     * Reloads the last search or top charts if no search was performed.
+     * Useful for restoring state after configuration changes.
      */
     fun reloadLastSearch() {
         lastQuery?.let { searchAll(it) } ?: loadTopCharts()

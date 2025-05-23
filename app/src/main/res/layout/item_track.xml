@@ -45,6 +45,16 @@
                 android:ellipsize="end"/>
 
             <TextView
+                android:id="@+id/trackArtistText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:textColor="@color/white"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:alpha="0.7"/>
+
+            <TextView
                 android:id="@+id/trackDurationText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
