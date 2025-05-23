@@ -4,7 +4,7 @@
 
 ### Home Screen
 
-The **Home** screen greets users and provides an overview of their music collections. It displays the user’s existing playlists in a condensed list with cover art and a brief description. Tapping on a playlist opens. It also allows to create a new quiz.
+The **Home** screen greets users and provides an overview of their music collections. It displays the user's existing playlists in a condensed list with cover art and a brief description. Tapping on a playlist opens. It also allows to create a new quiz.
 its details. The Home screen also offers quick access to other sections via the bottom navigation bar
 (Search, Quiz, Playlists).
 
@@ -37,7 +37,6 @@ The **quiz** is created by the user by selecting a playlist and a number of ques
 There is also a fill the gap question type where the user has to fill the gap in the artist name for example. 
 We also implmemented a custom timer per question.
 
-
 <img src="./screenshots/Quizempty.jpg" alt="Quiz Empty" width="200" />
 <img src="./screenshots/Quizcreate.jpg" alt="Quiz Create" width="200" />
 <img src="./screenshots/quizingame.jpg" alt="Quiz" width="200" />
@@ -52,7 +51,6 @@ We also added a button to sort according to A-Z or Z-A , Duration(shortest to lo
 <img src="./screenshots/Playlist.jpg" alt="Playlist" width="200" />
 <img src="./screenshots/Playlistdetail.jpg" alt="Playlist Detail" width="200" />
 
-
 ## Architecture, Design Decisions and Implementation Choices
 
 The app is built using a **Model-View-ViewModel (MVVM)** architecture to ensure a clean separation of
@@ -63,13 +61,83 @@ receives the latest data when it resumes, without memory leaks or manual lifecyc
 ViewModels cache UI data and survive configuration changes (screen rotations), so we don't refetch
 data unnecessarily.
 
-At the data layer, we use a **Repository** pattern: ViewModels request data through repository classes,
-which mediate between the app and its data sources. The repository aggregates a **Remote API** (the
-Deezer music API via Retrofit) and a **Local Database (Room)**. Room is an Android Jetpack library that
-provides an abstraction over SQLite; we use it to persist playlists, quizzes, and cached search results.
-Using Room ensures compile-time safety for SQL and lets us expose query results as LiveData. This local
-cache enables potential offline support.
+### Repository Implementation
 
+The application uses a robust repository pattern to manage data flow between the UI and data sources:
+
+#### Data Sources
+- **Deezer API Integration**
+  - RESTful API client built with Retrofit
+  - Comprehensive interface (`DeezerApiInterface`) supporting:
+    - Track and album search with pagination
+    - Top charts retrieval
+    - Detailed track and album information
+    - Album track listings
+  - Response handling with generic `DeezerSearchResponse<T>` wrapper
+
+#### Local Database (Room)
+- **Entity Structure**
+  - `Playlist`: User-created playlists with metadata
+  - `PlaylistTrack`: Junction table for playlist-track relationships
+  - `Quiz`: Quiz configurations and metadata
+  - `QuizQuestion`: Individual quiz questions and answers
+
+- **Data Access Objects (DAOs)**
+  - `PlaylistDao`: CRUD operations for playlists
+  - `PlaylistTrackDao`: Managing playlist-track relationships
+  - `QuizDao`: Quiz management with transaction support
+  - `QuizQuestionDao`: Question handling with random selection
+
+#### Data Flow Architecture
+1. **Search and Discovery**
+   - ViewModel (`TracksViewModel`) manages search state
+   - Handles pagination and filtering between tracks/albums
+   - Caches search results for offline access
+
+2. **Playlist Management**
+   - `PlaylistViewModel` orchestrates playlist operations
+   - Supports adding tracks/albums to playlists
+   - Maintains track counts and durations
+   - Handles playlist metadata (artist covers, durations)
+
+3. **Quiz Generation**
+   - `QuizViewModel` manages quiz creation and execution
+   - Fetches track details from Deezer API
+   - Generates questions based on game mode
+   - Maintains quiz state and scoring
+
+#### Data Synchronization
+- Automatic playlist track updates
+- Local storage of playlists and quiz data
+- Transaction support for atomic operations
+- Note: Offline caching and background synchronization are planned future improvements
+
+### Asynchronous Operations
+- **Coroutines**: Used extensively for asynchronous operations
+  - `viewModelScope` for structured concurrency in ViewModels
+  - `Dispatchers.IO` for database operations
+  - `withContext` for thread switching
+  - Parallel track fetching in playlists
+  - Quiz generation and state management
+
+- **Flow**: Implemented for reactive data streams
+  - Room DAOs expose Flow for real-time updates of:
+    - Playlists and their tracks
+    - Quiz questions and state
+    - Track counts and durations
+  - Flow operators used:
+    - `collectLatest` for real-time UI updates
+    - `first`/`firstOrNull` for one-time data fetching
+  - Flow conversion from LiveData for seamless integration
+
+### State Management
+- **LiveData**: Core component for state observation
+  - Loading states for UI feedback
+  - Error handling and user notifications
+  - Data updates and UI synchronization
+  - Configuration change survival
+
+### Data Flow Architecture
 Data flow in the app follows: **UI ➔ ViewModel ➔ Repository ➔ Data Sources** (API + Room). 
 
 When the user takes an action (e.g. enters a search query or navigates to a quiz), the Fragment calls a ViewModel
@@ -77,47 +145,74 @@ function. The ViewModel then calls a repository method, which may fetch data fro
 network request. The repository returns results (or cached data) to the ViewModel, which updates its
 LiveData fields. The Fragment observes these LiveData fields and updates the UI automatically.
 
-**Diagram:**
-
-**Implementation choices:**
+### Implementation Choices
 
 ```
-- MutableLiveData / LiveData: Each ViewModel uses MutableLiveData to post updates; the UI
-observes the LiveData to reactively update views. LiveData ensures no updates occur if the UI is
-not active, avoiding crashes and leaks. It also ensures the UI always gets the latest data after
-configuration changes.
+MutableLiveData / LiveData: 
+- Chosen for its lifecycle-aware nature, ensuring UI updates only occur when the fragment is active
+- Prevents memory leaks by automatically handling lifecycle events
+- Perfect for our music app where we need to handle configuration changes (like screen rotation) while playing music
+- Enables automatic UI updates when data changes (e.g., when a track is added to a playlist)
+- Provides consistent state management across the app
 
-- RecyclerView: We use RecyclerViews for all scrollable lists (search results, playlist tracks, quiz
-question lists). RecyclerView efficiently recycles item views for smooth scrolling and better
-performance. For example, search results and playlist contents are shown in RecyclerViews
-with custom Adapters to bind data.
+RecyclerView: 
+- Selected for efficient handling of large music collections
+- Memory-efficient for displaying long lists of tracks and albums
+- Smooth scrolling performance even with album artwork loading
+- View recycling is crucial for our app's performance when displaying search results and playlist contents
+- Supports different layout managers for flexible UI arrangements
 
-- BottomNavigationView: A BottomNavigationView provides easy navigation between the main
-sections (Home, Search, Quiz, Playlists). This follows Material Design guidelines for primary app
-navigation. It keeps the UI consistent and accessible.
+BottomNavigationView: 
+- Implemented for intuitive navigation between core features (Home, Search, Quiz, Playlists)
+- Follows Material Design guidelines for primary navigation
+- Provides clear visual feedback for current section
+- Essential for our app's structure where users frequently switch between different music-related features
+- Maintains consistent navigation state across app restarts
 
-- Room database: Room stores user-created data like playlists and quizzes. It provides an
-abstraction over SQLite and allows us to observe data as LiveData. This choice enables efficient
-local data access and future offline support. Entities are defined for tracks, albums, playlists, and
-quizzes, with relations for quiz questions.
+Room database: 
+- Chosen for robust local storage of user-created content
+- Provides type-safe SQL queries, reducing runtime errors
+- Enables offline access to playlists and quiz data
+- Perfect for our app's need to persist user playlists and quiz progress
+- LiveData integration allows real-time UI updates when data changes
+- Transaction support for atomic operations (e.g., quiz creation)
 
-- Repository Pattern: Using repositories isolates data handling logic from ViewModels and UI. It
-provides a clean API for data operations (fetch, cache, update) and makes it easier to swap or mock data sources in tests.
+Repository Pattern: 
+- Implemented to centralize data operations
+- Simplifies switching between local and remote data sources
+- Essential for our app's architecture where we need to handle both local (Room) and remote (Deezer API) data
+- Provides consistent error handling and loading states
+- Enables efficient data synchronization
 
-- Other Libraries: We use Retrofit/OkHttp for API calls, Coroutines for
-asynchronous tasks, and View Binding for type-safe UI code. These choices . We used Glide for image loading.
+Other Libraries:
+- Retrofit/OkHttp: Selected for efficient API calls to Deezer, with built-in caching and error handling
+- Coroutines: Used for asynchronous operations, particularly important for our music playback and quiz features
+- View Binding: Implemented for type-safe view access, reducing boilerplate code
+- Glide: Chosen for efficient image loading and caching of album artwork
 ```
-**Design and UI choices:**
+
+### Design and UI choices:
 ```
-- We used a Material Design theme with a dark theme.
+- Material Design theme with dark mode support
+  - Consistent visual language across the app
+  - Better readability and reduced eye strain
+  - Modern and professional appearance
 
-- We used a custom font for the app.
+- Custom font implementation
+  - Enhanced readability and brand identity
+  - Consistent typography across the app
+  - Better visual hierarchy
 
-- We used a custom color scheme for the app.
+- Custom color scheme
+  - Brand-specific colors for recognition
+  - Accessible color combinations
+  - Consistent visual feedback
 
-- We used a background image for the app.
+- Background image integration
+  - Enhanced visual appeal
+  - Better user engagement
+  - Maintains readability with proper contrast
 ```
-
 
 ## Unresolved Issues and Future Improvements
 
@@ -137,8 +232,8 @@ sorting or selecting quiz categories (by Game mode, number of questions, etc.) t
 
 - Performance optimizations: We have noticed occasional delays updating the UI via LiveData
 and coroutines.
-
 ```
+
 ## Contributions
 
 ```
@@ -182,6 +277,5 @@ and coroutines.
     - Implemented the quiz gameplay mechanics
     - Created the scoring system
     - Added timer per question
-
 ```
 
