@@ -11,13 +11,11 @@ import retrofit2.converter.gson.GsonConverterFactory
  * - Provides a lazy-initialized API interface instance
  * 
  * The singleton pattern ensures only one instance of the Retrofit client
- * is created throughout the application lifecycle, improving performance
- * and resource usage.
+ * is created throughout the application lifecycle.
  */
 object RetrofitInstance {
     /**
-     * Base URL for the Deezer API.
-     * All API endpoints will be appended to this base URL.
+     * Base URL for the Deezer API
      */
     private const val BASE_URL = "https://api.deezer.com/"
 
@@ -25,9 +23,6 @@ object RetrofitInstance {
      * Lazy-initialized Retrofit instance configured with:
      * - Deezer API base URL
      * - Gson converter for JSON parsing
-     * 
-     * The lazy initialization ensures the Retrofit instance is only created
-     * when first accessed, improving startup performance.
      * 
      * @return Configured DeezerApiInterface instance
      */

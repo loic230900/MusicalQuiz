@@ -18,20 +18,16 @@ import retrofit2.http.Query
  * - Fetching top charts
  * - Getting detailed information about specific tracks and albums
  * - Retrieving all tracks from an album
- * 
- * All responses are wrapped in a Response object to handle HTTP status codes
- * and potential errors.
  */
 interface DeezerApiInterface {
 
     /**
      * Search for music tracks based on a text query.
-     * Supports pagination through index and limit parameters.
      *
      * @param query Search string entered by the user
      * @param index Starting index for pagination (default: 0)
      * @param limit Number of items per page (default: 25)
-     * @return Response containing a list of tracks and pagination info
+     * @return Response containing a list of tracks
      */
     @GET("search")
     suspend fun searchTracks(
@@ -42,12 +38,11 @@ interface DeezerApiInterface {
 
     /**
      * Search for music albums based on a text query.
-     * Supports pagination through index and limit parameters.
      *
      * @param query Search string entered by the user
      * @param index Starting index for pagination (default: 0)
      * @param limit Number of items per page (default: 25)
-     * @return Response containing a list of albums and pagination info
+     * @return Response containing a list of albums
      */
     @GET("search/album")
     suspend fun searchAlbums(

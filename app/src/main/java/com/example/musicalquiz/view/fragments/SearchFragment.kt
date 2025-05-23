@@ -48,19 +48,8 @@ import kotlinx.coroutines.launch
  * - Playlist selection for tracks and albums
  * - Empty state handling
  * 
- * The fragment supports:
- * - Real-time search with debouncing
- * - Grid layout adaptation to screen orientation
- * - Long-press to add items to playlists
- * - Click to view item details
- * - Loading indicators for pagination
- * 
- * The fragment uses:
- * - ViewModels for data management
- * - RecyclerView with GridLayoutManager for results display
- * - Adapters for tracks and albums
- * - LiveData for state observation
- * - Navigation component for screen transitions
+ * The fragment uses ViewModels for data management and adapters for displaying
+ * search results in a RecyclerView.
  */
 class SearchFragment : Fragment() {
 
@@ -98,18 +87,7 @@ class SearchFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.fragment_search, container, false)
         
-        initializeViews(view)
-        setupRecyclerView()
-        setupAdapters()
-        
-        return view
-    }
-
-    /**
-     * Initializes all view references from the layout.
-     * @param view The fragment's root view
-     */
-    private fun initializeViews(view: View) {
+        // Initialiser les vues
         searchEditText = view.findViewById(R.id.searchEditText)
         searchButton = view.findViewById(R.id.searchButton)
         recyclerView = view.findViewById(R.id.searchRecyclerView)
@@ -117,18 +95,12 @@ class SearchFragment : Fragment() {
         searchFilterGroup = view.findViewById(R.id.searchFilterGroup)
         trackFilter = view.findViewById(R.id.trackFilter)
         albumFilter = view.findViewById(R.id.albumFilter)
-    }
 
-    /**
-     * Sets up the RecyclerView with:
-     * - Adaptive grid layout based on orientation
-     * - Infinite scrolling support
-     * - Loading indicator integration
-     */
-    private fun setupRecyclerView() {
+        // Configurer le RecyclerView avec le nombre de colonnes adapté à l'orientation
         val spanCount = if (resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) 3 else 2
         val layoutManager = GridLayoutManager(requireContext(), spanCount)
         
+        // Add scroll listener for infinite scrolling
         layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
                 return if (position == layoutManager.itemCount - 1 && viewModel.isLoading.value == true) {
@@ -141,6 +113,7 @@ class SearchFragment : Fragment() {
         
         recyclerView.layoutManager = layoutManager
         
+        // Add scroll listener
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -156,16 +129,7 @@ class SearchFragment : Fragment() {
                 }
             }
         })
-    }
 
-    /**
-     * Sets up adapters for tracks and albums with click handlers.
-     * Configures:
-     * - Track adapter with click and long-press handlers
-     * - Album adapter with click and long-press handlers
-     * - Initial adapter assignment to RecyclerView
-     */
-    private fun setupAdapters() {
         trackAdapter = TrackAdapter().apply {
             setOnItemClickListener { track ->
                 onTrackClick(track)
@@ -183,6 +147,8 @@ class SearchFragment : Fragment() {
             }
         }
         recyclerView.adapter = trackAdapter
+
+        return view
     }
 
     /**
@@ -194,7 +160,11 @@ class SearchFragment : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        
+        // Configurer les listeners
         setupListeners()
+        
+        // Configurer les observateurs
         setupObservers()
     }
 
@@ -204,7 +174,9 @@ class SearchFragment : Fragment() {
      */
     override fun onResume() {
         super.onResume()
+        // Recharger les top charts à chaque fois qu'on revient sur le fragment
         viewModel.loadTopCharts()
+        // Réinitialiser la barre de recherche
         searchEditText.text.clear()
     }
 
@@ -218,6 +190,7 @@ class SearchFragment : Fragment() {
      */
     override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
         super.onConfigurationChanged(newConfig)
+        // Adapter le nombre de colonnes lors du changement d'orientation
         val spanCount = if (newConfig.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) 3 else 2
         (recyclerView.layoutManager as? GridLayoutManager)?.spanCount = spanCount
     }
@@ -226,7 +199,7 @@ class SearchFragment : Fragment() {
      * Sets up listeners for user interactions:
      * - Search button and text input
      * - Filter radio buttons
-     * - Keyboard actions
+     * - Empty search handling
      */
     private fun setupListeners() {
         searchButton.setOnClickListener {
@@ -280,12 +253,11 @@ class SearchFragment : Fragment() {
     }
 
     /**
-     * Sets up observers for ViewModel LiveData objects.
-     * Observes:
+     * Sets up observers for LiveData from ViewModels:
      * - Search results
      * - Loading state
      * - Error messages
-     * - Playlists for selection dialog
+     * - Available playlists
      */
     private fun setupObservers() {
         viewModel.tracksLiveData.observe(viewLifecycleOwner) { tracks ->
@@ -325,10 +297,6 @@ class SearchFragment : Fragment() {
         }
     }
 
-    /**
-     * Updates the UI to show either the empty state or search results.
-     * @param isEmpty Whether the search results are empty
-     */
     private fun updateEmptyState() {
         val isTracksEmpty = trackAdapter.itemCount == 0
         val isAlbumsEmpty = albumAdapter.itemCount == 0
@@ -362,12 +330,9 @@ class SearchFragment : Fragment() {
 
     /**
      * Shows a dialog for selecting a playlist to add the item to.
-     * The dialog includes:
-     * - List of existing playlists
-     * - Option to create a new playlist
-     * - Confirmation handling
+     * Handles both tracks and albums.
      * 
-     * @param item The track or album to add to the selected playlist
+     * @param item The track or album to add to a playlist
      */
     private fun showPlaylistSelectionDialog(item: Any) {
         val dialogBinding = layoutInflater.inflate(R.layout.dialog_select_playlist, null)
@@ -417,16 +382,7 @@ class SearchFragment : Fragment() {
             .show()
     }
 
-    /**
-     * Shows a dialog for creating a new playlist.
-     * The dialog includes:
-     * - Text input for playlist name
-     * - Validation for empty names
-     * - Confirmation handling
-     * 
-     * @param onPlaylistCreated Callback when a new playlist is created
-     */
-    private fun showCreatePlaylistDialog(onPlaylistCreated: (Playlist) -> Unit) {
+    private fun showCreatePlaylistDialog(onCreated: (Playlist) -> Unit) {
         val dialogBinding = layoutInflater.inflate(R.layout.dialog_playlist, null)
         val nameInput = dialogBinding.findViewById<TextInputEditText>(R.id.playlistNameInput)
 
@@ -439,7 +395,7 @@ class SearchFragment : Fragment() {
                     viewLifecycleOwner.lifecycleScope.launch {
                         val playlistId = playlistViewModel.createPlaylist(name)
                         playlistViewModel.playlists.value?.find { it.id == playlistId }?.let { playlist ->
-                            onPlaylistCreated(playlist)
+                            onCreated(playlist)
                         }
                     }
                 }
@@ -491,8 +447,10 @@ class SearchFragment : Fragment() {
     }
 
     /**
-     * Handles track item click by navigating to track details.
-     * @param track The track that was clicked
+     * Handles click on a track item.
+     * Navigates to track details.
+     * 
+     * @param track The clicked track
      */
     private fun onTrackClick(track: Track) {
         val bundle = Bundle().apply {
@@ -503,8 +461,10 @@ class SearchFragment : Fragment() {
     }
 
     /**
-     * Handles album item click by navigating to album details.
-     * @param album The album that was clicked
+     * Handles click on an album item.
+     * Navigates to album details.
+     * 
+     * @param album The clicked album
      */
     private fun onAlbumClick(album: Album) {
         val bundle = Bundle().apply {

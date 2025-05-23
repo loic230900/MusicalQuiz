@@ -16,18 +16,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-/**
- * ViewModel responsible for managing playlists and their tracks.
- * This class handles:
- * - Creating and managing playlists
- * - Adding/removing tracks from playlists
- * - Loading playlist tracks from the database and Deezer API
- * - Managing playlist metadata (track counts, durations, artist covers)
- * - Sorting playlists by various criteria
- * 
- * The ViewModel uses LiveData to notify observers of state changes and maintains
- * the current state of playlists and their tracks.
- */
 class PlaylistViewModel(application: Application) : AndroidViewModel(application) {
     private val database = AppDatabase.getDatabase(application)
     private val playlistDao = database.playlistDao()
@@ -54,9 +42,6 @@ class PlaylistViewModel(application: Application) : AndroidViewModel(application
     private val _playlistArtistCoverImageUrls = MutableLiveData<Map<Int, String?>>(emptyMap())
     val playlistArtistCoverImageUrls: LiveData<Map<Int, String?>> = _playlistArtistCoverImageUrls
 
-    /**
-     * Enum defining the possible sorting orders for playlists.
-     */
     enum class SortOrder {
         NAME_ASC, NAME_DESC, TRACK_COUNT_ASC, TRACK_COUNT_DESC, DURATION_ASC, DURATION_DESC
     }
@@ -73,10 +58,6 @@ class PlaylistViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    /**
-     * Refreshes the playlist data from the database.
-     * Updates all related data including track counts, durations, and artist covers.
-     */
     fun refreshPlaylists() {
         viewModelScope.launch {
             _isLoading.postValue(true)
@@ -296,11 +277,6 @@ class PlaylistViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    /**
-     * Loads tracks for a specific playlist.
-     * Fetches track details from the Deezer API and updates all related data.
-     * @param playlistId The ID of the playlist to load tracks for
-     */
     fun loadPlaylistTracks(playlistId: Int) {
         viewModelScope.launch {
             _isLoading.postValue(true)
@@ -362,13 +338,6 @@ class PlaylistViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    /**
-     * Reorders tracks within a playlist.
-     * Updates the artist cover if the first track changes.
-     * @param playlistId The ID of the playlist
-     * @param fromPosition The original position of the track
-     * @param toPosition The new position of the track
-     */
     fun reorderTracks(playlistId: Int, fromPosition: Int, toPosition: Int) {
         _isLoading.postValue(true)
         try {
@@ -387,21 +356,11 @@ class PlaylistViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    /**
-     * Gets statistics for a specific playlist.
-     * @param playlistId The ID of the playlist
-     * @return PlaylistStats containing track count and total duration
-     */
     fun getPlaylistStats(playlistId: Int): PlaylistStats {
         val trackCount = _playlistTrackCounts.value?.get(playlistId) ?: 0
         val duration = _playlistDurations.value?.get(playlistId) ?: 0
         return PlaylistStats(trackCount, duration)
     }
 
-    /**
-     * Data class representing statistics for a playlist.
-     * @property trackCount The number of tracks in the playlist
-     * @property totalDuration The total duration of all tracks in seconds
-     */
     data class PlaylistStats(val trackCount: Int, val totalDuration: Int)
 }

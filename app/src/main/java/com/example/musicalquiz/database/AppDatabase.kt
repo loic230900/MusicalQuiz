@@ -15,13 +15,12 @@ import com.example.musicalquiz.database.entities.QuizQuestion
 
 /**
  * Main database class for the MusicalQuiz application.
- * This Room database manages:
+ * This Room database manages all persistent data including:
  * - Playlists and their tracks
  * - Quizzes and quiz questions
- * - User preferences and settings
  * 
- * The database uses Room's DAO pattern for data access and provides
- * type-safe queries through Kotlin coroutines.
+ * The database uses Room's singleton pattern to ensure a single instance
+ * throughout the application lifecycle.
  * 
  * @property version Current database version (5)
  * @property exportSchema Whether to export the database schema (disabled)
@@ -38,26 +37,22 @@ import com.example.musicalquiz.database.entities.QuizQuestion
 )
 abstract class AppDatabase : RoomDatabase() {
     /**
-     * Data Access Object for managing playlists.
-     * Provides methods for CRUD operations on playlists.
+     * Data Access Object for managing playlists
      */
     abstract fun playlistDao(): PlaylistDao
 
     /**
-     * Data Access Object for managing playlist-track relationships.
-     * Handles the many-to-many relationship between playlists and tracks.
+     * Data Access Object for managing playlist-track relationships
      */
     abstract fun playlistTrackDao(): PlaylistTrackDao
 
     /**
-     * Data Access Object for managing quizzes.
-     * Provides methods for creating and managing music quizzes.
+     * Data Access Object for managing quizzes
      */
     abstract fun quizDao(): QuizDao
 
     /**
-     * Data Access Object for managing quiz questions.
-     * Handles the one-to-many relationship between quizzes and questions.
+     * Data Access Object for managing quiz questions
      */
     abstract fun quizQuestionDao(): QuizQuestionDao
 
@@ -68,7 +63,6 @@ abstract class AppDatabase : RoomDatabase() {
         /**
          * Gets the singleton instance of the database.
          * Creates a new instance if one doesn't exist.
-         * Uses double-checked locking for thread safety.
          * 
          * @param context Application context
          * @return The singleton database instance

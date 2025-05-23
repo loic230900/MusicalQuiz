@@ -33,26 +33,15 @@ import java.io.IOException
 
 /**
  * Fragment responsible for displaying and managing the quiz playing interface.
- * This fragment provides:
- * - Interactive quiz gameplay with multiple question types
- * - Audio preview playback for tracks
- * - Real-time answer validation
- * - Progress tracking and scoring
- * - Timer functionality for time-limited questions
+ * This fragment handles:
+ * - Displaying quiz questions and answer options
+ * - Managing audio preview playback
+ * - Processing user answers
+ * - Showing quiz progress and results
+ * - Handling different game modes (Multiple Choice and Fill in the Blanks)
  * 
- * The fragment supports:
- * - Multiple Choice questions with different focus areas (title, artist, album)
- * - Fill in the Blanks questions with various question types
- * - Time limits per question
- * - Audio preview playback with play/pause controls
- * - Progress tracking and final score display
- * 
- * The fragment uses:
- * - ViewBinding for UI interactions
- * - MediaPlayer for audio preview
- * - CountDownTimer for question time limits
- * - LiveData observers for state management
- * - Navigation component for screen transitions
+ * The fragment uses ViewBinding for UI interactions and observes LiveData from
+ * the QuizViewModel for state management.
  */
 
 
@@ -80,15 +69,6 @@ class QuizPlayFragment : Fragment() {
         private const val FRAGMENT_TAG = "QuizPlayFragment_DEBUG"
     }
 
-    /**
-     * Creates and initializes the fragment's view.
-     * Inflates the fragment_quiz_play layout and initializes answer buttons.
-     * 
-     * @param inflater LayoutInflater for creating the view
-     * @param container Parent view group
-     * @param savedInstanceState Saved instance state
-     * @return The initialized view
-     */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -98,14 +78,6 @@ class QuizPlayFragment : Fragment() {
         return binding.root
     }
 
-    /**
-     * Initializes the fragment after the view is created.
-     * Sets up:
-     * - Quiz state management (new or restored)
-     * - ViewModel observers
-     * - Click listeners
-     * - Question loading
-     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         if (savedInstanceState == null) {
@@ -118,10 +90,6 @@ class QuizPlayFragment : Fragment() {
         setupClickListeners()
     }
 
-    /**
-     * Saves the current quiz state when the fragment is destroyed.
-     * @param outState Bundle to save state to
-     */
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         quizViewModel.saveState()
@@ -130,12 +98,13 @@ class QuizPlayFragment : Fragment() {
     /**
      * Sets up observers for LiveData from the QuizViewModel.
      * Observes:
-     * - Loading state for progress indication
-     * - Current quiz details for game mode and time limits
-     * - Current question for display and interaction
-     * - Question index for progress tracking
-     * - Quiz completion status for results display
-     * - Error messages for user feedback
+     * - Loading state
+     * - Current quiz details
+     * - Current question
+     * - Question index
+     * - Timer
+     * - Quiz completion status
+     * - Error messages
      */
     private fun setupObservers() {
         quizViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
@@ -188,17 +157,13 @@ class QuizPlayFragment : Fragment() {
 
 
     /**
-     * Sets up click listeners for interactive UI elements.
-     * Configures:
-     * - Play/pause preview button for audio playback
-     * - Answer buttons for multiple choice questions
-     * - Submit button for fill in the blanks questions
-     * - Back to quizzes button for navigation
+     * Sets up click listeners for interactive UI elements:
+     * - Play/pause preview button
+     * - Answer buttons (for multiple choice)
+     * - Submit button (for fill in the blanks)
+     * - Back to quizzes button
      * 
-     * Also handles:
-     * - Keyboard actions for text input
-     * - Preview playback state management
-     * - Answer submission and validation
+     * Also handles keyboard actions for text input.
      */
     private fun setupClickListeners() {
         binding.playPreviewButton.setOnClickListener {
@@ -261,15 +226,12 @@ class QuizPlayFragment : Fragment() {
     }
 
     /**
-     * Displays a quiz question and configures the UI based on the question type.
-     * Handles:
-     * - Multiple choice questions with answer buttons
-     * - Fill in the blanks questions with text input
-     * - Question text and instructions
-     * - Preview playback controls
-     * - Timer initialization
+     * Displays the current question and its answer options.
+     * Handles different game modes:
+     * - Multiple Choice: Shows 4 answer buttons
+     * - Fill in the Blanks: Shows text input field
      * 
-     * @param question The question to display
+     * @param question The QuizQuestion to display
      */
     private fun displayQuestion(question: QuizQuestion) {
         updateProgress()
@@ -351,15 +313,10 @@ class QuizPlayFragment : Fragment() {
         binding.previewStatusTextView.text = ""
     }
 
-    /**
-     * Initializes and starts the question timer.
-     * The timer:
-     * - Updates the UI every second
-     * - Automatically submits the answer when time runs out
-     * - Can be cancelled when an answer is submitted
-     * 
-     * @param timeLimitSeconds The time limit in seconds
+    /** Starts countdown timer for each question
+     *  used for quizes with time limit set
      */
+
     private fun startQuestionTimer(timeLimitSeconds: Int) {
         questionTimer?.cancel()
         timeLeftInMillis = timeLimitSeconds * 1000L
@@ -403,11 +360,8 @@ class QuizPlayFragment : Fragment() {
     }
 
     /**
-     * Disables all answer input methods after an answer is submitted.
-     * This includes:
-     * - Multiple choice answer buttons
-     * - Fill in the blanks text input
-     * - Submit button
+     * Disables user input after an answer is submitted.
+     * Hides appropriate UI elements based on game mode.
      */
     private fun disableAnswerInputs() {
         answerButtons.forEach { it.isEnabled = false }
@@ -425,8 +379,10 @@ class QuizPlayFragment : Fragment() {
     }
 
     /**
-     * Updates the progress indicator to show the current question number
-     * and total questions.
+     * Updates the progress indicator showing:
+     * - Current question number
+     * - Total questions
+     * - Progress percentage
      */
     private fun updateProgress() {
         val totalQuestions = quizViewModel.currentQuizQuestions.value?.size ?: 0
@@ -443,13 +399,9 @@ class QuizPlayFragment : Fragment() {
 
     /**
      * Plays the audio preview for the current question.
-     * Handles:
-     * - MediaPlayer initialization
-     * - Audio stream configuration
-     * - Error handling
-     * - UI state updates
+     * Sets up MediaPlayer with proper audio attributes and error handling.
      * 
-     * @param previewUrl The URL of the audio preview
+     * @param previewUrl URL of the audio preview to play
      */
     private fun playPreview(previewUrl: String) {
         stopPreview()
@@ -516,11 +468,8 @@ class QuizPlayFragment : Fragment() {
     }
 
     /**
-     * Stops the current audio preview playback.
-     * Handles:
-     * - MediaPlayer cleanup
-     * - UI state updates
-     * - Preview status text updates
+     * Stops the current audio preview and resets the UI state.
+     * Cleans up MediaPlayer resources.
      */
     private fun stopPreview() {
         previewRunnable?.let { handler.removeCallbacks(it) }
@@ -540,11 +489,11 @@ class QuizPlayFragment : Fragment() {
     }
 
     /**
-     * Displays the quiz results screen showing:
+     * Shows the final quiz results including:
      * - Final score
      * - Number of correct answers
      * - Total questions
-     * - Navigation options
+     * - Percentage score
      */
     private fun showResults() {
         stopPreview()
@@ -571,19 +520,10 @@ class QuizPlayFragment : Fragment() {
         quizViewModel.saveState()
     }
 
-    /**
-     * Cleans up resources when the fragment is destroyed.
-     * Handles:
-     * - MediaPlayer release
-     * - Timer cancellation
-     * - Handler cleanup
-     * - View binding cleanup
-     */
     override fun onDestroyView() {
         super.onDestroyView()
-        stopPreview()
         questionTimer?.cancel()
-        previewRunnable?.let { handler.removeCallbacks(it) }
+        stopPreview()
         _binding = null
     }
 }
