@@ -108,7 +108,8 @@ class DetailsFragment : Fragment() {
             onPreviewClick = { track ->
                 viewModel.playPreview(track)
             },
-            onDeleteClick = { /* no-op, not used in details screen */ }
+            onDeleteClick = { /* no-op, not used in details screen */ },
+            showDeleteButton = false
         )
         tracklistRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)

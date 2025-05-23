@@ -17,11 +17,13 @@ import com.example.musicalquiz.model.Track
  * @param onTrackClick Callback function to be invoked when a track is clicked
  * @param onPreviewClick Callback function to be invoked when a track's preview button is clicked
  * @param onDeleteClick Callback function to be invoked when a track's delete button is clicked
+ * @param showDeleteButton Whether to show the delete button (default: true)
  */
 class TrackListAdapter(
     private val onTrackClick: (Track) -> Unit,
     private val onPreviewClick: (Track) -> Unit,
-    private val onDeleteClick: (Track) -> Unit
+    private val onDeleteClick: (Track) -> Unit,
+    private val showDeleteButton: Boolean = true
 ) : ListAdapter<Track, TrackListAdapter.TrackViewHolder>(TrackDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackViewHolder {
@@ -64,6 +66,9 @@ class TrackListAdapter(
 
             // Show/hide preview button based on preview availability
             previewButton.visibility = if (track.preview != null) View.VISIBLE else View.GONE
+            
+            // Show/hide delete button based on showDeleteButton parameter
+            deleteButton.visibility = if (showDeleteButton) View.VISIBLE else View.GONE
         }
 
         /**
