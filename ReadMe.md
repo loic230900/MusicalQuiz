@@ -441,7 +441,7 @@ and coroutines.
     - Wrote the final report.
 
 - **KARDAVA Elene**:
-- UI Implementation:
+  - UI Implementation:
     - Developed the HomeFragment with playlist previews and quick access featur
   - Quiz System:
     - Designed and implemented the complete quiz feature
