@@ -421,11 +421,12 @@ and coroutines.
 - **WALTZING Loïc**: 
   - Core Architecture & Navigation:
     - Implemented the MVVM architecture pattern throughout the app
+    - Set up the initial structure
     - Set up the bottom navigation system and navigation graph
-    - Created the Room database schema with entities and DAOs
+    - Created the Room database with entities and DAOs
     - Integrated LiveData for reactive UI updates
   - UI Implementation:
-    - Built the SearchFragment with track/album filtering and search functionality
+    - Built the SearchFragment with track/album filtering and search functionality using RecyclerView
     - Created the PlaylistFragment with playlist management features
     - Implemented the Details screens for tracks and albums
     - Refined some elements of the Quizlist UI
@@ -437,7 +438,7 @@ and coroutines.
   - UI/UX Refinements:
     - Implemented Material Design components
     - Refined overall UI for consistency
-  -Final report:
+  - Final report:
     - Wrote the final report.
 
 - **KARDAVA Elene**:
