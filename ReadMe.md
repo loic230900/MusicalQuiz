@@ -418,7 +418,6 @@ and coroutines.
 
 ## Contributions
 
-```
 - **WALTZING Loïc**: 
   - Core Architecture & Navigation:
     - Implemented the MVVM architecture pattern throughout the app
@@ -461,5 +460,5 @@ and coroutines.
     - Implemented the quiz gameplay mechanics
     - Created the scoring system
     - Added timer per question
-```
+
 
