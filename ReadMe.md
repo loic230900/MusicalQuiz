@@ -53,13 +53,195 @@ We also added a button to sort according to A-Z or Z-A , Duration(shortest to lo
 
 ## Architecture, Design Decisions and Implementation Choices
 
-The app is built using a **Model-View-ViewModel (MVVM)** architecture to ensure a clean separation of
-concerns. The UI layer (Activities and Fragments) observes state exposed by ViewModels. Each
-ViewModel holds **MutableLiveData** fields that represent the screen state; LiveData is lifecycle-aware, so
-the UI only updates when it is in an active state. This means, for example, that a Fragment automatically
-receives the latest data when it resumes, without memory leaks or manual lifecycle handling.
-ViewModels cache UI data and survive configuration changes (screen rotations), so we don't refetch
-data unnecessarily.
+The app follows a **Model-View-ViewModel (MVVM)** architecture, chosen for its clear separation of concerns and lifecycle management. This architecture is particularly well-suited for our music quiz application because:
+- It handles configuration changes (like screen rotation) gracefully while playing music
+- Provides a clean way to manage UI state and data operations
+- Enables efficient testing through ViewModel isolation
+
+### UI Layer
+The UI layer consists of:
+- **Fragments**: Handle user interactions and display data
+  - `SearchFragment`: Implements search functionality with pagination and filtering
+  - `DetailsFragment`: Shows track/album details with preview playback
+  - `PlaylistFragment`: Manages playlist creation and modification
+  - `QuizFragment`: Handles quiz creation and gameplay
+  - `HomeFragment`: Displays playlist previews and quick access
+- **Adapters**: Efficiently display data in RecyclerViews
+  - `TrackAdapter`: Displays search results and playlist tracks
+  - `AlbumAdapter`: Shows album search results
+  - `PlaylistAdapter`: Manages playlist list display
+  - `QuizAdapter`: Handles quiz list and question display
+  - `PlaylistSelectionAdapter`: Manages playlist selection for adding tracks
+
+### ViewModel Layer
+ViewModels manage UI state and business logic:
+- **TracksViewModel**: 
+  - Handles search operations and track/album filtering
+  - Manages pagination for search results
+  - Observes search results through LiveData
+- **PlaylistViewModel**:
+  - Manages playlist CRUD operations
+  - Handles track addition/removal
+  - Maintains playlist metadata (duration, track count)
+  - Uses Flow for real-time playlist updates
+- **QuizViewModel**:
+  - Generates and manages quiz questions
+  - Handles quiz state and scoring
+  - Manages audio preview playback during quizzes
+  - Implements quiz state restoration
+- **DetailsViewModel**:
+  - Manages track/album details
+  - Handles preview playback
+  - Manages playlist addition operations
+  - Coordinates with PlaylistViewModel for track addition
+
+### Data Layer
+The data layer consists of two main components:
+
+#### Deezer API Integration
+- **DeezerApiInterface**: RESTful API client built with Retrofit
+  - Chosen for its type-safe API calls and efficient HTTP client
+  - Provides comprehensive music data access
+  - Handles pagination and error cases
+- **RetrofitInstance**: Singleton providing API access
+  - Ensures single instance of API client
+  - Configures base URL and response parsing
+  - Uses Gson for JSON conversion
+
+#### Local Database (Room)
+- **AppDatabase**: Central database instance
+  - Provides type-safe database access
+  - Manages database versioning
+  - Handles database migrations
+  - Implements singleton pattern for database access
+- **DAOs**: Data Access Objects for database operations
+  - `PlaylistDao`: Manages playlist operations with Flow support
+  - `PlaylistTrackDao`: Handles playlist-track relationships
+  - `QuizDao`: Manages quiz data with transaction support
+  - `QuizQuestionDao`: Handles quiz questions with random selection
+
+### Implementation Choices
+
+#### Asynchronous Operations
+- **Coroutines**: Used for asynchronous operations
+  - `viewModelScope`: Manages coroutine lifecycle in ViewModels
+  - `Dispatchers.IO`: Handles database operations
+  - Parallel track fetching for better performance
+  - Quiz generation and state management
+  - Error handling with try-catch blocks
+
+- **Flow**: Implemented for reactive data streams
+  - Room DAOs expose Flow for real-time updates
+  - Handles playlist and quiz data changes
+  - Provides efficient data streaming
+  - Used in combination with LiveData for UI updates
+
+#### State Management
+- **LiveData**: Core component for state observation
+  - Lifecycle-aware UI updates
+  - Automatic configuration change handling
+  - Efficient state management for music playback
+  - Used for loading states and error handling
+
+#### Data Flow
+Data flows through the app following the pattern: **UI → ViewModel → Data Sources**
+- User actions trigger ViewModel operations
+- ViewModels coordinate between UI and data sources
+- Data sources (API/Database) provide data to ViewModels
+- ViewModels update UI state through LiveData
+- Error handling at each layer with appropriate user feedback
+
+### Design and UI Choices
+- **Material Design**: Provides consistent visual language
+  - Material3 components and themes
+  - Custom color scheme with dark mode support
+  - Consistent typography with custom fonts
+- **Layout Components**:
+  - CoordinatorLayout for complex scrolling behaviors
+  - RecyclerView for efficient list display
+  - MaterialCardView for content containers
+  - BottomNavigationView for main navigation
+- **Visual Elements**:
+  - Background images with proper contrast
+  - Custom gradients for navigation bar
+  - Responsive layouts for different screen sizes
+  - Consistent padding and margins
+
+## Architecture Diagram
+
+### Project Structure
+```mermaid
+graph TB
+    subgraph com.example.musicalquiz
+        A[MainActivity]
+        
+        subgraph UI
+            B[Fragments]
+            C[Adapters]
+        end
+
+        subgraph ViewModels
+            D[TracksViewModel]
+            E[PlaylistViewModel]
+            F[QuizViewModel]
+            G[DetailsViewModel]
+        end
+
+        subgraph Data
+            H[AppDatabase]
+            I[DeezerApiInterface]
+        end
+
+        subgraph Models
+            J[Track/Album/Artist]
+            K[Playlist/Quiz]
+        end
+    end
+```
+
+### Component Interaction
+```mermaid
+graph TB
+    subgraph UI Layer
+        A[Fragments]
+        B[Adapters]
+    end
+
+    subgraph ViewModel Layer
+        C[ViewModels]
+    end
+
+    subgraph Data Layer
+        D[AppDatabase]
+        E[DeezerApiInterface]
+    end
+
+    A --> C
+    B --> C
+    C --> D
+    C --> E
+```
+
+### Repository Pattern Implementation
+```mermaid
+graph TB
+    subgraph ViewModels
+        A[TracksViewModel]
+        B[PlaylistViewModel]
+        C[QuizViewModel]
+    end
+
+    subgraph Data Sources
+        D[DeezerApiInterface]
+        E[AppDatabase]
+    end
+
+    A --> D
+    A --> E
+    B --> E
+    C --> E
+    C --> D
+```
 
 ### Repository Implementation
 
@@ -256,6 +438,8 @@ and coroutines.
   - UI/UX Refinements:
     - Implemented Material Design components
     - Refined overall UI for consistency
+  -Final report:
+    - Wrote the final report.
 
 - **KARDAVA Elene**:
 - UI Implementation:
