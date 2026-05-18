@@ -8,6 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.musicalquiz.R
 import com.example.musicalquiz.database.entities.Playlist
 import com.example.musicalquiz.databinding.PlaylistItemBinding
+/**
+ * Adapter for displaying playlists in a RecyclerView.
+ * Handles the selection of playlists for adding to a quiz.*/
 
 class PlaylistSelectionAdapter(
     private val onPlaylistSelected: (Playlist) -> Unit,
